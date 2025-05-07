@@ -1,0 +1,67 @@
+@import "tailwindcss";
+/* Setting fitur dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
+    "Helvetica Neue", sans-serif;
+}
+
+nav {
+  @apply absolute top-0 left-0 right-0 flex items-center justify-between px-4 md:px-12 h-16 bg-white/30 dark:bg-gray-800/30 backdrop-filter backdrop-blur-lg border-b border-white/20 dark:border-gray-700/20 shadow-md transition-colors duration-300 z-10;
+}
+
+.border-test {
+  @apply border-2 border-sky-500;
+}
+
+.border-test2 {
+  @apply border-2 border-rose-500;
+}
+
+.table-records {
+  @apply overscroll-none border-collapse border border-black table-auto shrink-0 min-w-[700px] max-h-[700px] w-full mb-10;
+}
+
+.table-records th {
+  @apply border border-black text-start max-h-5 p-1 text-xs;
+}
+.table-records td {
+  @apply text-center min-h-20 border-[1px] min-w-20 border-black text-xs;
+}
+
+.modal-content {
+  background: white;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  backdrop-filter: blur(6.5px);
+  -webkit-backdrop-filter: blur(6.5px);
+  border-radius: 10px;
+}
+
+#record-form-modal .modal-footer {
+  @apply w-full flex my-6 justify-center items-center gap-6;
+}
+
+.dismiss-trigger {
+  @apply cursor-pointer inline-flex items-center justify-center bg-gradient-to-t from-[#9B1B1B] to-[#FF181B] hover:bg-gradient-to-b text-white text-sm px-6 py-2 rounded-lg shadow-[0px_0px_7px_1px_#F6191C] hover:shadow-[0px_2px_20px_1px_#F6191C] border-0;
+}
+
+.submit-trigger {
+  @apply cursor-pointer inline-flex items-center justify-center bg-gradient-to-t from-25% from-[#41D024] to-[#75FF19] hover:bg-gradient-to-b text-white text-sm px-6 py-2 rounded-lg shadow-[0px_0px_7px_1px_#6DF71C] hover:shadow-[0px_2px_20px_1px_#6DF71C] border-0;
+}
+
+.jabnet-btn-template {
+  @apply text-center cursor-pointer border-none inline-flex items-center justify-center text-white text-sm px-3 py-2 rounded-md min-w-30 transition duration-1000 ease-in-out bg-gradient-to-r hover:bg-gradient-to-l;
+}
