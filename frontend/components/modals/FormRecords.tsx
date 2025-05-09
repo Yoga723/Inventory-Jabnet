@@ -1,24 +1,42 @@
 "use client";
 import { Button, Dialog, Input, Textarea, Typography } from "@material-tailwind/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import BarangInput from "../BarangInput";
 import Loading from "../Loading";
 
-const FormRecords = (props) => {
+interface formRecordsProps {
+  method: "PUT" | "POST";
+  record_id?: number;
+}
+
+const FormRecords = (props: formRecordsProps) => {
   const { method, record_id } = props;
-  const { payload, loading, handleInputChange, handleItemsChange, createRecord, getRecords } = useRecordsLogic();
+
+  const { payload, loading, handleInputChange, handleItemsChange, createRecord, getRecords, populateForm, putRecord } =
+    useRecordsLogic();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleOpen = () => {
+    if (method === "PUT") {
+      populateForm(record_id);
+    }
+    setIsOpen(true);
+  };
+
   return (
-    <Dialog size="lg">
+    <Dialog
+      size="lg"
+      open={isOpen}>
       <Dialog.Trigger
         as={Button}
-        // onClick={method == "UPDATE" && }
+        onClick={handleOpen}
         className={`jabnet-btn-template ${
-          method == "POST"
+          method === "POST"
             ? "from-[#D55226] to-[#F47146] shadow-[0px_2px_10px_0px_#F47146] hover:shadow-[0px_2px_20px_0px_#F47146]"
-            : " from-[#D89013] to-[#faa91d] shadow-[0px_2px_10px_0px_#D89013] hover:shadow-[0px_2px_20px_0px_#faa91d]"
+            : "from-[#D89013] to-[#faa91d] shadow-[0px_2px_10px_0px_#D89013] hover:shadow-[0px_2px_20px_0px_#faa91d]"
         }`}>
-        {method == "POST" ? `Tambah` : `Edit`}
+        {method === "POST" ? `Tambah` : `Edit`}
       </Dialog.Trigger>
       <Dialog.Overlay
         className="flex justify-center items-center w-full h-full bg-[rgba(0,0,0,0.35)] max-md:pt-4 md:p-[5%] z-40"
@@ -31,7 +49,7 @@ const FormRecords = (props) => {
           </Typography>
 
           <form
-            onSubmit={(e) => createRecord(e)}
+            onSubmit={method == "POST" ? (e) => createRecord(e) : (e) => putRecord(e, record_id)}
             className="mt-6 flex flex-col">
             {loading && <Loading />}
             {/* INPUT nama */}
@@ -100,7 +118,7 @@ const FormRecords = (props) => {
             <div className="px-4 mb-4 mt-2 space-y-2">
               <Typography
                 as="label"
-                htmlFor="items"
+                htmlFor="items_0"
                 type="small"
                 color="default"
                 className="font-semibold">
@@ -126,13 +144,26 @@ const FormRecords = (props) => {
               <Input
                 id="nilai"
                 name="nilai"
+                type="number"
+                value={payload.nilai}
+                onChange={(e) => handleInputChange("nilai",e.target.value)}
+                pattern="[0-9.,]*"
+                className="px-2"
+                placeholder={`2500000`}
+              />
+              {/* <Input
+                id="nilai"
+                name="nilai"
                 type="text"
                 value={payload.nilai}
-                onChange={(e) => handleInputChange("nilai", e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9.]/g, "");
+                  handleInputChange("nilai", value);
+                }}
                 pattern="[0-9.,]*"
                 className="px-2"
                 placeholder={`2.500.000`}
-              />
+              /> */}
             </div>
 
             {/* INPUT Keterangan */}
@@ -164,6 +195,7 @@ const FormRecords = (props) => {
               <Dialog.DismissTrigger
                 as={Button}
                 type="button"
+                onClick={() => setIsOpen(false)}
                 id="dismiss-record-modal"
                 className="dismiss-trigger">
                 Close

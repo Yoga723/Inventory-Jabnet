@@ -4,7 +4,7 @@ export interface recordsProp {
   tanggal: string;
   lokasi: string;
   list_barang: list_barang_props[];
-  nilai?: string;
+  nilai?: number;
   keterangan?: string;
   status: string;
 }

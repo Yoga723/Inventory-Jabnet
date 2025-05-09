@@ -24,6 +24,7 @@ const page = () => {
           <Image
             src={"/images/jabnet-logo.webp"}
             alt="Logo Jabnet"
+            priority
             width={128}
             height={48}
             className="mb-6"

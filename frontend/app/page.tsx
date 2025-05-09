@@ -8,6 +8,7 @@ export default function Home() {
       <Image
         className=""
         src={"/images/jabnet-logo.webp"}
+        priority
         alt="Jabnet logo"
         width={180}
         height={38}

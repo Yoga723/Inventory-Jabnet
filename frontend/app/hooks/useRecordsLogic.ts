@@ -4,6 +4,7 @@ import { useState } from "react";
 import { list_barang_props, recordsProp } from "../../types";
 
 const useRecordsLogic = () => {
+  const [recordsData, setRecordsData] = useState<recordsProp[]>();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [payload, setPayload] = useState<recordsProp>({
@@ -11,43 +12,126 @@ const useRecordsLogic = () => {
     status: "Masuk",
     lokasi: "",
     list_barang: [{ nama_barang: "", qty: 1 }],
-    nilai: "",
+    nilai: 0,
     tanggal: new Date().toISOString(),
     keterangan: "",
   });
 
-  const getRecords = async (record_id?) => {
+  const getRecords = async () => {
     try {
+      setLoading(true);
       const res = await fetch("http://inventory.jabnet.id/api/records", {
         method: "GET",
         headers: { "Content-type": "application/json" },
       });
-      return await res.json();
+      const response = await res.json();
+      setRecordsData(response.data);
     } catch (error) {
       console.error("Error fetching records:", error);
       setError(error.message);
       return { data: [] };
+    } finally {
+      setLoading(false);
     }
   };
 
-  const createRecord = async (event: any) => {
+  // Functions untuk isi input form saat user click tombol edit
+  const populateForm = async (recordId: number) => {
+    try {
+      setLoading(true);
+      const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
+        method: "GET",
+        headers: { "Content-type": "application/json" },
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      const response = await res.json();
+      if (response.data) {
+        setPayload({
+          nama: response.data.nama || "",
+          status: response.data.status || "Masuk",
+          lokasi: response.data.lokasi || "",
+          list_barang: response.data.list_barang || [{ nama_barang: "", qty: 1 }],
+          nilai: response.data.nilai || 0,
+          tanggal: response.data.tanggal || new Date().toISOString(),
+          keterangan: response.data.keterangan || "",
+        });
+      }
+    } catch (err) {
+      console.error("Error populating form:", err);
+      setError("Failed to load record data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Functions untuk handle input dan forms POST, UPDATE/PUT, DELETE
+
+  const putRecord = async (event: React.FormEvent, recordId: number) => {
     event.preventDefault();
-    if (confirm("Yakin ? 👉👈") != true) return;
+    if (!confirm("Yakin ingin update data ini ?")) return;
+
     setLoading(true);
     try {
       if (!validatePayload()) return;
 
-      const normalized = payload.nilai.replace(/[^0-9]/g, "");
-      const numberedNilai = Number(normalized);
-      const roundedNilai = Math.round(numberedNilai * 100) / 100;
+      const dataToSend = {
+        ...payload,
+        list_barang: JSON.stringify(payload.list_barang),
+      };
+      console.log(dataToSend);
+
+      const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dataToSend),
+      });
+
+      if (!res.ok) throw new Error("Gagal update data !!");
+      await getRecords(); // Ke diganti
+      return await res.json();
+    } catch (e: any) {
+      setError(e.message);
+      throw e;
+    } finally {
+      const dismissForm = document.getElementById("dismiss-record-modal");
+      if (dismissForm) (dismissForm as HTMLElement).click();
+      setLoading(false);
+    }
+  };
+
+  const removeRecord = async (recordId: number) => {
+    if (!confirm(`Yakin ingin hapus data ini ?`)) return;
+    try {
+      setLoading(true);
+      const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) throw new Error("Gagal Hapus data, Coba lagi nanti !");
+      await getRecords();
+      return await res.json();
+    } catch (error) {
+      console.error("Error populating form:", error);
+      setError("Failed to load record data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createRecord = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setError(null);
+
+    if (confirm("Yakin ? 👉👈") !== true) return;
+
+    setLoading(true);
+    try {
+      if (!validatePayload()) return;
 
       const dataToSend = {
         ...payload,
-        nilai: roundedNilai.toString().trim(),
         list_barang: JSON.stringify(payload.list_barang),
       };
-
-      console.log("Ini dataToSend : ", dataToSend);
 
       const res = await fetch("http://inventory.jabnet.id/api/records", {
         method: "POST",
@@ -55,20 +139,20 @@ const useRecordsLogic = () => {
         body: JSON.stringify(dataToSend),
       });
 
-      if (!res.ok) throw new Error(`POST failed: ${res.status}`);
-      setLoading(false);
-      // Close modal
-      const dismissButton = document.getElementById("dismiss-record-modal");
-      if (dismissButton) (dismissButton as HTMLElement).click();
+      if (!res.ok) throw new Error("Gagal tambah data !!");
+      await getRecords(); // Ke diganti
       return await res.json();
     } catch (e: any) {
-      setLoading(false);
-      console.error("Error creating record:", e);
       setError(e.message);
       throw e;
+    } finally {
+      const dismissForm = document.getElementById("dismiss-record-modal");
+      if (dismissForm) (dismissForm as HTMLElement).click();
+      setLoading(false);
     }
   };
 
+  // Update useState saat user isi input
   const handleInputChange = (field: keyof recordsProp, value: any) => {
     setPayload((prev) => ({
       ...prev,
@@ -96,6 +180,11 @@ const useRecordsLogic = () => {
     payload,
     error,
     loading,
+    recordsData,
+    setRecordsData,
+    populateForm,
+    putRecord,
+    removeRecord,
     setPayload,
     getRecords,
     createRecord,

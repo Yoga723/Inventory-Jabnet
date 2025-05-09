@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import StoreProvider from "../components/StoreProvider";
 
 export const metadata: Metadata = {
   title: "Inventory Jabnet",
@@ -35,7 +36,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={` antialiased`}>{children}</body>
+      <body className={` antialiased`}>
+        <StoreProvider>{children}</StoreProvider>
+      </body>
     </html>
   );
 }

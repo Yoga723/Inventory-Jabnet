@@ -63,5 +63,5 @@ nav {
 }
 
 .jabnet-btn-template {
-  @apply text-center cursor-pointer border-none inline-flex items-center justify-center text-white text-sm px-3 py-2 rounded-md min-w-30 transition duration-1000 ease-in-out bg-gradient-to-r hover:bg-gradient-to-l;
+  @apply text-center cursor-pointer border-none inline-flex items-center justify-center text-white text-sm px-3 py-2 rounded-md min-w-20 transition duration-1000 ease-in-out bg-gradient-to-r hover:bg-gradient-to-l;
 }

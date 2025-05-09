@@ -7,7 +7,6 @@ import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
 
 const Header = () => {
-
   const navButton = [
     { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/dashboard" },
     { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records" },
@@ -24,6 +23,7 @@ const Header = () => {
           <Image
             src="/images/jabnet-logo.webp"
             alt="Logo Jabnet"
+            priority
             fill
             sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
           />
@@ -35,9 +35,8 @@ const Header = () => {
               key={btn.destination}
               href={btn.destination}
               className={`
-              flex items-center gap-1 px-3 h-full
-              hover:bg-white/40 dark:hover:bg-gray-700/40
-              ${usePath === btn.destination ? "border-b-2 border-amber-300" : ""}
+              flex items-center gap-1 px-3 h-full hover:bg-white/40 dark:hover:bg-gray-700/40
+              ${usePath === btn.destination && "border-b-2 border-amber-300"}
             `}>
               <Image
                 src={btn.icon}

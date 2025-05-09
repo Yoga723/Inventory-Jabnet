@@ -33,7 +33,7 @@ export default function BarangInput({
           key={index}
           className="flex items-center gap-2">
           <Input
-            id="items"
+            id={`items_${index}`}
             name={`nama_barang_${index}`}
             value={item.nama_barang}
             onChange={(e) => updateItem(index, "nama_barang", e.target.value)}
@@ -41,6 +41,7 @@ export default function BarangInput({
             className=" px-2"
           />
           <Input
+            id={`qty_${index}`}
             name={`qty_${index}`}
             type="number"
             value={item.qty}

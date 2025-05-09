@@ -5,9 +5,80 @@ router.get("/", async (req, res) => {
   try {
     const result = await req.db.query("SELECT * FROM catatan ORDER BY tanggal DESC");
     res.json({ status: "success", data: result.rows });
-  } catch (err) {
-    console.error("Database query error:", err);
+  } catch (error) {
+    console.error("Database query error:", error);
     res.status(500).json({ error: "Failed to retrieve catatan" });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const paramId = req.params.id;
+    if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
+
+    const query = "SELECT * FROM catatan WHERE record_id = $1";
+    const result = await req.db.query(query, [paramId]);
+
+    if (result.rows.length === 0) return res.status(404).json({ error: "Record not found" });
+
+    res.json({ status: "success", data: result.rows[0] });
+  } catch (error) {
+    console.error("Database query error:", error);
+    res.status(500).json({ error: "Failed to retrieve catatan" });
+  }
+});
+
+router.put("/:id", async (req, res) => {
+  try {
+    const paramId = req.params.id;
+    if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
+
+    const { nama, nilai, list_barang, lokasi, status, keterangan } = req.body;
+
+    // Enhanced validation
+    const numericValue = Number(nilai);
+    if (isNaN(numericValue)) {
+      return res.status(400).json({ error: "Nilai must be a valid number" });
+    }
+    if (Math.abs(numericValue) > 9999999999.99) {
+      return res.status(400).json({
+        error: "Nilai cannot exceed 9,999,999,999.99",
+      });
+    }
+
+    // Use transaction for safety
+    await req.db.query("BEGIN");
+    const query = `UPDATE catatan SET nama = $1, nilai = $2, list_barang = $3::JSONB, 
+                  lokasi = $4, status = $5, keterangan = $6 
+                  WHERE record_id = $7 RETURNING *`;
+    const value = [nama, nilai, list_barang, lokasi, status, keterangan || null, paramId];
+
+    const result = await req.db.query(query, value);
+    await req.db.query("COMMIT");
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: "Record not found" });
+    }
+
+    res.status(200).json({
+      status: 200,
+      message: "Berhasil Update data",
+      data: result.rows[0],
+    });
+  } catch (error) {
+    await req.db.query("ROLLBACK");
+    console.error("Database error:", error);
+
+    if (error.code === "22003") {
+      // Specific numeric overflow code
+      res.status(400).json({
+        error: "Nilai terlalu besar. Maksimum 9,999,999,999.99",
+      });
+    } else {
+      res.status(500).json({
+        error: "Terjadi kesalahan server",
+      });
+    }
   }
 });
 
@@ -30,6 +101,20 @@ router.post("/", async (req, res) => {
   } catch (error) {
     console.error("Database insert error:", error);
     res.status(500).json({ error: `Failed to create record, ${error}` });
+  }
+});
+
+router.delete(`/:id`, async (req, res) => {
+  try {
+    const paramId = parseInt(req.params.id);
+    if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
+    const query = `DELETE FROM catatan WHERE record_id = $1 RETURNING *`;
+
+    const result = await req.db.query(query, [paramId]);
+    res.status(200).json({ status: 200, message: "Berhasil Hapus Data !!", data: result.rows[0] });
+  } catch (error) {
+    console.error("Database insert error:", error);
+    res.status(500).json({ error: `Failed to delete record, ${error}` });
   }
 });
 

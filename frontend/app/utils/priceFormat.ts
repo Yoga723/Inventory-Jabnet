@@ -1,8 +1,14 @@
-export const formatCurrency = (amount: number, operation: string) => {
+export const formatCurrency = (amount: number | string, operation: string) => {
+  // Convert string to number if needed
+  const numAmount = typeof amount === "string" ? Number(amount.replace(/[^0-9.-]/g, "")) : amount;
+
   const formatted = new Intl.NumberFormat("id-ID", {
     style: "currency",
     currency: "IDR",
-  }).format(amount);
-  const sign = operation.toLocaleLowerCase() === "masuk" ? "+" : "–";
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(numAmount);
+
+  const sign = operation.toLowerCase() === "masuk" ? "+" : "–";
   return `${sign} ${formatted}`;
 };
