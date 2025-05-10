@@ -7,6 +7,7 @@ export interface recordState {
   items: recordsProp[];
   currentItem: recordsProp | null;
   status: "idle" | "loading" | "succeeded" | "failed";
+  isHomeLoading?: true | false;
   error: string | null;
 }
 
@@ -14,6 +15,7 @@ const initialState: recordState = {
   items: [],
   currentItem: null,
   status: "idle",
+  isHomeLoading: true,
   error: null,
 };
 
@@ -43,8 +45,8 @@ export const fetchRecordByIdThunk = createAsyncThunk(
         headers: { "Content-Type": "application/json" },
       });
 
+      if (!res.ok) return rejectWithValue(res.status || "Data tidak ditemukan !!");
       const response = await res.json();
-      if (!response.ok) return rejectWithValue(response.error || "Data tidak ditemukan !!");
 
       return response.data;
     } catch (error) {
@@ -57,7 +59,6 @@ export const createRecordsThunk = createAsyncThunk(
   "records/createRecord",
   async (
     // Omit hela record_id jeng tanggal dan eta mah opsional/dijien ti databasena
-    //
     newRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
       list_barang: string;
     },
@@ -70,12 +71,9 @@ export const createRecordsThunk = createAsyncThunk(
         body: JSON.stringify(newRecordPayload),
       });
 
+      if (!res.ok) return rejectWithValue(`Gagal Kirim Data (Status: ${res.status})`);
+
       const response = await res.json();
-
-      if (!response.ok || response.status != 201)
-        return rejectWithValue(response.error || response.message || `Gagal Kirim Data`);
-
-      dispatch(fetchRecordsThunk());
 
       return response.data;
     } catch (error) {
@@ -96,7 +94,7 @@ export const putRecordsThunk = createAsyncThunk(
         list_barang: string;
       };
     },
-    { dispatch, rejectWithValue }
+    { rejectWithValue }
   ) => {
     try {
       const res = await fetch(`${API_BASE_URL}/${recordId}`, {
@@ -105,10 +103,9 @@ export const putRecordsThunk = createAsyncThunk(
         body: JSON.stringify(updatedRecordPayload),
       });
 
+      if (!res.ok) return rejectWithValue(res.status || "Gagal Update data, Coba lagi nanti !!");
       const response = await res.json();
-      if (!response.ok) return rejectWithValue(response.error || "Gagal Update data, Coba lagi nanti !!");
 
-      dispatch(fetchRecordsThunk());
       return response.data;
     } catch (error) {
       return rejectWithValue(error.message || "Gagal Kirim data");
@@ -123,12 +120,10 @@ export const deleteRecordsThunk = createAsyncThunk(
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
         method: "DELETE",
       });
+      if (!res.ok) return rejectWithValue(`Data kemungkinan tidak ada. Error Code : ${res.status}`);
 
-      const response = await res.json();
+      await res.json();
 
-      if (!response.ok) return rejectWithValue(response.error || "Data kemungkinan tidak ada. Gagal menghapus data !!");
-
-      dispatch(fetchRecordsThunk());
       return record_id;
     } catch (error) {
       return rejectWithValue(error.message || "Gagal hapus data, Coba lagi nanti !!");
@@ -140,11 +135,11 @@ const recordSlice = createSlice({
   name: "records",
   initialState,
   reducers: {
-    clearCurrentItem: (state) => {
-      state.currentItem = null;
-      state.status = "idle";
-      state.error = null;
-    },
+    // clearCurrentItem: (state) => {
+    //   state.currentItem = null;
+    //   state.status = "idle";
+    //   state.error = null;
+    // },
     resetRecordsStatus: (state) => {
       state.status = "idle";
       state.error = null;
@@ -155,14 +150,17 @@ const recordSlice = createSlice({
   extraReducers(builder) {
     builder
       .addCase(fetchRecordsThunk.pending, (state) => {
+        state.isHomeLoading = true;
         state.status = "loading";
         state.error = null;
       })
       .addCase(fetchRecordsThunk.fulfilled, (state, action: PayloadAction<recordsProp[]>) => {
+        state.isHomeLoading = false;
         state.status = "succeeded";
         state.items = action.payload;
       })
       .addCase(fetchRecordsThunk.rejected, (state, action) => {
+        state.isHomeLoading = false;
         state.status = "failed";
         state.error = action.payload as string;
       })
@@ -182,7 +180,8 @@ const recordSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(createRecordsThunk.fulfilled, (state, action: PayloadAction<recordsProp>) => {
+      .addCase(createRecordsThunk.fulfilled, (state, { payload }) => {
+        state.items.unshift(payload);
         state.status = "succeeded";
       })
       .addCase(createRecordsThunk.rejected, (state, action) => {
@@ -193,10 +192,9 @@ const recordSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(putRecordsThunk.fulfilled, (state, action: PayloadAction<recordsProp>) => {
+      .addCase(putRecordsThunk.fulfilled, (state, { payload }) => {
+        state.items = state.items.map((item) => (item.record_id === payload.record_id ? payload : item));
         state.status = "succeeded";
-        if (state.currentItem && state.currentItem.record_id === action.payload.record_id)
-          state.currentItem = action.payload;
       })
       .addCase(putRecordsThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -206,12 +204,10 @@ const recordSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(deleteRecordsThunk.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteRecordsThunk.fulfilled, (state, { payload }) => {
+        console.log(payload);
+        state.items = state.items.filter((item) => item.record_id !== payload);
         state.status = "succeeded";
-        if (state.currentItem && state.currentItem.record_id === action.payload) {
-          state.items = null;
-          state.status = "idle";
-        }
       })
       .addCase(deleteRecordsThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -220,5 +216,5 @@ const recordSlice = createSlice({
   },
 });
 
-export const { clearCurrentItem, resetRecordsStatus } = recordSlice.actions;
+export const { resetRecordsStatus } = recordSlice.actions;
 export default recordSlice.reducer;

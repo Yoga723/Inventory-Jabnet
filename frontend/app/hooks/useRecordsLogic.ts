@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { list_barang_props, recordsProp } from "../../types";
+import { useAppDispatch, useAppSelector } from "../../store/Hooks";
+import {
+  createRecordsThunk,
+  deleteRecordsThunk,
+  fetchRecordByIdThunk,
+  fetchRecordsThunk,
+  putRecordsThunk,
+} from "../../store/recordSlice";
 
 const useRecordsLogic = () => {
-  const [recordsData, setRecordsData] = useState<recordsProp[]>();
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [payload, setPayload] = useState<recordsProp>({
+  const dispatch = useAppDispatch();
+  const {
+    items: recordsData,
+    currentItem,
+    status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: recordsError,
+  } = useAppSelector((state) => state.records);
+  const initialPayload: recordsProp = {
     nama: "",
     status: "Masuk",
     lokasi: "",
@@ -15,162 +27,120 @@ const useRecordsLogic = () => {
     nilai: 0,
     tanggal: new Date().toISOString(),
     keterangan: "",
-  });
-
-  const getRecords = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch("http://inventory.jabnet.id/api/records", {
-        method: "GET",
-        headers: { "Content-type": "application/json" },
-      });
-      const response = await res.json();
-      setRecordsData(response.data);
-    } catch (error) {
-      console.error("Error fetching records:", error);
-      setError(error.message);
-      return { data: [] };
-    } finally {
-      setLoading(false);
-    }
   };
+  const [payload, setPayload] = useState<recordsProp>(initialPayload);
+
+  // Untuk populate input-input form saat tombol edit di click
+  useEffect(() => {
+    if (currentItem && recordsStatus === "succeeded" && !recordsError) {
+      setPayload({
+        record_id: currentItem.record_id,
+        nama: currentItem.nama || "",
+        status: currentItem.status || "Masuk", // Ensure 'status' has a valid default from your type
+        lokasi: currentItem.lokasi || "",
+        list_barang:
+          Array.isArray(currentItem.list_barang) && currentItem.list_barang.length > 0
+            ? currentItem.list_barang // Use as is if it's a valid array
+            : [{ nama_barang: "", qty: 1 }], // Fallback for empty or invalid list_barang
+        nilai: parseFloat(String(currentItem.nilai)) || 0, // Convert string "0.00" to number 0
+        tanggal: currentItem.tanggal ? new Date(currentItem.tanggal).toISOString() : new Date().toISOString(),
+        keterangan: currentItem.keterangan || "", // Convert null to empty string
+      });
+    }
+  }, [currentItem, recordsStatus, recordsError]);
+
+  const getRecords = useCallback(() => {
+    dispatch(fetchRecordsThunk());
+  }, [dispatch]);
 
   // Functions untuk isi input form saat user click tombol edit
-  const populateForm = async (recordId: number) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
-        method: "GET",
-        headers: { "Content-type": "application/json" },
-      });
-
-      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
-      const response = await res.json();
-      if (response.data) {
-        setPayload({
-          nama: response.data.nama || "",
-          status: response.data.status || "Masuk",
-          lokasi: response.data.lokasi || "",
-          list_barang: response.data.list_barang || [{ nama_barang: "", qty: 1 }],
-          nilai: response.data.nilai || 0,
-          tanggal: response.data.tanggal || new Date().toISOString(),
-          keterangan: response.data.keterangan || "",
-        });
-      }
-    } catch (err) {
-      console.error("Error populating form:", err);
-      setError("Failed to load record data");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const populateForm = useCallback(
+    async (recordId: number) => {
+      await dispatch(fetchRecordByIdThunk(recordId));
+    },
+    [dispatch]
+  );
 
   // Functions untuk handle input dan forms POST, UPDATE/PUT, DELETE
 
-  const putRecord = async (event: React.FormEvent, recordId: number) => {
-    event.preventDefault();
-    if (!confirm("Yakin ingin update data ini ?")) return;
+  const createRecord = useCallback(
+    async (event) => {
+      if (!validatePayload) return;
+      if (!confirm("Yakin ingin tambah data 👉👈 ?")) return;
+      event.preventDefault();
+      const dataToSend = { ...payload, list_barang: JSON.stringify(payload.list_barang) } satisfies Omit<
+        recordsProp,
+        "record_id" | "tanggal" | "list_barang"
+      > & {
+        list_barang: string;
+      };
+      const res = await dispatch(createRecordsThunk(dataToSend));
 
-    setLoading(true);
-    try {
-      if (!validatePayload()) return;
+      if (res.meta.requestStatus == "fulfilled") {
+        const dismissModal = document.getElementById("dismiss-record-modal");
+        if (dismissModal) (dismissModal as HTMLElement).click();
+      }
+    },
+    [dispatch, payload]
+  );
 
+  const putRecord = useCallback(
+    async (event: React.FormEvent, recordId: number) => {
+      if (!validatePayload) return;
+      if (!confirm("Yakin ingin update data ?")) return;
+      event.preventDefault();
+      // Remove hela record_id, tanggal, & set list_barang jadi string
       const dataToSend = {
         ...payload,
         list_barang: JSON.stringify(payload.list_barang),
-      };
-      console.log(dataToSend);
+      } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & { list_barang: string };
 
-      const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
-      });
+      const res = await dispatch(putRecordsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
+      if (res.meta.requestStatus == "fulfilled") {
+        const dismissModal = document.getElementById("dismiss-record-modal");
+        if (dismissModal) (dismissModal as HTMLElement).click();
+      }
+    },
+    [dispatch, payload]
+  );
 
-      if (!res.ok) throw new Error("Gagal update data !!");
-      await getRecords(); // Ke diganti
-      return await res.json();
-    } catch (e: any) {
-      setError(e.message);
-      throw e;
-    } finally {
-      const dismissForm = document.getElementById("dismiss-record-modal");
-      if (dismissForm) (dismissForm as HTMLElement).click();
-      setLoading(false);
-    }
-  };
-
-  const removeRecord = async (recordId: number) => {
-    if (!confirm(`Yakin ingin hapus data ini ?`)) return;
-    try {
-      setLoading(true);
-      const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Gagal Hapus data, Coba lagi nanti !");
-      await getRecords();
-      return await res.json();
-    } catch (error) {
-      console.error("Error populating form:", error);
-      setError("Failed to load record data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const createRecord = async (event: React.FormEvent) => {
-    event.preventDefault();
-    setError(null);
-
-    if (confirm("Yakin ? 👉👈") !== true) return;
-
-    setLoading(true);
-    try {
-      if (!validatePayload()) return;
-
-      const dataToSend = {
-        ...payload,
-        list_barang: JSON.stringify(payload.list_barang),
-      };
-
-      const res = await fetch("http://inventory.jabnet.id/api/records", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (!res.ok) throw new Error("Gagal tambah data !!");
-      await getRecords(); // Ke diganti
-      return await res.json();
-    } catch (e: any) {
-      setError(e.message);
-      throw e;
-    } finally {
-      const dismissForm = document.getElementById("dismiss-record-modal");
-      if (dismissForm) (dismissForm as HTMLElement).click();
-      setLoading(false);
-    }
-  };
+  const deleteRecord = useCallback(
+    async (event: React.FormEvent, recordId: number) => {
+      if (!confirm("Yakin hapus data ini ?")) return;
+      event.preventDefault();
+      const res = await dispatch(deleteRecordsThunk(recordId));
+      console.log("ini delete:", res);
+      if (res.meta.requestStatus == "fulfilled") {
+      }
+    },
+    [dispatch]
+  );
 
   // Update useState saat user isi input
-  const handleInputChange = (field: keyof recordsProp, value: any) => {
-    setPayload((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
+  const handleInputChange = useCallback(
+    (field: keyof recordsProp, value: any) => {
+      setPayload((prev) => ({
+        ...prev,
+        [field]: value,
+      }));
+    },
+    [setPayload]
+  );
 
   // Handler khusus list barang
-  const handleItemsChange = (items: list_barang_props[]) => {
-    handleInputChange("list_barang", items);
-  };
+  const handleItemsChange = useCallback(
+    (items: list_barang_props[]) => {
+      handleInputChange("list_barang", items);
+    },
+    [setPayload] // **IMPORTANT: Add `setPayload` dependency**
+  );
 
   const validatePayload = () => {
-    if (!payload.nama.trim()) return alert("Nami di isian hela a 😅");
+    if (!payload.nama.trim() || payload.nama.length < 2) return alert("Nami di isian hela a 😅");
 
-    if (!payload.lokasi.trim()) return alert("Lokasina di isi oga a 🤪");
+    if (!payload.lokasi.trim() || payload.lokasi.length < 2) return alert("Lokasina di isi oga a 🤪");
 
-    if (payload.list_barang.some((item) => !item.nama_barang.trim() || item.qty < 1))
+    if (payload.list_barang.some((item) => !item.nama_barang.trim() || item.nama_barang.length < 2 || item.qty < 1))
       return alert("CEK HELA ATUH EYYY LIST BARANGNA 😇");
 
     return true;
@@ -178,13 +148,11 @@ const useRecordsLogic = () => {
 
   return {
     payload,
-    error,
-    loading,
     recordsData,
-    setRecordsData,
+    recordsStatus,
     populateForm,
     putRecord,
-    removeRecord,
+    deleteRecord,
     setPayload,
     getRecords,
     createRecord,

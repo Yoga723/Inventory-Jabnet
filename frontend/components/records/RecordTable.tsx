@@ -1,18 +1,24 @@
 "use client";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { formatCurrency } from "../../app/utils/priceFormat";
 import FormRecords from "../modals/FormRecords";
 import Loading from "../Loading";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
+import { useAppSelector } from "../../store/Hooks";
 
 const RecordTable = () => {
   const [filter, setFilter] = useState("All");
-  const { getRecords, recordsData, removeRecord } = useRecordsLogic();
+  const { getRecords, deleteRecord } = useRecordsLogic();
+  const {
+    items: recordsData, // ie intina items as recordsData
+    currentItem,
+    isHomeLoading,
+    status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: recordsError,
+  } = useAppSelector((state) => state.records);
 
   useEffect(() => {
-    (async () => {
-      await getRecords();
-    })();
+    getRecords();
   }, []);
 
   const [windowY, setWindowY] = useState(0);
@@ -47,7 +53,7 @@ const RecordTable = () => {
           </tr>
         </thead>
         <tbody className="min-w-full gap-4 relative">
-          {recordsData != null ? (
+          {!isHomeLoading ? (
             <>
               {recordsData.map((record, index) => (
                 <tr
@@ -86,7 +92,7 @@ const RecordTable = () => {
                     />
                     <button
                       type="button"
-                      onClick={() => removeRecord(record.record_id)}
+                      onClick={(event) => deleteRecord(event, record.record_id)}
                       className="jabnet-btn-template from-[#C72121] to-[#F44646] shadow-[0px_2px_10px_0px_#C72121] hover:shadow-[0px_2px_20px_0px_#F44646]">
                       Hapus
                     </button>

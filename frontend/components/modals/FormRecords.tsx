@@ -8,20 +8,38 @@ import Loading from "../Loading";
 interface formRecordsProps {
   method: "PUT" | "POST";
   record_id?: number;
+  onSuccess?: () => void;
 }
 
 const FormRecords = (props: formRecordsProps) => {
-  const { method, record_id } = props;
+  const { method, record_id, onSuccess } = props;
 
-  const { payload, loading, handleInputChange, handleItemsChange, createRecord, getRecords, populateForm, putRecord } =
-    useRecordsLogic();
+  const {
+    payload,
+    handleInputChange,
+    handleItemsChange,
+    getRecords,
+    createRecord,
+    populateForm,
+    putRecord,
+    recordsStatus,
+  } = useRecordsLogic();
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
-    if (method === "PUT") {
-      populateForm(record_id);
-    }
+    if (method === "PUT") populateForm(record_id);
     setIsOpen(true);
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    if (method == "PUT" && record_id !== undefined) {
+      await putRecord(event, record_id);
+    } else if (method == "POST") {
+      await createRecord(event);
+      // onSuccess();
+    } else {
+      console.log("Tidak ada ID");
+    }
   };
 
   return (
@@ -49,9 +67,9 @@ const FormRecords = (props: formRecordsProps) => {
           </Typography>
 
           <form
-            onSubmit={method == "POST" ? (e) => createRecord(e) : (e) => putRecord(e, record_id)}
+            onSubmit={(event: React.FormEvent) => handleSubmit(event)}
             className="mt-6 flex flex-col">
-            {loading && <Loading />}
+            {recordsStatus == "loading" && <Loading />}
             {/* INPUT nama */}
             <div className="px-4 mb-4 mt-2 space-y-2">
               <Typography
@@ -146,7 +164,7 @@ const FormRecords = (props: formRecordsProps) => {
                 name="nilai"
                 type="number"
                 value={payload.nilai}
-                onChange={(e) => handleInputChange("nilai",e.target.value)}
+                onChange={(e) => handleInputChange("nilai", e.target.value)}
                 pattern="[0-9.,]*"
                 className="px-2"
                 placeholder={`2500000`}
