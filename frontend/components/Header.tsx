@@ -8,7 +8,7 @@ import Image from "next/image";
 
 const Header = () => {
   const navButton = [
-    { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/dashboard" },
+    { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/" },
     { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records" },
   ];
 
@@ -16,9 +16,9 @@ const Header = () => {
 
   return (
     <>
-      <nav className="navbar">
+      <nav className="navbar w-auto">
         <Link
-          href="/dashboard"
+          href="/"
           className="w-24 h-8 relative">
           <Image
             src="/images/jabnet-logo.webp"
@@ -35,7 +35,7 @@ const Header = () => {
               key={btn.destination}
               href={btn.destination}
               className={`
-              flex items-center gap-1 px-3 h-full hover:bg-white/40 dark:hover:bg-gray-700/40
+              flex items-center gap-1 px-3 h-full hover:bg-gray-100 dark:hover:bg-gray-700/40
               ${usePath === btn.destination && "border-b-2 border-amber-300"}
             `}>
               <Image
@@ -52,7 +52,7 @@ const Header = () => {
           {/* Profile */}
           <button
             onClick={() => setModalHeader(!modalHeader)}
-            className="flex items-center gap-2 px-4 border-l border-white/20 dark:border-gray-700/20">
+            className="flex items-center gap-2 px-4 border-l border-white/20 dark:border-gray-700/20 cursor-pointer">
             <Image
               src="/images/icons/profile-avatar-1.png"
               alt="Profile"

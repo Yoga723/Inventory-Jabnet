@@ -28,7 +28,7 @@ app.use((req, res, next) => {
 // 3) Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://inventory.jabnet.id"],
+    origin: ["http://localhost:3000", "http://inventory.jabnet.id", "https://inventory.jabnet.id"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { recordsProp } from "../types";
 
-const API_BASE_URL = "http://inventory.jabnet.id/api/records";
+const API_BASE_URL = "https://inventory.jabnet.id/api/records";
 
 export interface recordState {
   items: recordsProp[];
@@ -20,21 +20,25 @@ const initialState: recordState = {
 };
 
 // Function untuk ambil data dari database
-export const fetchRecordsThunk = createAsyncThunk("records/fetchRecordsThunk", async (_, { rejectWithValue }) => {
-  try {
-    const response = await fetch(API_BASE_URL, {
-      method: "GET",
-      headers: { "Content-Type": "application/json" },
-    });
+export const fetchRecordsThunk = createAsyncThunk(
+  "records/fetchRecordsThunk",
+  async (query: string = "", { rejectWithValue }) => {
+    try {
+      const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
-    const responseData = await response.json();
+      const responseData = await response.json();
 
-    if (!response.ok) return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
-    return responseData.data;
-  } catch (error: any) {
-    return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");
+      if (!response.ok) return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
+      return responseData.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");
+    }
   }
-});
+);
 
 export const fetchRecordByIdThunk = createAsyncThunk(
   `records/fetchRecordByIdThunk`,
@@ -135,11 +139,11 @@ const recordSlice = createSlice({
   name: "records",
   initialState,
   reducers: {
-    // clearCurrentItem: (state) => {
-    //   state.currentItem = null;
-    //   state.status = "idle";
-    //   state.error = null;
-    // },
+    clearCurrentItem: (state) => {
+      state.currentItem = null;
+      state.status = "idle";
+      state.error = null;
+    },
     resetRecordsStatus: (state) => {
       state.status = "idle";
       state.error = null;
@@ -183,6 +187,7 @@ const recordSlice = createSlice({
       .addCase(createRecordsThunk.fulfilled, (state, { payload }) => {
         state.items.unshift(payload);
         state.status = "succeeded";
+        clearCurrentItem;
       })
       .addCase(createRecordsThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -205,7 +210,6 @@ const recordSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteRecordsThunk.fulfilled, (state, { payload }) => {
-        console.log(payload);
         state.items = state.items.filter((item) => item.record_id !== payload);
         state.status = "succeeded";
       })
@@ -216,5 +220,5 @@ const recordSlice = createSlice({
   },
 });
 
-export const { resetRecordsStatus } = recordSlice.actions;
+export const { resetRecordsStatus, clearCurrentItem } = recordSlice.actions;
 export default recordSlice.reducer;

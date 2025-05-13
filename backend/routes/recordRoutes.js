@@ -1,9 +1,33 @@
-// routes/recordRoutes.js
 const router = require("express").Router();
 
 router.get("/", async (req, res) => {
   try {
-    const result = await req.db.query("SELECT * FROM catatan ORDER BY tanggal DESC");
+    const { search, status, start_date, end_date } = req.query;
+    let baseQuery = "SELECT * FROM catatan";
+    const conditions = [];
+    const values = [];
+
+    if (search) {
+      values.push(`%${search}%`);
+      conditions.push(`(nama ILIKE $${values.length} OR list_barang::text ILIKE $${values.length})`);
+    }
+
+    if (status) {
+      values.push(status);
+      conditions.push(`status = $${values.length}`);
+    }
+
+    if (start_date && end_date) {
+      values.push(start_date);
+      values.push(end_date);
+      conditions.push(`tanggal BETWEEN $${values.length - 1}::timestamp AND $${values.length}::timestamp`);
+    }
+
+    if (conditions.length) baseQuery += " WHERE " + conditions.join(" AND ");
+
+    baseQuery += " ORDER BY tanggal DESC";
+
+    const result = await req.db.query(baseQuery, values);
     res.json({ status: "success", data: result.rows });
   } catch (error) {
     console.error("Database query error:", error);
@@ -93,7 +117,7 @@ router.post("/", async (req, res) => {
     const values = [nama, nilai, list_barang, lokasi, status, keterangan || null];
     const result = await req.db.query(query, values);
 
-    res.status(201).json({
+    res.status(200).json({
       status: 200,
       message: "Data berhasil ditambahkan",
       data: result.rows[0],

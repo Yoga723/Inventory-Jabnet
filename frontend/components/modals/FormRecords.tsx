@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import BarangInput from "../BarangInput";
 import Loading from "../Loading";
+import { PencilIcon, PlusIcon } from "@heroicons/react/24/solid";
 
 interface formRecordsProps {
   method: "PUT" | "POST";
@@ -49,17 +50,30 @@ const FormRecords = (props: formRecordsProps) => {
       <Dialog.Trigger
         as={Button}
         onClick={handleOpen}
-        className={`jabnet-btn-template ${
+        className={`records-action cursor-pointer ${
           method === "POST"
-            ? "from-[#D55226] to-[#F47146] shadow-[0px_2px_10px_0px_#F47146] hover:shadow-[0px_2px_20px_0px_#F47146]"
-            : "from-[#D89013] to-[#faa91d] shadow-[0px_2px_10px_0px_#D89013] hover:shadow-[0px_2px_20px_0px_#faa91d]"
+            ? "jabnet-btn-template from-[#D55226] to-[#F47146] shadow-[0px_2px_10px_0px_#F47146] hover:shadow-[0px_2px_20px_0px_#F47146]"
+            : "inline-flex items-center hover:text-blue-400 border-none"
         }`}>
+        {method === "POST" ? (
+          <PlusIcon
+            width={16}
+            height={16}
+            className="mr-1.5"
+          />
+        ) : (
+          <PencilIcon
+            width={16}
+            height={16}
+            className="mr-1.5"
+          />
+        )}
         {method === "POST" ? `Tambah` : `Edit`}
       </Dialog.Trigger>
       <Dialog.Overlay
-        className="flex justify-center items-center w-full h-full bg-[rgba(0,0,0,0.35)] max-md:pt-4 md:p-[5%] z-40"
+        className="flex justify-center items-center w-full h-full bg-[rgba(0,0,0,0.35)] max-md:pt-4 md:p-[5%] z-40 "
         id="record-form-modal">
-        <Dialog.Content className="modal-content p-4 pt-36 md:px-12 relative w-full md:w-[80%]">
+        <Dialog.Content className="modal-content p-4 mt-36 md:mt-62 md:px-12 relative w-full md:w-[80%]">
           <Typography
             type="h4"
             className="mb-1 font-bold text-lg">
@@ -127,7 +141,7 @@ const FormRecords = (props: formRecordsProps) => {
                 type="text"
                 value={payload.lokasi}
                 onChange={(e) => handleInputChange("lokasi", e.target.value)}
-                className="px-4 "
+                className="px-4"
                 placeholder={`Bumi pak dadang`}
               />
             </div>

@@ -12,7 +12,7 @@ export function useLogin() {
   const login = async (username: string, password: string) => {
     setError(null);
     try {
-      const res = await fetch("http://inventory.jabnet.id/api/user/login", {
+      const res = await fetch("https://inventory.jabnet.id/api/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

@@ -1,6 +1,7 @@
 @import "tailwindcss";
 /* Setting fitur dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
+@plugin "tailwindcss-motion";
 
 :root {
   --background: #ffffff;
@@ -17,10 +18,11 @@
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
     "Helvetica Neue", sans-serif;
+  @apply text-black dark:text-white bg-white dark:bg-[#1D222D];
 }
 
 nav {
-  @apply absolute top-0 left-0 right-0 flex items-center justify-between px-4 md:px-12 h-16 bg-white/30 dark:bg-gray-800/30 backdrop-filter backdrop-blur-lg border-b border-white/20 dark:border-gray-700/20 shadow-md transition-colors duration-300 z-10;
+  @apply absolute top-0 left-0 right-0 flex items-center justify-between px-4 md:px-12 h-16 bg-white/30 dark:bg-gray-400/30 backdrop-filter backdrop-blur-lg border-b border-white/20 dark:border-gray-700/20 shadow-md transition-colors duration-300 z-10;
 }
 
 .border-test {
@@ -32,14 +34,19 @@ nav {
 }
 
 .table-records {
-  @apply overscroll-none border-collapse border border-black table-auto shrink-0 min-w-[700px] max-h-[700px] w-full mb-10;
+  @apply overscroll-none border-none table-auto shrink-0 min-w-[700px] w-full  mb-10 mr-3;
 }
 
 .table-records th {
-  @apply border border-black text-start max-h-5 p-1 text-xs;
+  font-family: "Plus Jakarta Sans", Roboto, "Open Sans", Arial, sans-serif;
+  font-size: clamp(11px, 2vw, 14px);
+  @apply border-none text-center max-h-5 px-1.5;
 }
-.table-records td {
-  @apply text-center min-h-20 border-[1px] min-w-20 border-black text-xs;
+.table-records td,
+.records-action {
+  font-family: "Plus Jakarta Sans", Roboto, "Open Sans", Arial, sans-serif;
+  font-size: clamp(11px, 2vw, 14px);
+  @apply text-center min-h-10 px-2 font-bold;
 }
 
 .modal-content {
@@ -64,4 +71,12 @@ nav {
 
 .jabnet-btn-template {
   @apply text-center cursor-pointer border-none inline-flex items-center justify-center text-white text-sm px-3 py-2 rounded-md min-w-20 transition duration-1000 ease-in-out bg-gradient-to-r hover:bg-gradient-to-l;
+}
+
+.record-action-transition {
+  @apply overflow-hidden max-h-0 transition-all duration-1000 ease-in-out;
+}
+
+.record-action-transition.open {
+  @apply max-h-24 overflow-hidden transition-all duration-1000 ease-in-out;
 }

@@ -5,13 +5,13 @@ import FormRecords from "../modals/FormRecords";
 import Loading from "../Loading";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import { useAppSelector } from "../../store/Hooks";
+import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import AlertModal from "../modals/AlertModal";
 
 const RecordTable = () => {
-  const [filter, setFilter] = useState("All");
-  const { getRecords, deleteRecord } = useRecordsLogic();
+  const { getRecords, deleteRecord, expandedIndex, toggleRow } = useRecordsLogic();
   const {
     items: recordsData, // ie intina items as recordsData
-    currentItem,
     isHomeLoading,
     status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: recordsError,
@@ -21,17 +21,13 @@ const RecordTable = () => {
     getRecords();
   }, []);
 
-  const [windowY, setWindowY] = useState(0);
-  useEffect(() => {
-    const logY = () => setWindowY(window.scrollY);
-    document.addEventListener("scroll", logY);
-    return () => window.removeEventListener("scroll", logY);
-  }, []);
   return (
     <>
       {/* Table Records */}
+      <AlertModal />
+      <button type="button">OPEN ALERT</button>
       <table className="table-records">
-        <thead className={` ${windowY > 150 && "sticky top-0"} table-header-group bg-white border-2 border-black`}>
+        <thead className={` table-header-group bg-white border-2 border-black`}>
           <tr>
             <th rowSpan={2}>Nama</th>
             <th rowSpan={2}>Tanggal</th>
@@ -45,7 +41,6 @@ const RecordTable = () => {
             <th rowSpan={2}>Lokasi</th>
             <th rowSpan={2}>Keterangan</th>
             <th rowSpan={2}>Perkiraan Harga</th>
-            <th rowSpan={2}>Action</th>
           </tr>
           <tr className="table-row">
             <th>Nama Barang</th>
@@ -56,48 +51,75 @@ const RecordTable = () => {
           {!isHomeLoading ? (
             <>
               {recordsData.map((record, index) => (
-                <tr
-                  key={index}
-                  className="odd:bg-white even:bg-[#EBEBEB]">
-                  <td>{record.nama}</td>
-                  <td> {new Date(record.tanggal).toLocaleDateString("en-GB")}</td>
+                <React.Fragment key={index}>
+                  <tr
+                    onClick={() => toggleRow(index)}
+                    className={`cursor-pointer ${index % 2 === 0 ? `bg-white` : `bg-[#ededed]`}`}>
+                    <td className="td-collapse font-bold">{record.nama}</td>
+                    <td className="td-collapse"> {new Date(record.tanggal).toLocaleDateString("en-GB")}</td>
 
-                  {/* Row Nama Barang */}
-                  <td className="min-w-20 text-center">
-                    {record.list_barang.map((item, index) => (
-                      <ul key={index}>
-                        <li className="my-4">{item.nama_barang}</li>
+                    {/* Row Nama Barang */}
+                    <td className={`td-collapse min-w-30 text-center`}>
+                      <ul>
+                        {record.list_barang.map((item, i) => (
+                          <li
+                            className="my-4"
+                            key={`${record.record_id}-name-${i}`}>
+                            {item.nama_barang}
+                          </li>
+                        ))}
                       </ul>
-                    ))}
-                  </td>
-                  {/* Row QTY Barang */}
-                  <td className="min-w-20 text-center">
-                    {record.list_barang.map((item, index) => (
-                      <ul key={index}>
-                        <li className="my-4">{item.qty}</li>
+                    </td>
+                    {/* Row QTY Barang */}
+                    <td className={`td-collapse min-w-30 text-center`}>
+                      <ul>
+                        {record.list_barang.map((item, i) => (
+                          <li
+                            className="my-4"
+                            key={`${record.record_id}-qty-${i}`}>
+                            {item.qty}
+                          </li>
+                        ))}
                       </ul>
-                    ))}
-                  </td>
+                    </td>
 
-                  <td>{record.status}</td>
-                  <td>{record.lokasi}</td>
-                  <td>{record.keterangan}</td>
-                  <td className="text-pretty break-all overflow-auto">
-                    {formatCurrency(Number(record.nilai), record.status)}
-                  </td>
-                  <td className="md:flex flex-col space-y-6 p-4 border-2">
-                    <FormRecords
-                      method="PUT"
-                      record_id={record.record_id}
-                    />
-                    <button
-                      type="button"
-                      onClick={(event) => deleteRecord(event, record.record_id)}
-                      className="jabnet-btn-template from-[#C72121] to-[#F44646] shadow-[0px_2px_10px_0px_#C72121] hover:shadow-[0px_2px_20px_0px_#F44646]">
-                      Hapus
-                    </button>
-                  </td>
-                </tr>
+                    <td className="td-collapse min-w-16">{record.status}</td>
+                    <td className="td-collapse min-w-52">{record.lokasi}</td>
+                    <td className="td-collapse min-w-52">{record.keterangan}</td>
+                    <td className="text-pretty break-all overflow-auto min-w-28">
+                      {formatCurrency(Number(record.nilai), record.status)}
+                    </td>
+                  </tr>
+                  {expandedIndex === index && (
+                    <tr
+                      className={`bg-[#FEF3E2] text-black record-action-transition ${
+                        expandedIndex === index
+                          ? "motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
+                          : ""
+                      }`}>
+                      <td
+                        colSpan={8}
+                        className="px-2">
+                        <div className="flex items-center justify-start gap-8 p-1">
+                          <FormRecords
+                            method="PUT"
+                            record_id={record.record_id}
+                          />
+                          <button
+                            onClick={(e) => deleteRecord(e, record.record_id)}
+                            className="border-none hover:border-[1px] rounded-lg inline-flex items-center hover:text-red-600 cursor-pointer">
+                            <TrashIcon
+                              width={16}
+                              height={16}
+                              className="mr-1.5"
+                            />
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </>
           ) : (

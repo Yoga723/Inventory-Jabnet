@@ -29,6 +29,7 @@ const useRecordsLogic = () => {
     keterangan: "",
   };
   const [payload, setPayload] = useState<recordsProp>(initialPayload);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null); // Jang row table
 
   // Untuk populate input-input form saat tombol edit di click
   useEffect(() => {
@@ -50,7 +51,7 @@ const useRecordsLogic = () => {
   }, [currentItem, recordsStatus, recordsError]);
 
   const getRecords = useCallback(() => {
-    dispatch(fetchRecordsThunk());
+    dispatch(fetchRecordsThunk(""));
   }, [dispatch]);
 
   // Functions untuk isi input form saat user click tombol edit
@@ -146,10 +147,17 @@ const useRecordsLogic = () => {
     return true;
   };
 
+  // Toggle table row
+  const toggleRow = (idx: number) => {
+    setExpandedIndex((expandedIndex) => (expandedIndex == idx ? null : idx));
+  };
+
   return {
     payload,
     recordsData,
     recordsStatus,
+    expandedIndex,
+    toggleRow,
     populateForm,
     putRecord,
     deleteRecord,
