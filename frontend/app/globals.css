@@ -1,10 +1,50 @@
 @import "tailwindcss";
 /* Setting fitur dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
-@plugin "tailwindcss-motion";
+@plugin "daisyui" {
+  themes: corporate --default, dark;
+  root: ":root";
+  /* include: ;
+  exclude: ;
+  prefix: ; */
+}
+
+@plugin "daisyui/theme" {
+  name: "corporate";
+  default: true;
+  prefersdark: false;
+  color-scheme: "light";
+  --color-base-100: oklch(100% 0 0);
+  --color-base-200: oklch(93% 0 0);
+  --color-base-300: oklch(86% 0 0);
+  --color-base-content: oklch(22.389% 0.031 278.072);
+  --color-primary: #e66940;
+  --color-primary-content: oklch(100% 0 0);
+  --color-secondary: oklch(54% 0.245 262.881);
+  --color-secondary-content: oklch(100% 0 0);
+  --color-accent: oklch(60% 0.118 184.704);
+  --color-accent-content: oklch(100% 0 0);
+  --color-neutral: oklch(0% 0 0);
+  --color-neutral-content: oklch(100% 0 0);
+  --color-info: oklch(60% 0.126 221.723);
+  --color-info-content: oklch(100% 0 0);
+  --color-success: oklch(62% 0.194 149.214);
+  --color-success-content: oklch(100% 0 0);
+  --color-warning: oklch(85% 0.199 91.936);
+  --color-warning-content: oklch(0% 0 0);
+  --color-error: oklch(63% 0.237 25.331);
+  --color-error-content: oklch(0% 0 0);
+  --radius-selector: 0.25rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 1;
+}
 
 :root {
-  --background: #ffffff;
   --foreground: #171717;
 }
 
@@ -18,7 +58,7 @@
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
     "Helvetica Neue", sans-serif;
-  @apply text-black dark:text-white bg-white dark:bg-[#1D222D];
+  @apply text-black dark:text-white bg-base-200 dark:bg-[#1D222D];
 }
 
 nav {
@@ -46,10 +86,10 @@ nav {
 .records-action {
   font-family: "Plus Jakarta Sans", Roboto, "Open Sans", Arial, sans-serif;
   font-size: clamp(11px, 2vw, 14px);
-  @apply text-center min-h-10 px-2 font-bold;
+  @apply text-center min-h-10 px-5 py-1;
 }
 
-.modal-content {
+.modal {
   background: white;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   backdrop-filter: blur(6.5px);
@@ -63,10 +103,6 @@ nav {
 
 .dismiss-trigger {
   @apply cursor-pointer inline-flex items-center justify-center bg-gradient-to-t from-[#9B1B1B] to-[#FF181B] hover:bg-gradient-to-b text-white text-sm px-6 py-2 rounded-lg shadow-[0px_0px_7px_1px_#F6191C] hover:shadow-[0px_2px_20px_1px_#F6191C] border-0;
-}
-
-.submit-trigger {
-  @apply cursor-pointer inline-flex items-center justify-center bg-gradient-to-t from-25% from-[#41D024] to-[#75FF19] hover:bg-gradient-to-b text-white text-sm px-6 py-2 rounded-lg shadow-[0px_0px_7px_1px_#6DF71C] hover:shadow-[0px_2px_20px_1px_#6DF71C] border-0;
 }
 
 .jabnet-btn-template {

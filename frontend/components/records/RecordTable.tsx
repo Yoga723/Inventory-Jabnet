@@ -1,21 +1,23 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { formatCurrency } from "../../app/utils/priceFormat";
-import FormRecords from "../modals/FormRecords";
+import FormRecords from "./FormRecords";
 import Loading from "../Loading";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import { useAppSelector } from "../../store/Hooks";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import AlertModal from "../modals/AlertModal";
+// import AlertModal from "../modals/AlertModal";
+import { useRecordsContext } from "../../context/records/RecordsContext";
 
 const RecordTable = () => {
-  const { getRecords, deleteRecord, expandedIndex, toggleRow } = useRecordsLogic();
+  const { getRecords, deleteRecord, expandedIndex, toggleRow, populateForm } = useRecordsLogic();
   const {
     items: recordsData, // ie intina items as recordsData
     isHomeLoading,
     status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: recordsError,
   } = useAppSelector((state) => state.records);
+  const { openModal } = useRecordsContext();
 
   useEffect(() => {
     getRecords();
@@ -23,11 +25,10 @@ const RecordTable = () => {
 
   return (
     <>
+      <FormRecords />
       {/* Table Records */}
-      <AlertModal />
-      <button type="button">OPEN ALERT</button>
       <table className="table-records">
-        <thead className={` table-header-group bg-white border-2 border-black`}>
+        <thead className={`  table-header-group bg-white border-2 border-black`}>
           <tr>
             <th rowSpan={2}>Nama</th>
             <th rowSpan={2}>Tanggal</th>
@@ -54,7 +55,7 @@ const RecordTable = () => {
                 <React.Fragment key={index}>
                   <tr
                     onClick={() => toggleRow(index)}
-                    className={`cursor-pointer ${index % 2 === 0 ? `bg-white` : `bg-[#ededed]`}`}>
+                    className={`cursor-pointer ${index % 2 === 0 ? `bg-base-100` : `bg-base-300`}`}>
                     <td className="td-collapse font-bold">{record.nama}</td>
                     <td className="td-collapse"> {new Date(record.tanggal).toLocaleDateString("en-GB")}</td>
 
@@ -92,22 +93,32 @@ const RecordTable = () => {
                   </tr>
                   {expandedIndex === index && (
                     <tr
-                      className={`bg-[#FEF3E2] text-black record-action-transition ${
+                      className={` text-black record-action-transition ${
                         expandedIndex === index
-                          ? "motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
+                          ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
                           : ""
                       }`}>
                       <td
                         colSpan={8}
                         className="px-2">
                         <div className="flex items-center justify-start gap-8 p-1">
-                          <FormRecords
-                            method="PUT"
-                            record_id={record.record_id}
-                          />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              populateForm(record.record_id);
+                              openModal(record.record_id);
+                            }}
+                            className={`text-white records-action btn btn-secondary`}>
+                            <PencilIcon
+                              width={16}
+                              height={16}
+                              className="mr-1.5"
+                            />
+                            Edit
+                          </button>
                           <button
                             onClick={(e) => deleteRecord(e, record.record_id)}
-                            className="border-none hover:border-[1px] rounded-lg inline-flex items-center hover:text-red-600 cursor-pointer">
+                            className={`text-white records-action btn btn-error`}>
                             <TrashIcon
                               width={16}
                               height={16}

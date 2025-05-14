@@ -1,5 +1,4 @@
 import React from "react";
-import { Input, Button, IconButton } from "@material-tailwind/react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { list_barang_props } from "../types";
 
@@ -32,41 +31,48 @@ export default function BarangInput({
         <div
           key={index}
           className="flex items-center gap-2">
-          <Input
-            id={`items_${index}`}
-            name={`nama_barang_${index}`}
-            value={item.nama_barang}
-            onChange={(e) => updateItem(index, "nama_barang", e.target.value)}
-            placeholder="Nama Barang"
-            className=" px-2"
-          />
-          <Input
-            id={`qty_${index}`}
-            name={`qty_${index}`}
-            type="number"
-            value={item.qty}
-            onChange={(e) => updateItem(index, "qty", Number(e.target.value))}
-            placeholder="Qty"
-            className="w-24 px-2"
-          />
+          <label
+            htmlFor={`nama_barang_${index}`}
+            className="floating-label">
+            <input
+              id={`items_${index}`}
+              name={`nama_barang_${index}`}
+              value={item.nama_barang}
+              onChange={(e) => updateItem(index, "nama_barang", e.target.value)}
+              placeholder="Nama Barang"
+              className="input"
+            />
+          </label>
+          <label
+            htmlFor={`qty_${index}`}
+            className="floating-label">
+            <input
+              id={`qty_${index}`}
+              name={`qty_${index}`}
+              type="number"
+              value={item.qty}
+              onChange={(e) => updateItem(index, "qty", Number(e.target.value))}
+              placeholder="Qty"
+              className="w-24 px-2 input"
+            />
+          </label>
           {items.length > 1 && (
-            <IconButton
-              size="sm"
-              onClick={() => removeItem(index)}>
-              <XMarkIcon className="h-5 w-5 text-red-500" />
-            </IconButton>
+            <button
+              type="button"
+              onClick={() => removeItem(index)}
+              className="px-2 btn btn-error btn-outline">
+              <XMarkIcon className="h-5 w-5 text-red font-bold" />
+            </button>
           )}
         </div>
       ))}
 
-      <Button
-        size="sm"
-        variant="outline"
+      <button
         onClick={addItem}
         type="button"
-        className="mt-2 py-2 bg-gradient-to-r from-[#D55226] to-[#F47146] hover:bg-gradient-to-l border-none text-white leading-relaxed cursor-pointer shadow-[0px_2px_10px_0px_#F47146] hover:shadow-[0px_2px_20px_0px_#F47146]">
+        className="btn btn-success btn-soft px-4 ">
         Tambah Barang
-      </Button>
+      </button>
     </div>
   );
 }

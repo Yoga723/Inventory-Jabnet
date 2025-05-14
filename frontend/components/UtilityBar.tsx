@@ -1,12 +1,13 @@
 "use client";
-import { ChevronDownIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { CalendarIcon, ChevronDownIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
 import Image from "next/image";
 import React, { useState } from "react";
 import { useAppDispatch } from "../store/Hooks";
-import FormRecords from "./modals/FormRecords";
+import FormRecords from "./records/FormRecords";
 import { useFilterSearchLogic } from "../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
 import { fetchRecordsThunk } from "../store/recordSlice";
+import { useRecordsContext } from "../context/records/RecordsContext";
 
 const UtilityBar = () => {
   const dispatch = useAppDispatch();
@@ -25,6 +26,8 @@ const UtilityBar = () => {
     buildQueryParams,
   } = useFilterSearchLogic();
 
+  const { openModal } = useRecordsContext();
+
   const dateOptions = [
     { label: "All Time", value: "" },
     { label: "3 Hari", value: "3" },
@@ -39,7 +42,7 @@ const UtilityBar = () => {
     if (event.key === "Enter") handleSearch();
   };
   return (
-    <div className="flex flex-wrap gap-3 my-5 justify-start items-center">
+    <div className="flex flex-wrap gap-3 my-5 justify-start items-center w-full ">
       {/* Search Input */}
       <div className="flex items-center bg-white dark:bg-[#1D222D] border border-gray-300 rounded-md px-3 py-2 w-62 sm:w-auto md:w-64">
         <MagnifyingGlassIcon className="w-5 h-5 text-gray-500 mr-2" />
@@ -56,18 +59,14 @@ const UtilityBar = () => {
       </div>
       <div className="relative inline-block text-left">
         <button
-          type="button" // Explicitly type button
-          className="inline-flex justify-center items-center w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-md cursor-pointer"
+          type="button"
+          className="btn btn-secondary btn-soft"
           id="filter-menu"
-          onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}
-          aria-haspopup="true"
-          aria-expanded="false">
-          <Image
+          onClick={() => setIsStatusDropdownOpen(!isStatusDropdownOpen)}>
+          <FunnelIcon
             width={15}
             height={15}
-            src="https://img.icons8.com/ios/100/filter--v1.png"
-            alt="filter--v1"
-            className="mr-1"
+            className="ml-1.5"
           />
           {selectedFilter}
           <ChevronDownIcon className="w-4 h-4 ml-1 text-gray-500" />
@@ -100,14 +99,12 @@ const UtilityBar = () => {
       <div className="relative inline-block text-left">
         <button
           type="button"
-          className="inline-flex justify-center items-center w-full sm:w-auto bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm px-3 py-2 rounded-md cursor-pointer"
+          className="btn btn-secondary btn-soft"
           onClick={() => setIsDateOpen(!isDateOpen)}>
-          <Image
+          <CalendarIcon
             width={15}
             height={15}
-            src="https://img.icons8.com/ios/100/calendar--v1.png"
-            alt="calendar"
-            className="mr-1"
+            className="ml-1.5"
           />
           Tanggal
           <ChevronDownIcon className="w-4 h-4 ml-1 text-gray-500" />
@@ -148,7 +145,17 @@ const UtilityBar = () => {
           </div>
         )}
       </div>
-      <FormRecords method={"POST"} />
+      <button
+        type="button"
+        onClick={() => openModal(null)}
+        className="btn btn-success btn-soft">
+        <PlusIcon
+          width={15}
+          height={15}
+          className="ml-1.5"
+        />
+        Tambah
+      </button>
     </div>
   );
 };
