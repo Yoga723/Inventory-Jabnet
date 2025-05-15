@@ -8,6 +8,7 @@ const page = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    // Masih pake cara formData
     const formData = new FormData(e.currentTarget);
     const username = formData.get("username").toString();
     const password = formData.get("password").toString();

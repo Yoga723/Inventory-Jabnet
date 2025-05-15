@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { formatCurrency } from "../../app/utils/priceFormat";
 import FormRecords from "./FormRecords";
 import Loading from "../Loading";
@@ -28,7 +28,7 @@ const RecordTable = () => {
       <FormRecords />
       {/* Table Records */}
       <table className="table-records">
-        <thead className={`  table-header-group bg-white border-2 border-black`}>
+        <thead className={`table-header-group bg-base-100`}>
           <tr>
             <th rowSpan={2}>Nama</th>
             <th rowSpan={2}>Tanggal</th>
@@ -87,49 +87,48 @@ const RecordTable = () => {
                     <td className="td-collapse min-w-16">{record.status}</td>
                     <td className="td-collapse min-w-52">{record.lokasi}</td>
                     <td className="td-collapse min-w-52">{record.keterangan}</td>
-                    <td className="text-pretty break-all overflow-auto min-w-28">
+                    <td className="text-pretty break-all overflow-auto min-w-36">
                       {formatCurrency(Number(record.nilai), record.status)}
                     </td>
                   </tr>
-                  {expandedIndex === index && (
-                    <tr
-                      className={` text-black record-action-transition ${
-                        expandedIndex === index
-                          ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
-                          : ""
-                      }`}>
-                      <td
-                        colSpan={8}
-                        className="px-2">
-                        <div className="flex items-center justify-start gap-8 p-1">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              populateForm(record.record_id);
-                              openModal(record.record_id);
-                            }}
-                            className={`text-white records-action btn btn-secondary`}>
-                            <PencilIcon
-                              width={16}
-                              height={16}
-                              className="mr-1.5"
-                            />
-                            Edit
-                          </button>
-                          <button
-                            onClick={(e) => deleteRecord(e, record.record_id)}
-                            className={`text-white records-action btn btn-error`}>
-                            <TrashIcon
-                              width={16}
-                              height={16}
-                              className="mr-1.5"
-                            />
-                            Hapus
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
+                  {/* ROW untuk action button */}
+                  <tr
+                    className={` text-black record-action-transition ${
+                      expandedIndex === index
+                        ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
+                        : "hidden"
+                    } ${index % 2 === 0 ? "bg-base-100" : "bg-base-300"}`}>
+                    <td
+                      colSpan={8}
+                      className="px-2">
+                      <div className="flex items-center justify-start gap-8 p-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            populateForm(record.record_id);
+                            openModal(record.record_id);
+                          }}
+                          className={`text-white records-action btn btn-info`}>
+                          <PencilIcon
+                            width={16}
+                            height={16}
+                            className="mr-1.5"
+                          />
+                          Edit
+                        </button>
+                        <button
+                          onClick={(e) => deleteRecord(e, record.record_id)}
+                          className={`text-white records-action btn btn-error`}>
+                          <TrashIcon
+                            width={16}
+                            height={16}
+                            className="mr-1.5"
+                          />
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 </React.Fragment>
               ))}
             </>

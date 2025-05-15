@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { list_barang_props, recordsProp } from "../../types";
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import {
@@ -9,46 +9,18 @@ import {
   fetchRecordByIdThunk,
   fetchRecordsThunk,
   putRecordsThunk,
+  updateCurrentItemField,
 } from "../../store/recordSlice";
 
 const useRecordsLogic = () => {
   const dispatch = useAppDispatch();
   const {
     items: recordsData,
-    currentItem,
+    currentItem: payload,
     status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: recordsError,
   } = useAppSelector((state) => state.records);
-  const initialPayload: recordsProp = {
-    nama: "",
-    status: "Masuk",
-    lokasi: "",
-    list_barang: [{ nama_barang: "", qty: 1 }],
-    nilai: 0,
-    tanggal: new Date().toISOString(),
-    keterangan: "",
-  };
-  const [payload, setPayload] = useState<recordsProp>(initialPayload);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null); // Jang row table
-
-  // Untuk populate input-input form saat tombol edit di click
-  useEffect(() => {
-    if (currentItem && recordsStatus === "succeeded" && !recordsError) {
-      setPayload({
-        record_id: currentItem.record_id,
-        nama: currentItem.nama || "",
-        status: currentItem.status || "Masuk", // Ensure 'status' has a valid default from your type
-        lokasi: currentItem.lokasi || "",
-        list_barang:
-          Array.isArray(currentItem.list_barang) && currentItem.list_barang.length > 0
-            ? currentItem.list_barang // Use as is if it's a valid array
-            : [{ nama_barang: "", qty: 1 }], // Fallback for empty or invalid list_barang
-        nilai: parseFloat(String(currentItem.nilai)) || 0, // Convert string "0.00" to number 0
-        tanggal: currentItem.tanggal ? new Date(currentItem.tanggal).toISOString() : new Date().toISOString(),
-        keterangan: currentItem.keterangan || "", // Convert null to empty string
-      });
-    }
-  }, [currentItem, recordsStatus, recordsError]);
 
   const getRecords = useCallback(() => {
     dispatch(fetchRecordsThunk(""));
@@ -66,9 +38,9 @@ const useRecordsLogic = () => {
 
   const createRecord = useCallback(
     async (event) => {
+      event.preventDefault();
       if (!validatePayload) return;
       if (!confirm("Yakin ingin tambah data 👉👈 ?")) return;
-      event.preventDefault();
       const dataToSend = { ...payload, list_barang: JSON.stringify(payload.list_barang) } satisfies Omit<
         recordsProp,
         "record_id" | "tanggal" | "list_barang"
@@ -87,9 +59,9 @@ const useRecordsLogic = () => {
 
   const putRecord = useCallback(
     async (event: React.FormEvent, recordId: number) => {
+      event.preventDefault();
       if (!validatePayload) return;
       if (!confirm("Yakin ingin update data ?")) return;
-      event.preventDefault();
       // Remove hela record_id, tanggal, & set list_barang jadi string
       const dataToSend = {
         ...payload,
@@ -107,8 +79,8 @@ const useRecordsLogic = () => {
 
   const deleteRecord = useCallback(
     async (event: React.FormEvent, recordId: number) => {
-      if (!confirm("Yakin hapus data ini ?")) return;
       event.preventDefault();
+      if (!confirm("Yakin hapus data ini ?")) return;
       const res = await dispatch(deleteRecordsThunk(recordId));
       console.log("ini delete:", res);
       if (res.meta.requestStatus == "fulfilled") {
@@ -120,20 +92,17 @@ const useRecordsLogic = () => {
   // Update useState saat user isi input
   const handleInputChange = useCallback(
     (field: keyof recordsProp, value: any) => {
-      setPayload((prev) => ({
-        ...prev,
-        [field]: value,
-      }));
+      dispatch(updateCurrentItemField({ field, value }));
     },
-    [setPayload]
+    [dispatch]
   );
 
   // Handler khusus list barang
   const handleItemsChange = useCallback(
     (items: list_barang_props[]) => {
-      handleInputChange("list_barang", items);
+      dispatch(updateCurrentItemField({ field: "list_barang", value: items }));
     },
-    [setPayload] // **IMPORTANT: Add `setPayload` dependency**
+    [dispatch]
   );
 
   const validatePayload = () => {
@@ -161,7 +130,6 @@ const useRecordsLogic = () => {
     populateForm,
     putRecord,
     deleteRecord,
-    setPayload,
     getRecords,
     createRecord,
     handleInputChange,

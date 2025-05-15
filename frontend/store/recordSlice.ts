@@ -3,6 +3,11 @@ import { recordsProp } from "../types";
 
 const API_BASE_URL = "https://inventory.jabnet.id/api/records";
 
+interface FieldUpdate {
+  field: keyof recordsProp;
+  value: any;
+}
+
 export interface recordState {
   items: recordsProp[];
   currentItem: recordsProp | null;
@@ -13,7 +18,15 @@ export interface recordState {
 
 const initialState: recordState = {
   items: [],
-  currentItem: null,
+  currentItem: {
+    nama: "",
+    status: "Masuk",
+    lokasi: "",
+    list_barang: [{ nama_barang: "", qty: 1 }],
+    nilai: 0,
+    tanggal: new Date().toISOString(),
+    keterangan: "",
+  },
   status: "idle",
   isHomeLoading: true,
   error: null,
@@ -140,9 +153,15 @@ const recordSlice = createSlice({
   initialState,
   reducers: {
     clearCurrentItem: (state) => {
-      state.currentItem = null;
+      state.currentItem = initialState.currentItem;
       state.status = "idle";
       state.error = null;
+    },
+    updateCurrentItemField: (state, action: PayloadAction<FieldUpdate>) => {
+      const { field, value } = action.payload;
+      if (!state.currentItem) return;
+      // @ts-ignore
+      state.currentItem[field] = value;
     },
     resetRecordsStatus: (state) => {
       state.status = "idle";
@@ -174,7 +193,8 @@ const recordSlice = createSlice({
       })
       .addCase(fetchRecordByIdThunk.fulfilled, (state, action: PayloadAction<recordsProp>) => {
         state.status = "succeeded";
-        state.currentItem = action.payload;
+        // Set men keterangan null jadina empty string
+        state.currentItem = { ...action.payload, keterangan: action.payload.keterangan ?? "" };
       })
       .addCase(fetchRecordByIdThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -220,5 +240,5 @@ const recordSlice = createSlice({
   },
 });
 
-export const { resetRecordsStatus, clearCurrentItem } = recordSlice.actions;
+export const { resetRecordsStatus, clearCurrentItem, updateCurrentItemField } = recordSlice.actions;
 export default recordSlice.reducer;

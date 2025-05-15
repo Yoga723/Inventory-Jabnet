@@ -1,21 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { addDays, formatISO, startOfDay, endOfDay } from "date-fns";
 import { fetchRecordsThunk } from "../../store/recordSlice";
 import { useAppDispatch } from "../../store/Hooks";
 
 export const useFilterSearchLogic = () => {
   const dispatch = useAppDispatch();
+  // state untuk search & filter
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFilter, setSelectedFilter] = useState("All");
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
-
   const [selectedDateFilter, setSelectedDateFilter] = useState("");
+
+  // State untuk membuka modal
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const buildQueryParams = () => {
     const params = new URLSearchParams();
-
     if (searchTerm) params.append("search", searchTerm);
     if (selectedFilter !== "All") params.append("status", selectedFilter);
 
@@ -34,25 +36,21 @@ export const useFilterSearchLogic = () => {
     return params.toString();
   };
 
-  useEffect(() => {
+  const handleSearch = () => {
     dispatch(fetchRecordsThunk(buildQueryParams()));
-  }, [selectedFilter, selectedDateFilter, dateRange]);
-
-  const handleSearch = () => dispatch(fetchRecordsThunk(buildQueryParams()));
+  };
 
   const handleFilterChange = (filter: string) => {
     setSelectedFilter(filter);
-    dispatch(fetchRecordsThunk(buildQueryParams()));
   };
 
   const handleDateFilterChange = (days: string) => {
     setSelectedDateFilter(days);
-    if (days !== "custom") {
-      dispatch(fetchRecordsThunk(buildQueryParams()));
-    }
   };
 
   return {
+    isFilterOpen,
+    setIsFilterOpen,
     searchTerm,
     setSearchTerm,
     selectedFilter,

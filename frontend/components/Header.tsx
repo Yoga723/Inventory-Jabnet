@@ -1,8 +1,7 @@
 "use client";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import HeaderModals from "./modals/HeaderModals";
-import { usePathname } from "next/navigation";
 import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
 
@@ -16,7 +15,7 @@ const Header = () => {
 
   return (
     <>
-      <nav className="navbar w-auto">
+      <nav className="navbar w-auto bg-base-100">
         <Link
           href="/"
           className="w-24 h-8 relative">

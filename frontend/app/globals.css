@@ -44,10 +44,6 @@
   --noise: 1;
 }
 
-:root {
-  --foreground: #171717;
-}
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -74,7 +70,7 @@ nav {
 }
 
 .table-records {
-  @apply overscroll-none border-none table-auto shrink-0 min-w-[700px] w-full  mb-10 mr-3;
+  @apply border-2 border-[#000000] table-auto shrink-0 min-w-[700px] w-full mb-8;
 }
 
 .table-records th {
@@ -87,14 +83,6 @@ nav {
   font-family: "Plus Jakarta Sans", Roboto, "Open Sans", Arial, sans-serif;
   font-size: clamp(11px, 2vw, 14px);
   @apply text-center min-h-10 px-5 py-1;
-}
-
-.modal {
-  background: white;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-  backdrop-filter: blur(6.5px);
-  -webkit-backdrop-filter: blur(6.5px);
-  border-radius: 10px;
 }
 
 #record-form-modal .modal-footer {
