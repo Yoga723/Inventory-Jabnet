@@ -13,3 +13,12 @@ export interface list_barang_props {
   nama_barang: string;
   qty: number | 1;
 }
+
+export interface UserState {
+  user_id: number | null;
+  username: string | null;
+  full_name: string | null;
+  role: string | null;
+  token: string | null;
+  status: "idle" | "loading" | "succeeded" | "failed";
+}

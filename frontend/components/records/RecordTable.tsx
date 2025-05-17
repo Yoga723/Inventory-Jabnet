@@ -5,7 +5,7 @@ import FormRecords from "./FormRecords";
 import Loading from "../Loading";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import { useAppSelector } from "../../store/Hooks";
-import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 // import AlertModal from "../modals/AlertModal";
 import { useRecordsContext } from "../../context/records/RecordsContext";
 
@@ -19,6 +19,8 @@ const RecordTable = () => {
   } = useAppSelector((state) => state.records);
   const { openModal } = useRecordsContext();
 
+  const { full_name, username, status } = useAppSelector((state) => state.user);
+
   useEffect(() => {
     getRecords();
   }, []);
@@ -29,6 +31,27 @@ const RecordTable = () => {
       {/* Table Records */}
       <table className="table-records">
         <thead className={`table-header-group bg-base-100`}>
+          <tr className={`bg-base-300 h-fit w-full`}>
+            <th
+              colSpan={8}
+              className="bg-base-300 w-full">
+              <div className="flex justify-between items-center p-4">
+                <button
+                  type="button"
+                  onClick={() => openModal(null)}
+                  className="btn btn-primary">
+                  <PlusIcon
+                    width={20}
+                    height={20}
+                    className="ml-1.5"
+                  />
+                  Tambah
+                </button>
+
+                <span className="text-sm text-black">Total Items: {recordsData.length}</span>
+              </div>
+            </th>
+          </tr>
           <tr>
             <th rowSpan={2}>Nama</th>
             <th rowSpan={2}>Tanggal</th>
@@ -55,12 +78,23 @@ const RecordTable = () => {
                 <React.Fragment key={index}>
                   <tr
                     onClick={() => toggleRow(index)}
-                    className={`cursor-pointer ${index % 2 === 0 ? `bg-base-100` : `bg-base-300`}`}>
-                    <td className="td-collapse font-bold">{record.nama}</td>
-                    <td className="td-collapse"> {new Date(record.tanggal).toLocaleDateString("en-GB")}</td>
+                    className={`cursor-pointer bg-base-100`}>
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } td-collapse font-bold  ${record.status === "Masuk" ? "text-info" : "text-error"}`}>
+                      {record.nama}
+                    </td>
+                    <td className={`${index != recordsData.length - 1 ? "border-y-2 border-black" : ""} td-collapse`}>
+                      {" "}
+                      {new Date(record.tanggal).toLocaleDateString("en-GB")}
+                    </td>
 
                     {/* Row Nama Barang */}
-                    <td className={`td-collapse min-w-30 text-center`}>
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                       <ul>
                         {record.list_barang.map((item, i) => (
                           <li
@@ -72,7 +106,10 @@ const RecordTable = () => {
                       </ul>
                     </td>
                     {/* Row QTY Barang */}
-                    <td className={`td-collapse min-w-30 text-center`}>
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                       <ul>
                         {record.list_barang.map((item, i) => (
                           <li
@@ -84,10 +121,28 @@ const RecordTable = () => {
                       </ul>
                     </td>
 
-                    <td className="td-collapse min-w-16">{record.status}</td>
-                    <td className="td-collapse min-w-52">{record.lokasi}</td>
-                    <td className="td-collapse min-w-52">{record.keterangan}</td>
-                    <td className="text-pretty break-all overflow-auto min-w-36">
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } td-collapse min-w-16  ${record.status === "Masuk" ? "text-info" : "text-error"}`}>
+                      {record.status}
+                    </td>
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } td-collapse min-w-52`}>
+                      {record.lokasi}
+                    </td>
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } td-collapse min-w-52`}>
+                      {record.keterangan}
+                    </td>
+                    <td
+                      className={`${
+                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      } text-pretty break-all overflow-auto min-w-36`}>
                       {formatCurrency(Number(record.nilai), record.status)}
                     </td>
                   </tr>
@@ -97,7 +152,7 @@ const RecordTable = () => {
                       expandedIndex === index
                         ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
                         : "hidden"
-                    } ${index % 2 === 0 ? "bg-base-100" : "bg-base-300"}`}>
+                    } bg-base-100`}>
                     <td
                       colSpan={8}
                       className="px-2">
@@ -108,21 +163,21 @@ const RecordTable = () => {
                             populateForm(record.record_id);
                             openModal(record.record_id);
                           }}
-                          className={`text-white records-action btn btn-info`}>
+                          className={`records-action text-sm flex bg-none`}>
                           <PencilIcon
                             width={16}
                             height={16}
-                            className="mr-1.5"
+                            className="mr-1.5 text-secondary"
                           />
                           Edit
                         </button>
                         <button
                           onClick={(e) => deleteRecord(e, record.record_id)}
-                          className={`text-white records-action btn btn-error`}>
+                          className={`records-action text-sm flex bg-none`}>
                           <TrashIcon
                             width={16}
                             height={16}
-                            className="mr-1.5"
+                            className="mr-1.5 text-error"
                           />
                           Hapus
                         </button>

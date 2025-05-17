@@ -1,14 +1,17 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import BarangInput from "../BarangInput";
 import Loading from "../Loading";
 import { useRecordsContext } from "../../context/records/RecordsContext";
+import { useAppDispatch, useAppSelector } from "store/Hooks";
+import { updateCurrentItemField } from "store/recordSlice";
 
 const FormRecords = () => {
-  const { payload, handleInputChange, handleItemsChange, getRecords, createRecord, putRecord, recordsStatus } =
-    useRecordsLogic(); // Jang handle request
+  const { payload, handleInputChange, handleItemsChange, createRecord, putRecord, recordsStatus } = useRecordsLogic(); // Jang handle request
   const { isModalOpen, closeModal, currentRecordId } = useRecordsContext(); // Jang buka/close modal
+  const { username, full_name, role } = useAppSelector((state) => state.user);
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (event: React.FormEvent) => {
     if (currentRecordId) await putRecord(event, currentRecordId);
@@ -18,13 +21,13 @@ const FormRecords = () => {
   return (
     <dialog
       id="record-modal"
-      className={` bg-base-300 modal modal-middle ${isModalOpen ? "modal-open" : "hidden"}`}>
+      className={`overflow-y-scroll bg-base-300 modal modal-middle ${isModalOpen ? "modal-open" : "hidden"}`}>
       <form
         id="record-form-modal"
         onSubmit={(event: React.FormEvent) => handleSubmit(event)}
-        className="flex flex-col items-center card bg-base-100 max-sm:w-full max-sm:h-full overflow-auto">
+        className="flex flex-col lg:grid grid-cols-2 items-center card bg-base-100 max-sm:w-full md:min-w-3xl max-sm:h-full overflow-auto">
         {recordsStatus == "loading" && <Loading />}
-        <h4 className="mb-1 mt-10 font-bold text-lg">
+        <h4 className="mb-1 mt-10 font-bold text-lg text-center col-span-2 ">
           {currentRecordId !== null ? "Update record" : "Tambah record baru"}
         </h4>
 
@@ -32,16 +35,16 @@ const FormRecords = () => {
         <div className="w-full px-4 mb-4 mt-2 space-y-2">
           <label
             htmlFor="nama"
-            className="font-semibold input w-full">
+            className="font-semibold input w-full hidden">
             Nama <span className="text-red-600">*</span>
             <input
               id="nama"
               name="nama"
               type="nama"
+              readOnly
               className="px-4 "
-              value={payload.nama}
-              onChange={(e) => handleInputChange("nama", e.target.value)}
-              placeholder="Asep, Cecep, Kasep"
+              value={username || ""}
+              placeholder={username || ""}
             />
           </label>
         </div>
@@ -65,7 +68,9 @@ const FormRecords = () => {
 
         {/* INPUT lokasi BARANG */}
         <div className="w-full px-4 mb-4 mt-2 space-y-2">
-          <label className="floating-label">
+          <label
+            className="floating-label"
+            htmlFor="lokasi">
             <span>
               Lokasi <span className="text-red-600 mr-3">*</span>
             </span>
@@ -84,7 +89,7 @@ const FormRecords = () => {
         {/* INPUT DAFTAR BARANG */}
         <div className="w-full px-4 mb-4 mt-2 space-y-2">
           <label
-            htmlFor="items_0"
+            htmlFor="nama_barang_0"
             className="font-semibold">
             List Barang <span className="text-red-600">*</span>
             <span className="text-gray-400">(dalam bentuk pcs/meter)</span>
@@ -127,7 +132,7 @@ const FormRecords = () => {
               className="textarea textarea-lg w-full"></textarea>
           </fieldset>
         </div>
-        <div className="modal-footer">
+        <div className="w-full col-span-2 flex my-6 justify-center items-center gap-6">
           <button
             type="submit"
             className="px-6 btn btn-success">
@@ -141,11 +146,6 @@ const FormRecords = () => {
             Close
           </button>
         </div>
-      </form>
-      <form
-        method="dialog"
-        className="modal-backdrop">
-        <button>close</button>
       </form>
     </dialog>
   );

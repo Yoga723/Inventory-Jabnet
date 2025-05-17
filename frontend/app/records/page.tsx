@@ -8,7 +8,7 @@ const RecordsPage = () => {
   return (
     <>
       <Header />
-      <main className="md:px-12 mt-16 overflow-auto bg-base-200 h-screen">
+      <main className="md:px-8 px-2 pb-28 overflow-auto bg-base-200 h-full max-w-screen">
         {/* Utility (Search, Filter, and Tambah button) */}
         <UtilityBar />
         <RecordTable />

@@ -13,6 +13,7 @@ import {
 } from "../../store/recordSlice";
 
 const useRecordsLogic = () => {
+  const { username, full_name, role } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
   const {
     items: recordsData,
@@ -41,10 +42,11 @@ const useRecordsLogic = () => {
       event.preventDefault();
       if (!validatePayload) return;
       if (!confirm("Yakin ingin tambah data 👉👈 ?")) return;
-      const dataToSend = { ...payload, list_barang: JSON.stringify(payload.list_barang) } satisfies Omit<
-        recordsProp,
-        "record_id" | "tanggal" | "list_barang"
-      > & {
+      const dataToSend = {
+        ...payload,
+        nama: username,
+        list_barang: JSON.stringify(payload.list_barang),
+      } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
         list_barang: string;
       };
       const res = await dispatch(createRecordsThunk(dataToSend));
@@ -65,6 +67,7 @@ const useRecordsLogic = () => {
       // Remove hela record_id, tanggal, & set list_barang jadi string
       const dataToSend = {
         ...payload,
+        nama: username,
         list_barang: JSON.stringify(payload.list_barang),
       } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & { list_barang: string };
 

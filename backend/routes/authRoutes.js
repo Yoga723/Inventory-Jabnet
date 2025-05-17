@@ -25,15 +25,28 @@ router.post("/login", async (req, res) => {
         httpOnly: true,
         domain: "inventory.jabnet.id",
         path: "/",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        // maxAge: 3600 * 1000, // 1 hour
+        secure: true,
+        sameSite: "none",
+        maxAge: 7 * 24 * 60 * 60, // 7D
       })
-      .json({ status: "success", data: token });
+      .json({
+        status: "success",
+        data: {
+          token,
+          user: { user_id: user.user_id, username: user.username, fullname: user.full_name, role: user.role },
+        },
+      });
   } catch (err) {
-    console.error("Login error:", err);
     res.status(500).json({ error: "Server error" });
   }
+});
+
+router.get("/me", authenticateMiddleware, async (req, res) => {
+  const { user_id } = req.user; // dari JWT
+  const { rows } = await req.db.query("SELECT user_id, username, full_name, role FROM users WHERE user_id = $1", [
+    user_id,
+  ]);
+  res.json({ status: "success", data: rows[0] });
 });
 
 module.exports = router;

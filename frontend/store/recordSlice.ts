@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { recordsProp } from "../types";
+import { useAppSelector } from "./Hooks";
 
 const API_BASE_URL = "https://inventory.jabnet.id/api/records";
 
@@ -37,10 +38,11 @@ export const fetchRecordsThunk = createAsyncThunk(
   "records/fetchRecordsThunk",
   async (query: string = "", { rejectWithValue }) => {
     try {
+      const token = localStorage.getItem("auth_token");
       const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
       const response = await fetch(url, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) },
       });
 
       const responseData = await response.json();

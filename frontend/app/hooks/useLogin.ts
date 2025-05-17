@@ -3,42 +3,39 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useAppDispatch } from "store/Hooks";
+import { loginUser, logout } from "store/userSlice";
 
 export function useLogin() {
+  const dispatch = useAppDispatch();
   const router = useRouter();
+
   // const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
 
   const login = async (username: string, password: string) => {
     setError(null);
-    try {
-      const res = await fetch("https://inventory.jabnet.id/api/user/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ username, password }),
-      });
-      const response = await res.json();
-
-      if (res.ok) {
-        document.cookie = `auth_token = ${response.data};path=/; sameSite=Lax`;
-        // const redirectTo = searchParams.get("redirect") || "/dashboard";
-        router.push("/records");
-      } else {
-        setError(response.error || "Login failed");
-        alert("username atau password salah !!!");
-      }
-    } catch (err) {
-      console.error("Login fetch error:", err);
-      setError("Server unreachable");
-      alert("Gagal terhubung ke server!");
+    const result = await dispatch(loginUser({ username, password }));
+    if (loginUser.fulfilled.match(result)) {
+      const { token } = result.payload as { token: string };
+      // Set cookie agar bisa dibaca oleh middleware
+      document.cookie = [
+        `auth_token=${token}`, // nilai JWT
+        `Path=/`, // cakupan seluruh aplikasi
+        `Max-Age=${7 * 24 * 60 * 60}`, // 7 hari
+        `SameSite=Lax`, // cukup untuk navigasi top-level
+        `Secure`, // HTTPS-only (opsional di dev)
+      ].join("; ");
+      router.replace("/records");
+    } else {
+      alert("Username atau password salah!");
     }
   };
 
-  const logout = (event: any) => {
-    document.cookie = `auth_token=null;path=;sameSite=Lax;expires=Thu,01 Jan 1970 00:00:00 GMT`;
+  const logoutHandler = () => {
+    dispatch(logout());
     router.push("/login");
   };
 
-  return { login, error, logout };
+  return { login, error, logoutHandler };
 }

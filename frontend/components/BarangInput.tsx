@@ -35,7 +35,7 @@ export default function BarangInput({
             htmlFor={`nama_barang_${index}`}
             className="floating-label">
             <input
-              id={`items_${index}`}
+              id={`nama_barang_${index}`}
               name={`nama_barang_${index}`}
               value={item.nama_barang}
               onChange={(e) => updateItem(index, "nama_barang", e.target.value)}

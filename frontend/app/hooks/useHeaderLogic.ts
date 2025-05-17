@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
 const useHeaderLogic = () => {
@@ -8,6 +9,14 @@ const useHeaderLogic = () => {
   const [mobileSideBar, setMobileSideBar] = useState(false);
   const mobileSidebarRef = useRef(null);
   const usePath = usePathname();
+  const router = useRouter();
+
+  useEffect(() => {
+    // Cek apakah user sudah login, apabila tidak login -> redirect ke login page
+    // const token = document.cookie.match(/auth_token=([^;]+)/)?.[1];
+
+    // if (!token) router.replace("/login");
+  }, [router]);
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutsidebar);

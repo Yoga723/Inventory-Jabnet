@@ -3,7 +3,7 @@ import { FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/s
 import React from "react";
 import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
-import 'react-datepicker/dist/react-datepicker.css';
+import "react-datepicker/dist/react-datepicker.css";
 import { useRecordsContext } from "../../context/records/RecordsContext";
 
 const dateOptions = [
@@ -61,28 +61,25 @@ const UtilityBar = () => {
         <button
           type="button"
           onClick={() => setIsFilterOpen(true)}
-          className="btn btn-info">
+          className="btn btn-neutral">
           <FunnelIcon className="w-5 h-5 mr-2" />
           Filter
         </button>
 
-        <button
+        {/* <button
           type="button"
           onClick={() => openModal(null)}
-          className="btn btn-primary ">
+          className="btn btn-primary">
           <PlusIcon
-            width={15}
-            height={15}
+            width={20}
+            height={20}
             className="ml-1.5"
           />
           Tambah
-        </button>
+        </button> */}
       </section>
 
-      <dialog
-        className={` modal bg-black bg-opacity-0 modal-middle ${
-          isFilterOpen ? "modal-open" : "hidden"
-        }`}>
+      <dialog className={` modal bg-black bg-opacity-0 modal-middle ${isFilterOpen ? "modal-open" : "hidden"}`}>
         <form
           method="dialog"
           className="!overflow-visible modal-box max-w-md space-y-4 flex flex-col justify-center items-center">
@@ -90,10 +87,13 @@ const UtilityBar = () => {
 
           {/* Status */}
           <div className="w-full">
-            <label className="label">
+            <label
+              className="label"
+              htmlFor="status-filter">
               <span className="label-text">Status</span>
             </label>
             <select
+              id="status-filter"
               className="select select-bordered w-full"
               value={selectedFilter}
               onChange={(e) => handleFilterChange(e.target.value)}>
@@ -105,10 +105,13 @@ const UtilityBar = () => {
 
           {/* Date */}
           <div className="w-full">
-            <label className="label">
+            <label
+              className="label"
+              htmlFor="tanggal-filter">
               <span className="label-text">Tanggal</span>
             </label>
             <select
+              id="tanggal-filter"
               className="select select-bordered w-full"
               value={selectedDateFilter}
               onChange={(e) => handleDateFilterChange(e.target.value)}>
