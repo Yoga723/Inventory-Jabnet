@@ -1,5 +1,5 @@
 "use client";
-import { FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
 import React from "react";
 import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
@@ -28,7 +28,7 @@ const UtilityBar = () => {
     handleSearch,
     handleFilterChange,
     handleDateFilterChange,
-    buildQueryParams,
+    handleExport,
     isFilterOpen,
     setIsFilterOpen,
   } = useFilterSearchLogic();
@@ -61,22 +61,18 @@ const UtilityBar = () => {
         <button
           type="button"
           onClick={() => setIsFilterOpen(true)}
-          className="btn btn-neutral">
+          className="btn btn-neutral btn-soft">
           <FunnelIcon className="w-5 h-5 mr-2" />
           Filter
         </button>
 
-        {/* <button
+        <button
           type="button"
-          onClick={() => openModal(null)}
-          className="btn btn-primary">
-          <PlusIcon
-            width={20}
-            height={20}
-            className="ml-1.5"
-          />
-          Tambah
-        </button> */}
+          onClick={(event) => handleExport(event)}
+          className="btn btn-info btn-soft">
+          <BookOpenIcon className="w-5 h-5 mr-2" />
+          Export
+        </button>
       </section>
 
       <dialog className={` modal bg-black bg-opacity-0 modal-middle ${isFilterOpen ? "modal-open" : "hidden"}`}>

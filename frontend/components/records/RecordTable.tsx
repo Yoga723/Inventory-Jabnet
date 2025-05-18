@@ -39,7 +39,7 @@ const RecordTable = () => {
                 <button
                   type="button"
                   onClick={() => openModal(null)}
-                  className="btn btn-primary">
+                  className="btn btn-primary btn-soft">
                   <PlusIcon
                     width={20}
                     height={20}
@@ -81,11 +81,11 @@ const RecordTable = () => {
                     className={`cursor-pointer bg-base-100`}>
                     <td
                       className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
-                      } td-collapse font-bold  ${record.status === "Masuk" ? "text-info" : "text-error"}`}>
+                        index != recordsData.length - 1 && "border-y-2 border-black"
+                      } td-collapse font-bold  ${record.status === "Masuk" ? "text-success" : "text-error"}`}>
                       {record.nama}
                     </td>
-                    <td className={`${index != recordsData.length - 1 ? "border-y-2 border-black" : ""} td-collapse`}>
+                    <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse`}>
                       {" "}
                       {new Date(record.tanggal).toLocaleDateString("en-GB")}
                     </td>
@@ -93,7 +93,7 @@ const RecordTable = () => {
                     {/* Row Nama Barang */}
                     <td
                       className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                        index != recordsData.length - 1 && "border-y-2 border-black"
                       } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                       <ul>
                         {record.list_barang.map((item, i) => (
@@ -108,7 +108,7 @@ const RecordTable = () => {
                     {/* Row QTY Barang */}
                     <td
                       className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                        index != recordsData.length - 1 && "border-y-2 border-black"
                       } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                       <ul>
                         {record.list_barang.map((item, i) => (
@@ -123,25 +123,25 @@ const RecordTable = () => {
 
                     <td
                       className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
-                      } td-collapse min-w-16  ${record.status === "Masuk" ? "text-info" : "text-error"}`}>
+                        index != recordsData.length - 1 && "border-y-2 border-black"
+                      } td-collapse min-w-16  ${record.status === "Masuk" ? "text-success" : "text-error"}`}>
                       {record.status}
                     </td>
                     <td
                       className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                        index != recordsData.length - 1 && "border-y-2 border-black"
                       } td-collapse min-w-52`}>
                       {record.lokasi}
                     </td>
                     <td
                       className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                        index != recordsData.length - 1 && "border-y-2 border-black"
                       } td-collapse min-w-52`}>
                       {record.keterangan}
                     </td>
                     <td
-                      className={`${
-                        index != recordsData.length - 1 ? "border-y-2 border-black" : ""
+                      className={`${index != recordsData.length - 1 && "border-y-2 border-black"} ${
+                        record.status === "Masuk" ? "text-success" : "text-error"
                       } text-pretty break-all overflow-auto min-w-36`}>
                       {formatCurrency(Number(record.nilai), record.status)}
                     </td>

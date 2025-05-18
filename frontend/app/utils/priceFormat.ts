@@ -9,6 +9,5 @@ export const formatCurrency = (amount: number | string, operation: string) => {
     maximumFractionDigits: 2,
   }).format(numAmount);
 
-  const sign = operation.toLowerCase() === "masuk" ? "+" : "–";
-  return `${sign} ${formatted}`;
+  return `${formatted}`;
 };

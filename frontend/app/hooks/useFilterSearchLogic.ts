@@ -48,7 +48,16 @@ export const useFilterSearchLogic = () => {
     setSelectedDateFilter(days);
   };
 
+  const handleExport = async (event) => {
+    event.preventDefault();
+    if (!confirm("Export data ?")) return;
+    const query = buildQueryParams();
+    const url = `https://inventory.jabnet.id/api/records/export${query ? `?${query}` : ""}`;
+    window.open(url, "_blank");
+  };
+
   return {
+    handleExport,
     isFilterOpen,
     setIsFilterOpen,
     searchTerm,
