@@ -1,23 +1,31 @@
-<<<<<<< HEAD
 "use client";
 
+import { getLocalStorageItem, setLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const useHeaderLogic = () => {
+  const [theme, setTheme] = useState('corporate')
   const [modalHeader, setModalHeader] = useState(false);
   const [mobileSideBar, setMobileSideBar] = useState(false);
   const mobileSidebarRef = useRef(null);
   const usePath = usePathname();
   const router = useRouter();
 
-  useEffect(() => {
-    // Cek apakah user sudah login, apabila tidak login -> redirect ke login page
-    // const token = document.cookie.match(/auth_token=([^;]+)/)?.[1];
+  // Load saved theme 
+  useLayoutEffect(() => {
+    const savedTheme = getLocalStorageItem<"corporate"|"dracula">(StorageKeys.THEME);
+    const initial = savedTheme === "dracula" ? "dracula" : "corporate";
 
-    // if (!token) router.replace("/login");
-  }, [router]);
+    setTheme(initial)
+    document.documentElement.setAttribute("data-theme", initial)
+  }, []);
+
+  useEffect(()=>{
+    setLocalStorageItem(StorageKeys.THEME, theme);
+    document.documentElement.setAttribute("data-theme", theme);
+  },[theme])
 
   useEffect(() => {
     document.addEventListener("mousedown", handleClickOutsidebar);
@@ -32,45 +40,7 @@ const useHeaderLogic = () => {
     }
   };
 
-  return { modalHeader, setModalHeader, mobileSideBar, setMobileSideBar, mobileSidebarRef, usePath };
+  return { theme, setTheme, modalHeader, setModalHeader, mobileSideBar, setMobileSideBar, mobileSidebarRef, usePath };
 };
 
 export default useHeaderLogic;
-=======
-"use client";
-
-import { getLocalStorageItem, StorageKeys } from "app/utils/localStorage";
-import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-
-const useHeaderLogic = () => {
-  const [theme, settheme] = useState<"light"|"dark">(null!)
-  const [modalHeader, setModalHeader] = useState(false);
-  const [mobileSideBar, setMobileSideBar] = useState(false);
-  const mobileSidebarRef = useRef(null);
-  const usePath = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    const theme = getLocalStorageItem(StorageKeys.THEME)
-  }, []);
-
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutsidebar);
-    return () => document.removeEventListener("mousedown", handleClickOutsidebar);
-  }, []);
-
-  //   Fungsi untuk hide sidebarnya mobile saat user click diluar isinya
-  const handleClickOutsidebar = (event) => {
-    const currentRef = mobileSidebarRef.current;
-    if (currentRef && !currentRef.contains(event.target as Node)) {
-      setMobileSideBar(false);
-    }
-  };
-
-  return { modalHeader, setModalHeader, mobileSideBar, setMobileSideBar, mobileSidebarRef, usePath };
-};
-
-export default useHeaderLogic;
->>>>>>> 4289c65a (change name placeholder)

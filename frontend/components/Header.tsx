@@ -5,6 +5,7 @@ import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
 import { useAppSelector } from "store/Hooks";
 import { useLogin } from "app/hooks/useLogin";
+import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 
 const Header = () => {
   const navButton = [
@@ -14,7 +15,7 @@ const Header = () => {
 
   const { full_name, role, username } = useAppSelector((state) => state.user);
 
-  const { mobileSideBar, mobileSidebarRef, modalHeader, usePath, setMobileSideBar, setModalHeader } = useHeaderLogic();
+  const { theme, setTheme, mobileSideBar, mobileSidebarRef, modalHeader, usePath, setMobileSideBar, setModalHeader } = useHeaderLogic();
   const { logoutHandler } = useLogin();
 
   return (
@@ -52,7 +53,18 @@ const Header = () => {
             </Link>
           ))}
         </div>
-        <div className="navbar-end">
+        <div className="navbar-end gap-4">
+           <button
+            aria-label="Toggle Theme"
+            className="btn btn-ghost btn-circle"
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+          >
+            {theme === "light"
+              ? <MoonIcon className="w-6 h-6" />
+              : <SunIcon  className="w-6 h-6" />
+            }
+          </button>
+
           <div className="dropdown flex justify-center items-center">
             <button
               type="button"
@@ -84,7 +96,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Navigasi tab Mobile */}
+      {/* Bottom Navigasi Mobile & Tablet */}
       <div className="dock lg:hidden">
         <Link
           href={navButton[0].destination}

@@ -19,16 +19,13 @@ const RecordTable = () => {
   } = useAppSelector((state) => state.records);
   const { openModal } = useRecordsContext();
 
-  const { full_name, username, status } = useAppSelector((state) => state.user);
-
   useEffect(() => {
     getRecords();
   }, []);
 
   return (
-    <>
+    <div className="overflow-x-auto w-full">
       <FormRecords />
-      <button type="button" onClick={()=> console.log(full_name)}>CEK FULL NAME</button>
       {/* Table Records */}
       <table className="table-records">
         <thead className={`table-header-group bg-base-100`}>
@@ -49,7 +46,7 @@ const RecordTable = () => {
                   Tambah
                 </button>
 
-                <span className="text-sm text-black">Total Items: {recordsData.length}</span>
+                <span className="text-sm">Total Items: {recordsData.length}</span>
               </div>
             </th>
           </tr>
@@ -149,7 +146,7 @@ const RecordTable = () => {
                   </tr>
                   {/* ROW untuk action button */}
                   <tr
-                    className={` text-black record-action-transition ${
+                    className={`record-action-transition ${
                       expandedIndex === index
                         ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
                         : "hidden"
@@ -164,7 +161,7 @@ const RecordTable = () => {
                             populateForm(record.record_id);
                             openModal(record.record_id);
                           }}
-                          className={`records-action text-sm flex bg-none`}>
+                          className={`cursor-pointer text-sm flex bg-none`}>
                           <PencilIcon
                             width={16}
                             height={16}
@@ -174,7 +171,7 @@ const RecordTable = () => {
                         </button>
                         <button
                           onClick={(e) => deleteRecord(e, record.record_id)}
-                          className={`records-action text-sm flex bg-none`}>
+                          className={`cursor-pointer text-sm flex bg-none`}>
                           <TrashIcon
                             width={16}
                             height={16}
@@ -198,8 +195,7 @@ const RecordTable = () => {
             </tr>
           )}
         </tbody>
-      </table>
-    </>
+      </table></div>
   );
 };
 

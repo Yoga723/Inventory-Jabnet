@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -7,17 +6,8 @@ module.exports = {
     "./node_modules/@material-tailwind/react/**/*.{js,ts,jsx,tsx}",
   ],
   darkMode: "class", // enable manual dark mode switching
-  plugins: [require("tailwindcss-motion")],
+  plugins: [require("tailwindcss-motion"), require('daisyui')],
+  daisyui:{
+    theme:['corporate', 'dracula']
+  }
 };
-=======
-module.exports = {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-    "./node_modules/@material-tailwind/react/**/*.{js,ts,jsx,tsx}",
-  ],
-  darkMode: "class", // enable manual dark mode switching
-  plugins: [require("tailwindcss-motion")],
-};
->>>>>>> 4289c65a (change name placeholder)
