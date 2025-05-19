@@ -20,11 +20,11 @@ export function useLogin() {
       const { token } = result.payload as { token: string };
       // Set cookie agar bisa dibaca oleh middleware
       document.cookie = [
-        `auth_token=${token}`, // nilai JWT
-        `Path=/`, // cakupan seluruh aplikasi
+        `auth_token=${token}`, // value JWT
+        `Path=/`, // range cookie ka kabeh file
         `Max-Age=${7 * 24 * 60 * 60}`, // 7 hari
-        `SameSite=Lax`, // cukup untuk navigasi top-level
-        `Secure`, // HTTPS-only (opsional di dev)
+        `SameSite=Lax`,
+        `Secure`, 
       ].join("; ");
       router.replace("/records");
     } else {

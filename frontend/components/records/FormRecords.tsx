@@ -1,3 +1,4 @@
+
 "use client";
 import React, { useEffect } from "react";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
@@ -10,7 +11,7 @@ import { updateCurrentItemField } from "store/recordSlice";
 const FormRecords = () => {
   const { payload, handleInputChange, handleItemsChange, createRecord, putRecord, recordsStatus } = useRecordsLogic(); // Jang handle request
   const { isModalOpen, closeModal, currentRecordId } = useRecordsContext(); // Jang buka/close modal
-  const { username, full_name, role } = useAppSelector((state) => state.user);
+  const { full_name, role } = useAppSelector((state) => state.user);
   const dispatch = useAppDispatch();
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -43,8 +44,8 @@ const FormRecords = () => {
               type="nama"
               readOnly
               className="px-4 "
-              value={username || ""}
-              placeholder={username || ""}
+              value={full_name || ""}
+              placeholder={full_name || ""}
             />
           </label>
         </div>

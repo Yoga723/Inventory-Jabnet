@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @import "tailwindcss";
 /* Setting fitur dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
@@ -35,3 +36,42 @@
     @apply opacity-100;
   }
 }
+=======
+@import "tailwindcss";
+/* Setting fitur dark mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+.collapse-row {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out;
+}
+
+/* When `.open` is added, allow the row to expand to its full height */
+.expand-row {
+  max-height: 500px; /* adjust this to the maximum expected height */
+  transition: max-height 0.4s ease-in-out;
+}
+
+/* Optional: transition opacity for smoother effect */
+.collapse-row,
+.expand-row {
+  opacity: 0;
+  transition: max-height 0.4s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+.expand-row {
+  opacity: 1;
+  transition-delay: 0.1s;
+}
+
+/* Tailwind plugin variants (if using Tailwind CLI or JIT) */
+@layer utilities {
+  .collapse-row {
+    @apply overflow-hidden transition-[max-height] duration-400 ease-in-out opacity-0;
+  }
+  .expand-row {
+    @apply opacity-100;
+  }
+}
+>>>>>>> 4289c65a (change name placeholder)

@@ -28,6 +28,7 @@ const RecordTable = () => {
   return (
     <>
       <FormRecords />
+      <button type="button" onClick={()=> console.log(full_name)}>CEK FULL NAME</button>
       {/* Table Records */}
       <table className="table-records">
         <thead className={`table-header-group bg-base-100`}>

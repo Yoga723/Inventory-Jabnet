@@ -44,7 +44,7 @@ const useRecordsLogic = () => {
       if (!confirm("Yakin ingin tambah data 👉👈 ?")) return;
       const dataToSend = {
         ...payload,
-        nama: username,
+        nama: full_name,
         list_barang: JSON.stringify(payload.list_barang),
       } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
         list_barang: string;
@@ -67,7 +67,7 @@ const useRecordsLogic = () => {
       // Remove hela record_id, tanggal, & set list_barang jadi string
       const dataToSend = {
         ...payload,
-        nama: username,
+        nama: full_name,
         list_barang: JSON.stringify(payload.list_barang),
       } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & { list_barang: string };
 

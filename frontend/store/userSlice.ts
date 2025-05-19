@@ -1,5 +1,6 @@
 // src/features/user/userSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { removeLocalStorageItem, setLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { UserState } from "types";
 
 const API_BASE_URL = "https://inventory.jabnet.id/api/user";
@@ -24,6 +25,7 @@ export const loginUser = createAsyncThunk(
       credentials: "include",
     });
     const data = await response.json();
+    console.log("Ini Data", data.data)
     return data.data; // { token, user: { ... } }
   }
 );
@@ -47,7 +49,8 @@ const userSlice = createSlice({
       state.full_name = null;
       state.role = null;
       state.token = null;
-      localStorage.removeItem("userState");
+      removeLocalStorageItem(StorageKeys.USERSTATE)
+      // localStorage.removeItem("userState");
       document.cookie = [
         `auth_token=`,
         `Path=/`,
@@ -71,17 +74,12 @@ const userSlice = createSlice({
         state.full_name = action.payload.user.full_name;
         state.role = action.payload.user.role;
         // Simpan ke localStorage
-        localStorage.setItem("userState", JSON.stringify(state));
+        setLocalStorageItem(StorageKeys.USERSTATE, JSON.stringify(state))
+        // localStorage.setItem("userState", JSON.stringify(state));
       })
       .addCase(loginUser.rejected, (state) => {
         state.status = "failed";
       });
-    // .addCase(fetchCurrentUser.fulfilled, (state, action) => {
-    //   state.user_id = action.payload.user_id;
-    //   state.username = action.payload.username;
-    //   state.full_name = action.payload.full_name;
-    //   state.role = action.payload.role;
-    // });
   },
 });
 

@@ -5,7 +5,6 @@ import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
 import { useAppSelector } from "store/Hooks";
 import { useLogin } from "app/hooks/useLogin";
-// import exit from "/images/icons/icon8-exit.png";
 
 const Header = () => {
   const navButton = [
