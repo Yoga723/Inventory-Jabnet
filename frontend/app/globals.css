@@ -2,7 +2,7 @@
 /* Setting fitur dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 @plugin "daisyui" {
-  themes: corporate --default, dark;
+  themes: light --default, dark;
   root: ":root";
   /* include: ;
   exclude: ;
@@ -10,31 +10,31 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "corporate";
-  default: true;
+   name: "light";
+   default: true;
   prefersdark: false;
   color-scheme: "light";
-  --color-base-100: oklch(100% 0 0);
-  --color-base-200: oklch(93% 0 0);
-  --color-base-300: oklch(86% 0 0);
-  --color-base-content: oklch(22.389% 0.031 278.072);
-  --color-primary: #e66940;
+  --color-base-100: oklch(98% 0 0);
+  --color-base-200: oklch(97% 0 0);
+  --color-base-300: oklch(92% 0 0);
+  --color-base-content: oklch(12% 0.042 264.695);
+  --color-primary: oklch(0% 0 0);
   --color-primary-content: oklch(100% 0 0);
-  --color-secondary: oklch(58% 0.158 241.966);
+  --color-secondary: oklch(0% 0 0);
   --color-secondary-content: oklch(100% 0 0);
-  --color-accent: oklch(60% 0.118 184.704);
-  --color-accent-content: oklch(100% 0 0);
-  --color-neutral: oklch(0% 0 0);
-  --color-neutral-content: oklch(100% 0 0);
+  --color-accent: oklch(70% 0.213 47.604);
+  --color-accent-content: oklch(98% 0.016 73.684);
+  --color-neutral: oklch(13% 0.028 261.692);
+  --color-neutral-content: oklch(98% 0.002 247.839);
   --color-info: oklch(60% 0.126 221.723);
-  --color-info-content: oklch(100% 0 0);
+  --color-info-content: oklch(98% 0.019 200.873);
   --color-success: oklch(62% 0.194 149.214);
-  --color-success-content: oklch(100% 0 0);
-  --color-warning: oklch(85% 0.199 91.936);
-  --color-warning-content: oklch(0% 0 0);
-  --color-error: oklch(63% 0.237 25.331);
-  --color-error-content: oklch(0% 0 0);
-  --radius-selector: 0.25rem;
+  --color-success-content: oklch(98% 0.018 155.826);
+  --color-warning: oklch(68% 0.162 75.834);
+  --color-warning-content: oklch(98% 0.026 102.212);
+  --color-error: oklch(59% 0.249 0.584);
+  --color-error-content: oklch(97% 0.014 343.198);
+  --radius-selector: 1rem;
   --radius-field: 0.5rem;
   --radius-box: 0.5rem;
   --size-selector: 0.25rem;
@@ -44,9 +44,8 @@
   --noise: 1;
 }
 
-
 @plugin "daisyui/theme" {
-  name: "dracula";
+  name: "dark";
   default: false;
   prefersdark: false;
   color-scheme: "dark";
@@ -72,12 +71,12 @@
   --color-error-content: oklch(13.644% 0.041 24.43);
   --radius-selector: 1rem;
   --radius-field: 0.5rem;
-  --radius-box: 1rem;
+  --radius-box: 0.5rem;
   --size-selector: 0.25rem;
   --size-field: 0.25rem;
   --border: 1px;
-  --depth: 0;
-  --noise: 0;
+  --depth: 1;
+  --noise: 1;
 }
 
 

@@ -2,22 +2,21 @@
 
 import { getLocalStorageItem, setLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { usePathname } from "next/navigation";
-import { useRouter } from "next/navigation";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+
+type Theme = "light" | "dark";
 
 const useHeaderLogic = () => {
-  const [theme, setTheme] = useState('corporate')
+  const [theme, setTheme] = useState<"light"|"dark">(StorageKeys.THEME)
   const [modalHeader, setModalHeader] = useState(false);
   const [mobileSideBar, setMobileSideBar] = useState(false);
   const mobileSidebarRef = useRef(null);
   const usePath = usePathname();
-  const router = useRouter();
 
   // Load saved theme 
-  useLayoutEffect(() => {
-    const savedTheme = getLocalStorageItem<"corporate"|"dracula">(StorageKeys.THEME);
-    const initial = savedTheme === "dracula" ? "dracula" : "corporate";
-
+  useEffect(() => {
+    const savedTheme = getLocalStorageItem<Theme>(StorageKeys.THEME);
+    const initial:Theme = savedTheme === "dark" ? "dark" : "light";
     setTheme(initial)
     document.documentElement.setAttribute("data-theme", initial)
   }, []);

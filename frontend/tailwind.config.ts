@@ -8,6 +8,6 @@ module.exports = {
   darkMode: "class", // enable manual dark mode switching
   plugins: [require("tailwindcss-motion"), require('daisyui')],
   daisyui:{
-    theme:['corporate', 'dracula']
+    theme:['light', 'dark']
   }
 };

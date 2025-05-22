@@ -15,7 +15,8 @@ const Header = () => {
 
   const { full_name, role, username } = useAppSelector((state) => state.user);
 
-  const { theme, setTheme, mobileSideBar, mobileSidebarRef, modalHeader, usePath, setMobileSideBar, setModalHeader } = useHeaderLogic();
+  const { theme, setTheme, mobileSideBar, mobileSidebarRef, modalHeader, usePath, setMobileSideBar, setModalHeader } =
+    useHeaderLogic();
   const { logoutHandler } = useLogin();
 
   return (
@@ -33,6 +34,10 @@ const Header = () => {
               sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
             />
           </Link>
+          <Link
+            href={""}
+            about=""
+            className=""></Link>
         </div>
         <div className="navbar-center hidden lg:flex gap-4">
           {navButton.map((btn) => (
@@ -40,7 +45,7 @@ const Header = () => {
               key={btn.destination}
               href={btn.destination}
               className={`
-              flex items-center p-3 h-full hover:bg-gray-100 dark:hover:bg-gray-700/40
+              flex items-center p-3 h-full hover:bg-gray-300 
               ${usePath === btn.destination && "border-b-2 border-amber-300"}
             `}>
               <Image
@@ -54,15 +59,11 @@ const Header = () => {
           ))}
         </div>
         <div className="navbar-end gap-4">
-           <button
+          <button
             aria-label="Toggle Theme"
             className="btn btn-ghost btn-circle"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-          >
-            {theme === "light"
-              ? <MoonIcon className="w-6 h-6" />
-              : <SunIcon  className="w-6 h-6" />
-            }
+            onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+            {theme === "light" ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
           </button>
 
           <div className="dropdown flex justify-center items-center">

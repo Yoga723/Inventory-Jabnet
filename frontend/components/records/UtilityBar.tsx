@@ -1,5 +1,5 @@
 "use client";
-import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
+import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
 import React from "react";
 import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
@@ -50,7 +50,7 @@ const UtilityBar = () => {
             name="search"
             id="search"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(event) => setSearchTerm(event.target.value)}
             onKeyDown={onSearchKey}
             type="text"
             className="w-full"
@@ -92,7 +92,7 @@ const UtilityBar = () => {
               id="status-filter"
               className="select select-bordered w-full"
               value={selectedFilter}
-              onChange={(e) => handleFilterChange(e.target.value)}>
+              onChange={(event) => handleFilterChange(event.target.value)}>
               <option>All</option>
               <option>Masuk</option>
               <option>Keluar</option>
@@ -110,12 +110,12 @@ const UtilityBar = () => {
               id="tanggal-filter"
               className="select select-bordered w-full"
               value={selectedDateFilter}
-              onChange={(e) => handleDateFilterChange(e.target.value)}>
-              {dateOptions.map((o) => (
+              onChange={(event) => handleDateFilterChange(event.target.value)}>
+              {dateOptions.map((option) => (
                 <option
-                  key={o.value}
-                  value={o.value}>
-                  {o.label}
+                  key={option.value}
+                  value={option.value}>
+                  {option.label}
                 </option>
               ))}
             </select>

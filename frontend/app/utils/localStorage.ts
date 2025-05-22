@@ -3,7 +3,7 @@
 
 export enum StorageKeys {
   // Nama_Variabel = "nama key yg menjelaskan item yg akan disimpan di localStorage"
-  THEME = "theme",
+  THEME = "light",
   LOGIN_INFO = "login_info",
   USERSTATE = "userInfo",
   auth_token = ""
