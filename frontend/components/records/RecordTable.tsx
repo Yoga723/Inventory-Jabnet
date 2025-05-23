@@ -10,13 +10,14 @@ import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { useRecordsContext } from "../../context/records/RecordsContext";
 
 const RecordTable = () => {
-  const { getRecords, deleteRecord, expandedIndex, toggleRow, populateForm } = useRecordsLogic();
+  const { getRecords, calculateTotalHarga, deleteRecord, expandedIndex, toggleRow, populateForm } = useRecordsLogic();
   const {
     items: recordsData, // ie intina items as recordsData
     isHomeLoading,
     status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
     error: recordsError,
   } = useAppSelector((state) => state.records);
+  const { role } = useAppSelector((state) => state.user);
   const { openModal } = useRecordsContext();
 
   useEffect(() => {
@@ -46,7 +47,10 @@ const RecordTable = () => {
                   Tambah
                 </button>
 
-                <span className="text-sm">Total Items: {recordsData.length}</span>
+                <div className="flex flex-col text-start">
+                  <span className="text-sm">Total Items: {recordsData.length}</span>
+                  <span className="text-sm">Perkiraan Total : {formatCurrency(calculateTotalHarga())} </span>
+                </div>
               </div>
             </th>
           </tr>
@@ -84,7 +88,6 @@ const RecordTable = () => {
                       {record.nama}
                     </td>
                     <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse`}>
-                      {" "}
                       {new Date(record.tanggal).toLocaleDateString("en-GB")}
                     </td>
 
@@ -141,47 +144,49 @@ const RecordTable = () => {
                       className={`${index != recordsData.length - 1 && "border-y-2 border-black"} ${
                         record.status === "Masuk" ? "text-success" : "text-error"
                       } text-pretty break-all overflow-auto min-w-36`}>
-                      {formatCurrency(Number(record.nilai), record.status)}
+                      {formatCurrency(Number(record.nilai))}
                     </td>
                   </tr>
                   {/* ROW untuk action button */}
-                  <tr
-                    className={`record-action-transition ${
-                      expandedIndex === index
-                        ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
-                        : "hidden"
-                    } bg-base-100`}>
-                    <td
-                      colSpan={8}
-                      className="px-2">
-                      <div className="flex items-center justify-start gap-8 p-1">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            populateForm(record.record_id);
-                            openModal(record.record_id);
-                          }}
-                          className={`cursor-pointer text-sm flex bg-none`}>
-                          <PencilIcon
-                            width={16}
-                            height={16}
-                            className="mr-1.5 text-secondary"
-                          />
-                          Edit
-                        </button>
-                        <button
-                          onClick={(e) => deleteRecord(e, record.record_id)}
-                          className={`cursor-pointer text-sm flex bg-none`}>
-                          <TrashIcon
-                            width={16}
-                            height={16}
-                            className="mr-1.5 text-error"
-                          />
-                          Hapus
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  {role && ["operator", "admin", "super_admin"].includes(role) && (
+                    <tr
+                      className={`record-action-transition ${
+                        expandedIndex === index
+                          ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
+                          : "hidden"
+                      } bg-base-100`}>
+                      <td
+                        colSpan={8}
+                        className="px-2">
+                        <div className="flex items-center justify-start gap-8 p-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              populateForm(record.record_id);
+                              openModal(record.record_id);
+                            }}
+                            className={`cursor-pointer text-sm flex bg-none`}>
+                            <PencilIcon
+                              width={16}
+                              height={16}
+                              className="mr-1.5 text-secondary"
+                            />
+                            Edit
+                          </button>
+                          <button
+                            onClick={(e) => deleteRecord(e, record.record_id)}
+                            className={`cursor-pointer text-sm flex bg-none`}>
+                            <TrashIcon
+                              width={16}
+                              height={16}
+                              className="mr-1.5 text-error"
+                            />
+                            Hapus
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </React.Fragment>
               ))}
             </>
@@ -195,7 +200,8 @@ const RecordTable = () => {
             </tr>
           )}
         </tbody>
-      </table></div>
+      </table>
+    </div>
   );
 };
 

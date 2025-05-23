@@ -1,6 +1,9 @@
 // routes/recordRoutes.js
 const router = require("express").Router();
 const excelJS = require("exceljs");
+const { authenticateMiddleware, authorize } = require("../middleware/auth");
+
+router.use(authenticateMiddleware);
 
 router.get("/", async (req, res) => {
   try {
@@ -39,7 +42,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authorize(["field", "operator", "admin", "super_admin"]), async (req, res) => {
   try {
     const { nama, nilai, list_barang, lokasi, status, keterangan } = req.body;
 
@@ -231,7 +234,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", authorize(["operator", "admin", "super_admin"]), async (req, res) => {
   try {
     const paramId = req.params.id;
     if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
@@ -285,7 +288,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete(`/:id`, async (req, res) => {
+router.delete(`/:id`, authorize(["operator", "admin", "super_admin"]), async (req, res) => {
   try {
     const paramId = parseInt(req.params.id);
     if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });

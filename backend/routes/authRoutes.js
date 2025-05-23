@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const { authenticateMiddleware, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -18,12 +19,12 @@ router.post("/login", async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
     // 3) Sign JWT
-    const token = jwt.sign({ user_id: user.user_id }, process.env.JWT_SECRET, { expiresIn: "7d" });
+    const token = jwt.sign({ user_id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
     // 4) Set HTTP-only cookie
     res
       .cookie("auth_token", token, {
         httpOnly: true,
-        domain: "inventory.jabnet.id",
+        // domain: "inventory.jabnet.id",
         path: "/",
         secure: true,
         sameSite: "none",
@@ -33,7 +34,7 @@ router.post("/login", async (req, res) => {
         status: "success",
         data: {
           token,
-          user: { user_id: user.user_id, username: user.username, fullname: user.full_name, role: user.role },
+          user: { user_id: user.user_id, username: user.username, full_name: user.full_name, role: user.role },
         },
       });
   } catch (err) {
@@ -42,11 +43,12 @@ router.post("/login", async (req, res) => {
 });
 
 router.get("/me", authenticateMiddleware, async (req, res) => {
-  const { user_id } = req.user; // dari JWT
   const { rows } = await req.db.query("SELECT user_id, username, full_name, role FROM users WHERE user_id = $1", [
-    user_id,
+    req.user.user_id,
   ]);
   res.json({ status: "success", data: rows[0] });
 });
+
+router.get("/settings", authenticateMiddleware, authorize(["admin", "super_admin"]), async (req, res) => {});
 
 module.exports = router;

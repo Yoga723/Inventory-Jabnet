@@ -1,11 +1,11 @@
 // server.js
 const express = require("express");
 const cors = require("cors"); // CORS middleware
+const cookieParser = require("cookie-parser");
 const { Pool } = require("pg"); // PostgreSQL pool
 
 require("dotenv").config();
-const authRoutes = require("./routes/authRoutes.js");
-const recordRoutes = require("./routes/recordRoutes.js");
+const apiRouter = require("./routes/index.js");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -28,17 +28,22 @@ app.use((req, res, next) => {
 // 3) Middleware
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://inventory.jabnet.id", "https://inventory.jabnet.id"],
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:4000",
+      "http://inventory.jabnet.id",
+      "https://inventory.jabnet.id",
+    ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 ); // Enable CORS
 app.use(express.json()); // JSON body parser
+app.use(cookieParser());
 
 // 4) Routes
-app.use("/api/records", recordRoutes);
-app.use("/api/user", authRoutes);
+app.use("/api", apiRouter);
 
 // 5) Start server
 app.listen(port, () => {

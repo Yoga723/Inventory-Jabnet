@@ -2,9 +2,12 @@
 import Image from "next/image";
 import React, { FormEvent, Suspense } from "react";
 import { useLogin } from "../hooks/useLogin";
+import useHeaderLogic from "app/hooks/useHeaderLogic";
 
 const page = () => {
   const { login, error } = useLogin();
+  const { theme } = useHeaderLogic();
+
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -22,12 +25,12 @@ const page = () => {
         className="container relative w-64 p-6 rounded-lg flex flex-col justify-center items-center border-orange-300 border-[1px] shadow-xl/40 shadow-orange-300"
         onSubmit={handleSubmit}>
         <Image
-          src={"/images/jabnet-logo.webp"}
+          src={theme == "light" ? "/images/jabnet-logo.webp" : "/images/jabnet-logo-dark.png"}
           alt="Logo Jabnet"
           priority
           width={128}
           height={48}
-          className="mb-6"
+          sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
         />
         <label htmlFor="username">Username</label>
         <input
@@ -53,6 +56,7 @@ const page = () => {
         />
         <button
           type="submit"
+          data-cypess="submit-login"
           className="mt-8 rounded-full bg-gradient-to-b from-orange-300 to-orange-500 hover:cursor-pointer hover:from-orange-500 hover:to-orange-300 text-white font-bold py-2 px-8 transition-all duration-300 hover:shadow-md shadow-amber-300">
           LOGIN
         </button>

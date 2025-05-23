@@ -1,4 +1,4 @@
-export const formatCurrency = (amount: number | string, operation: string) => {
+export const formatCurrency = (amount: number | string) => {
   // Convert string to number if needed
   const numAmount = typeof amount === "string" ? Number(amount.replace(/[^0-9.-]/g, "")) : amount;
 

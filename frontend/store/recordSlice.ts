@@ -38,10 +38,11 @@ export const fetchRecordsThunk = createAsyncThunk(
   "records/fetchRecordsThunk",
   async (query: string = "", { rejectWithValue }) => {
     try {
-      const token = getLocalStorageItem(StorageKeys.auth_token)
+      const token = getLocalStorageItem(StorageKeys.auth_token);
       const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
       const response = await fetch(url, {
         method: "GET",
+        credentials: "include",
         headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) },
       });
 
@@ -62,6 +63,7 @@ export const fetchRecordByIdThunk = createAsyncThunk(
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
 
       if (!res.ok) return rejectWithValue(res.status || "Data tidak ditemukan !!");
@@ -88,6 +90,7 @@ export const createRecordsThunk = createAsyncThunk(
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newRecordPayload),
+        credentials: "include",
       });
 
       if (!res.ok) return rejectWithValue(`Gagal Kirim Data (Status: ${res.status})`);
@@ -120,6 +123,7 @@ export const putRecordsThunk = createAsyncThunk(
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedRecordPayload),
+        credentials: "include",
       });
 
       if (!res.ok) return rejectWithValue(res.status || "Gagal Update data, Coba lagi nanti !!");
@@ -138,6 +142,7 @@ export const deleteRecordsThunk = createAsyncThunk(
     try {
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
         method: "DELETE",
+        credentials: "include",
       });
       if (!res.ok) return rejectWithValue(`Data kemungkinan tidak ada. Error Code : ${res.status}`);
 

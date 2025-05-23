@@ -13,7 +13,10 @@ import {
 } from "../../store/recordSlice";
 
 const useRecordsLogic = () => {
-  const { username, full_name, role } = useAppSelector((state) => state.user);
+  const { full_name } = useAppSelector((state) => state.user);
+  const [formError, setFormError] = useState({
+    inputError: { errorNama: false, errorLokasi: false, errorListBarang: false },
+  });
   const dispatch = useAppDispatch();
   const {
     items: recordsData,
@@ -109,14 +112,17 @@ const useRecordsLogic = () => {
   );
 
   const validatePayload = () => {
-    if (!payload.nama.trim() || payload.nama.length < 2) return alert("Nami di isian hela a 😅");
+    const hasErrorNama = !payload.nama.trim() || payload.nama.length < 1;
+    const hasErrorLokasi = !payload.lokasi.trim() || payload.lokasi.length < 1;
+    const hasErrorListBarang = !payload.list_barang.some((item) => {
+      !item.nama_barang.trim() || item.nama_barang.length < 1;
+    });
 
-    if (!payload.lokasi.trim() || payload.lokasi.length < 2) return alert("Lokasina di isi oga a 🤪");
+    setFormError({
+      inputError: { errorNama: hasErrorNama, errorLokasi: hasErrorLokasi, errorListBarang: hasErrorListBarang },
+    });
 
-    if (payload.list_barang.some((item) => !item.nama_barang.trim() || item.nama_barang.length < 2 || item.qty < 1))
-      return alert("CEK HELA ATUH EYYY LIST BARANGNA 😇");
-
-    return true;
+    return false;
   };
 
   // Toggle table row
@@ -124,11 +130,24 @@ const useRecordsLogic = () => {
     setExpandedIndex((expandedIndex) => (expandedIndex == idx ? null : idx));
   };
 
+  const calculateTotalHarga = () => {
+    const totalHarga = recordsData.reduce((acc, item) => {
+      const nilaiNum = Number(item.nilai);
+      if (item.status === "Masuk") return acc + nilaiNum;
+      if (item.status === "Keluar") return acc - nilaiNum;
+      return acc;
+    }, 0);
+    return totalHarga;
+  };
+
   return {
     payload,
     recordsData,
     recordsStatus,
+    validatePayload,
+    formError,
     expandedIndex,
+    calculateTotalHarga,
     toggleRow,
     populateForm,
     putRecord,

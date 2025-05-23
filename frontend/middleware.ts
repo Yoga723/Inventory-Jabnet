@@ -10,6 +10,11 @@ export function middleware(request: NextRequest) {
 
   if (!token && !pathname.startsWith("/login")) return NextResponse.redirect(new URL(`/login`, request.url));
 
+  if(pathname.startsWith('/settings')){
+    const role = request.cookies.get('userRole')?.value
+    if(!role) return NextResponse.redirect(new URL('/records', request.url))
+  }
+
   // authenticated → Kirim header/url pathnamena
   return NextResponse.next({
     request: { headers: newReqHeaders },

@@ -1,6 +1,7 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import recordsReducer from "./recordSlice";
 import userReducer from "./userSlice";
+import themeReducer from "./themeSlice";
 import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -8,17 +9,18 @@ import storage from "redux-persist/lib/storage";
 const rootReducer = combineReducers({
   records: recordsReducer,
   user: userReducer,
+  theme: themeReducer,
 });
 
 // 2. Buat konfigurasi persist hanya untuk slice 'user'
-const persistConfig = {
-  key: "user",
+const rootPersistConfig = {
+  key: "root",
   storage,
-  whitelist: ["user"], // slice user anu dipersist
+  whitelist: ["user", "theme"], // slice user anu dipersist
 };
 
 // 3. Bungkus userReducer dengan persistReducer
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 
 // 4. Buat store dan atur middleware agar mendukung redux-persist
 export const store = configureStore({

@@ -15,8 +15,16 @@ const Header = () => {
 
   const { full_name, role, username } = useAppSelector((state) => state.user);
 
-  const { theme, setTheme, mobileSideBar, mobileSidebarRef, modalHeader, usePath, setMobileSideBar, setModalHeader } =
-    useHeaderLogic();
+  const {
+    theme,
+    toggleTheme,
+    mobileSideBar,
+    mobileSidebarRef,
+    modalHeader,
+    usePath,
+    setMobileSideBar,
+    setModalHeader,
+  } = useHeaderLogic();
   const { logoutHandler } = useLogin();
 
   return (
@@ -27,17 +35,16 @@ const Header = () => {
             href="/"
             className="w-24 h-8 relative">
             <Image
-              src="/images/jabnet-logo.webp"
+              src={theme == "light" ? "/images/jabnet-logo.webp" : "/images/jabnet-logo-dark.png"}
               alt="Logo Jabnet"
               priority
               fill
               sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
             />
           </Link>
-          <Link
-            href={""}
-            about=""
-            className=""></Link>
+          <p>{full_name}</p>
+          <p>{role}</p>
+          <p>{username}</p>
         </div>
         <div className="navbar-center hidden lg:flex gap-4">
           {navButton.map((btn) => (
@@ -45,7 +52,7 @@ const Header = () => {
               key={btn.destination}
               href={btn.destination}
               className={`
-              flex items-center p-3 h-full hover:bg-gray-300 
+              flex items-center p-3 h-full hover:bg-base-300 rounded-lg shadow-lg drop-shadow-lg 
               ${usePath === btn.destination && "border-b-2 border-amber-300"}
             `}>
               <Image
@@ -62,7 +69,7 @@ const Header = () => {
           <button
             aria-label="Toggle Theme"
             className="btn btn-ghost btn-circle"
-            onClick={() => setTheme(theme === "light" ? "dark" : "light")}>
+            onClick={() => toggleTheme()}>
             {theme === "light" ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
           </button>
 

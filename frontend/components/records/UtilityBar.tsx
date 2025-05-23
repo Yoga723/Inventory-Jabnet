@@ -17,7 +17,6 @@ const dateOptions = [
 ];
 
 const UtilityBar = () => {
-  const { openModal } = useRecordsContext(); // Untuk buka form tambah
   const {
     searchTerm,
     setSearchTerm,

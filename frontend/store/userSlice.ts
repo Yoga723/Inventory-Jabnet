@@ -1,4 +1,4 @@
-// src/features/user/userSlice.ts
+// store/userSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { removeLocalStorageItem, setLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { UserState } from "types";
@@ -25,32 +25,22 @@ export const loginUser = createAsyncThunk(
       credentials: "include",
     });
     const data = await response.json();
-    console.log("Ini Data", data.data)
     return data.data; // { token, user: { ... } }
   }
 );
 
-// (Opsional) Thunk untuk fetch /me
-// export const fetchCurrentUser = createAsyncThunk("user/fetchCurrentUser", async () => {
-//   const response = await fetch("/api/user/me", {
-//     credentials: "include",
-//   });
-//   const data = await response.json();
-//   return data.data; // { user_id, username, full_name, role }
-// });
+export const logout = createAsyncThunk("user/logout", async (tedipake, { dispatch }) => {
+  // await persistor.purge();
+  dispatch(clearUser());
+});
 
 const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    logout(state) {
-      state.user_id = null;
-      state.username = null;
-      state.full_name = null;
-      state.role = null;
-      state.token = null;
-      removeLocalStorageItem(StorageKeys.USERSTATE)
-      // localStorage.removeItem("userState");
+    clearUser(state) {
+      state = initialState;
+      removeLocalStorageItem(StorageKeys.USERSTATE);
       document.cookie = [
         `auth_token=`,
         `Path=/`,
@@ -74,8 +64,7 @@ const userSlice = createSlice({
         state.full_name = action.payload.user.full_name;
         state.role = action.payload.user.role;
         // Simpan ke localStorage
-        setLocalStorageItem(StorageKeys.USERSTATE, JSON.stringify(state))
-        // localStorage.setItem("userState", JSON.stringify(state));
+        setLocalStorageItem(StorageKeys.USERSTATE, JSON.stringify(state));
       })
       .addCase(loginUser.rejected, (state) => {
         state.status = "failed";
@@ -83,5 +72,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { clearUser } = userSlice.actions;
 export default userSlice.reducer;
