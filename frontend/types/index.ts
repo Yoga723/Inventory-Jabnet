@@ -7,6 +7,7 @@ export interface recordsProp {
   nilai?: number;
   keterangan?: string;
   status: string;
+  kategori?: string;
 }
 
 export interface list_barang_props {

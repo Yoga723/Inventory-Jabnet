@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "HTTPS=true next dev --turbopack",
     "build": "next build",
     "cy:open": "start-server-and-test dev http-get://localhost:3000 cy open",
     "cy:run": "start-server-and-test dev http-get://localhost:3000 cy run",

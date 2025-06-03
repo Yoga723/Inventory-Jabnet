@@ -11,12 +11,14 @@ import {
   putRecordsThunk,
   updateCurrentItemField,
 } from "../../store/recordSlice";
+import { ModalAction } from "components/modals/AlertModal";
 
 const useRecordsLogic = () => {
   const { full_name } = useAppSelector((state) => state.user);
   const [formError, setFormError] = useState({
-    inputError: { errorNama: false, errorLokasi: false, errorListBarang: false },
+    inputError: { errorNama: false, errorLokasi: false, errorListBarang: false, errorKategori: false },
   });
+  const [showAlert, setShowAlert] = useState(false);
   const dispatch = useAppDispatch();
   const {
     items: recordsData,
@@ -25,6 +27,8 @@ const useRecordsLogic = () => {
     error: recordsError,
   } = useAppSelector((state) => state.records);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null); // Jang row table
+  // Hold Action sampe ada konfirmasi dari AlertModal
+  const [pendingAction, setPendingAction] = useState<{ type: ModalAction; handler: () => Promise<void> } | null>(null);
 
   const getRecords = useCallback(() => {
     dispatch(fetchRecordsThunk(""));
@@ -40,33 +44,28 @@ const useRecordsLogic = () => {
 
   // Functions untuk handle input dan forms POST, UPDATE/PUT, DELETE
 
-  const createRecord = useCallback(
-    async (event) => {
-      event.preventDefault();
-      if (!validatePayload) return;
-      if (!confirm("Yakin ingin tambah data 👉👈 ?")) return;
-      const dataToSend = {
-        ...payload,
-        nama: full_name,
-        list_barang: JSON.stringify(payload.list_barang),
-      } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
-        list_barang: string;
-      };
-      const res = await dispatch(createRecordsThunk(dataToSend));
+  const createRecord = useCallback(async () => {
+    if (!validatePayload()) return;
 
-      if (res.meta.requestStatus == "fulfilled") {
-        const dismissModal = document.getElementById("dismiss-record-modal");
-        if (dismissModal) (dismissModal as HTMLElement).click();
-      }
-    },
-    [dispatch, payload]
-  );
+    const dataToSend = {
+      ...payload,
+      nama: full_name,
+      list_barang: JSON.stringify(payload.list_barang),
+    } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
+      list_barang: string;
+    };
+    
+    const res = await dispatch(createRecordsThunk(dataToSend));
+
+    if (res.meta.requestStatus == "fulfilled") {
+      const dismissModal = document.getElementById("dismiss-record-modal");
+      if (dismissModal) (dismissModal as HTMLElement).click();
+    }
+  }, [dispatch, payload, full_name]);
 
   const putRecord = useCallback(
-    async (event: React.FormEvent, recordId: number) => {
-      event.preventDefault();
-      if (!validatePayload) return;
-      if (!confirm("Yakin ingin update data ?")) return;
+    async (recordId: number) => {
+      if (!validatePayload()) return;
       // Remove hela record_id, tanggal, & set list_barang jadi string
       const dataToSend = {
         ...payload,
@@ -80,16 +79,15 @@ const useRecordsLogic = () => {
         if (dismissModal) (dismissModal as HTMLElement).click();
       }
     },
-    [dispatch, payload]
+    [dispatch, payload, full_name]
   );
 
   const deleteRecord = useCallback(
-    async (event: React.FormEvent, recordId: number) => {
-      event.preventDefault();
-      if (!confirm("Yakin hapus data ini ?")) return;
-      const res = await dispatch(deleteRecordsThunk(recordId));
-      console.log("ini delete:", res);
-      if (res.meta.requestStatus == "fulfilled") {
+    async (recordId: number) => {
+      try {
+        await dispatch(deleteRecordsThunk(recordId));
+      } catch (error) {
+        console.error("Delete failed:", error);
       }
     },
     [dispatch]
@@ -112,17 +110,40 @@ const useRecordsLogic = () => {
   );
 
   const validatePayload = () => {
-    const hasErrorNama = !payload.nama.trim() || payload.nama.length < 1;
-    const hasErrorLokasi = !payload.lokasi.trim() || payload.lokasi.length < 1;
-    const hasErrorListBarang = !payload.list_barang.some((item) => {
-      !item.nama_barang.trim() || item.nama_barang.length < 1;
-    });
+    const hasErrorNama = !full_name.trim();
+    const hasErrorLokasi = !payload.lokasi.trim();
+    const hasErrorListBarang =
+      !payload.list_barang.length || payload.list_barang.some((item) => !item.nama_barang.trim());
+    const hasErrorKategori = !payload.kategori.trim() || payload.kategori.length < 2;
 
-    setFormError({
-      inputError: { errorNama: hasErrorNama, errorLokasi: hasErrorLokasi, errorListBarang: hasErrorListBarang },
-    });
+    const newErrors = {
+      errorNama: hasErrorNama,
+      errorLokasi: hasErrorLokasi,
+      errorListBarang: hasErrorListBarang,
+      errorKategori: hasErrorKategori,
+    };
 
-    return false;
+    setFormError({ inputError: newErrors });
+
+    return !Object.values(newErrors).some((error) => error);
+  };
+
+  const handleConfirmation = async () => {
+    if (pendingAction) {
+      await pendingAction.handler();
+      setPendingAction(null);
+      setShowAlert(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setPendingAction(null);
+    setShowAlert(false);
+  };
+
+  const showConfirmation = (action: ModalAction, handler: () => Promise<void>) => {
+    setPendingAction({ type: action, handler });
+    setShowAlert(true);
   };
 
   // Toggle table row
@@ -141,6 +162,11 @@ const useRecordsLogic = () => {
   };
 
   return {
+    handleConfirmation,
+    handleCancel,
+    showConfirmation,
+    pendingAction,
+    showAlert,
     payload,
     recordsData,
     recordsStatus,

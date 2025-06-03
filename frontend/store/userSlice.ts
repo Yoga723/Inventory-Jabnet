@@ -34,6 +34,7 @@ export const logout = createAsyncThunk("user/logout", async (tedipake, { dispatc
   dispatch(clearUser());
 });
 
+
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -46,9 +47,10 @@ const userSlice = createSlice({
         `Path=/`,
         `Max-Age=0`, // expire immediately
         `Expires=Thu, 01 Jan 1970 00:00:00 GMT`,
-        `SameSite=Lax`,
+        `SameSite=none`,
         `Secure`,
       ].join("; ");
+      return initialState;
     },
   },
   extraReducers: (builder) => {

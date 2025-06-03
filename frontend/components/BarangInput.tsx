@@ -41,6 +41,7 @@ export default function BarangInput({
               onChange={(e) => updateItem(index, "nama_barang", e.target.value)}
               placeholder="Nama Barang"
               className="input"
+              required
             />
           </label>
           <label
@@ -54,6 +55,7 @@ export default function BarangInput({
               onChange={(e) => updateItem(index, "qty", Number(e.target.value))}
               placeholder="Qty"
               className="w-24 px-2 input"
+              required
             />
           </label>
           {items.length > 1 && (

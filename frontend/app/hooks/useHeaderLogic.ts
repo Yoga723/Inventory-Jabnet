@@ -1,6 +1,5 @@
 "use client";
 
-import { getLocalStorageItem, setLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { useAppDispatch, useAppSelector } from "store/Hooks";

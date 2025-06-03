@@ -1,32 +1,50 @@
 "use client";
-import useRecordsLogic from "app/hooks/useRecordsLogic";
-import { useRecordsContext } from "context/records/RecordsContext";
-import React, { useState } from "react";
+import React from "react";
 
+export type ModalAction = "submit" | "delete" | "info";
+type ButtonStyle = "success" | "error" | "info";
 interface AlertModalProps {
-  content?: string;
-  action?: string;
+  isOpen: boolean;
+  content: string;
+  action?: ModalAction;
+  primaryBtnStyle?: ButtonStyle;
+  onConfirm: () => void;
+  onCancel: () => void;
 }
 
-const AlertModal = ({ content }: AlertModalProps) => {
-  const { isAlertOpen, closeModal, closeAlert } = useRecordsContext();
+const AlertModal = ({
+  isOpen,
+  content,
+  action = "info",
+  primaryBtnStyle = "success",
+  onConfirm,
+  onCancel,
+}: AlertModalProps) => {
+  if (!isOpen) return null;
   return (
     <dialog
-      id="alert-dialog"
-      className={`${isAlertOpen ? "flex" : "hidden"} flex-col w-full h-full justify-center items-center z-5 gap-10`}>
-      <p className="text-2xl">{content}</p>
-      <div className="flex gap-5">
-        <button
-          className="btn btn-success btn-soft"
-          type="submit">
-          Submit
-        </button>
-        <button
-          className="btn btn-error btn-soft"
-          type="button"
-          onClick={closeAlert}>
-          Cancel
-        </button>
+      open={isOpen}
+      className="modal modal-bottom sm:modal-middle z-[1000]">
+      <div className="modal-box">
+        <h3 className="font-bold text-lg">{content}</h3>
+        <div className="modal-action">
+          <form
+            method="dialog"
+            className="flex gap-4">
+            {action !== "info" && (
+              <button
+                className={`btn btn-${primaryBtnStyle}`}
+                onClick={onConfirm}>
+                {action === "submit" ? "Submit" : "Delete"}
+              </button>
+            )}
+            <button
+              className={`btn ${action === "info" ? "btn-primary" : "btn-ghost"}`}
+              onClick={action === "info" ? onConfirm : onCancel}>
+              {action === "info" ? "OK" : "Cancel"}
+            </button>
+          </form>
+        </div>
       </div>
     </dialog>
   );

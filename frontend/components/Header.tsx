@@ -13,7 +13,7 @@ const Header = () => {
     { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records" },
   ];
 
-  const { full_name, role, username } = useAppSelector((state) => state.user);
+  const { full_name, role } = useAppSelector((state) => state.user);
 
   const {
     theme,
@@ -42,9 +42,6 @@ const Header = () => {
               sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
             />
           </Link>
-          <p>{full_name}</p>
-          <p>{role}</p>
-          <p>{username}</p>
         </div>
         <div className="navbar-center hidden lg:flex gap-4">
           {navButton.map((btn) => (
@@ -65,27 +62,34 @@ const Header = () => {
             </Link>
           ))}
         </div>
-        <div className="navbar-end gap-4">
-          <button
-            aria-label="Toggle Theme"
-            className="btn btn-ghost btn-circle"
-            onClick={() => toggleTheme()}>
-            {theme === "light" ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
-          </button>
-
-          <div className="dropdown flex justify-center items-center">
-            <button
-              type="button"
-              className="cursor-pointer"
-              onClick={() => logoutHandler()}>
-              <Image
-                width="20"
-                height="20"
-                src={"/images/icons/icon8-exit.png"}
-                alt="emergency-exit"
-              />
-            </button>
-          </div>
+        <div className="navbar-end">
+          <ul className="menu menu-horizontal flex justify-center items-center">
+            <li>
+              <button
+                aria-label="Toggle Theme"
+                className="btn btn-ghost btn-circle"
+                onClick={() => toggleTheme()}>
+                {theme === "light" ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
+              </button>
+            </li>
+            <li>
+              <details>
+                <summary>Akun</summary>
+                <ul className="bg-base-300 rounded-t-none">
+                  <li className="my-4 text-center">{full_name}</li>
+                  <li className="my-4 text-center">{role}</li>
+                  <li className="my-4">
+                    <button
+                      type="button"
+                      className="cursor-pointer text-center font-extrabold"
+                      onClick={() => logoutHandler()}>
+                      LOGOUT
+                    </button>
+                  </li>
+                </ul>
+              </details>
+            </li>
+          </ul>
         </div>
       </nav>
 
@@ -135,38 +139,62 @@ const Header = () => {
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
-            strokeWidth={1.5}
+            strokeWidth="1.5"
             stroke="currentColor"
             className="size-6">
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d="M3.75 9.776c.112-.017.227-.026.344-.026h15.812c.117 0 .232.009.344.026m-16.5 0a2.25 2.25 0 0 0-1.883 2.542l.857 6a2.25 2.25 0 0 0 2.227 1.932H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-1.883-2.542m-16.5 0V6A2.25 2.25 0 0 1 6 3.75h3.879a1.5 1.5 0 0 1 1.06.44l2.122 2.12a1.5 1.5 0 0 0 1.06.44H18A2.25 2.25 0 0 1 20.25 9v.776"
+              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
             />
           </svg>
 
           <span className="dock-label">Records</span>
         </Link>
 
-        <button
-          type={`button`}
-          onClick={() => setMobileSideBar(!mobileSideBar)}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5"
-            />
-          </svg>
-
-          <span className="dock-label">Settings</span>
-        </button>
+        <div className="drawer drawer-end">
+          <input
+            id="my-drawer-4"
+            type="checkbox"
+            className="drawer-toggle"
+          />
+          <div className="drawer-content">
+            {/* Page content here */}
+            <label
+              htmlFor="my-drawer-4"
+              className="flex flex-col items-center dock-label">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-6">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+              Show More
+            </label>
+          </div>
+          <div className="drawer-side">
+            <label
+              htmlFor="my-drawer-4"
+              aria-label="close sidebar"
+              className="drawer-overlay"></label>
+            <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4 pt-20">
+              {/* Sidebar content here */}
+              <li>
+                <a>Sidebar Item 1</a>
+              </li>
+              <li>
+                <a>Sidebar Item 2</a>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
     </>
   );

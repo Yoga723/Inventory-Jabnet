@@ -11,7 +11,7 @@ export function useLogin() {
   const router = useRouter();
 
   // const searchParams = useSearchParams();
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<boolean | null>(false);
 
   const login = async (username: string, password: string) => {
     setError(null);
@@ -24,10 +24,11 @@ export function useLogin() {
         `Path=/`, // range cookie ka kabeh file
         `Max-Age=${7 * 24 * 60 * 60}`, // 7 hari
         `SameSite=Lax`,
-        `Secure`, 
+        // `Secure`, 
       ].join("; ");
       router.replace("/records");
     } else {
+      setError(true)
       alert("Username atau password salah!");
     }
   };

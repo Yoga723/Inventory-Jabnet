@@ -8,11 +8,13 @@ export function middleware(request: NextRequest) {
   const newReqHeaders = new Headers(request.headers);
   newReqHeaders.set("x-current-path", request.nextUrl.pathname);
 
+  if (pathname.startsWith("/api") || pathname.startsWith("/_next")) return NextResponse.next();
+
   if (!token && !pathname.startsWith("/login")) return NextResponse.redirect(new URL(`/login`, request.url));
 
-  if(pathname.startsWith('/settings')){
-    const role = request.cookies.get('userRole')?.value
-    if(!role) return NextResponse.redirect(new URL('/records', request.url))
+  if (pathname.startsWith("/settings")) {
+    const role = request.cookies.get("userRole")?.value;
+    if (!role) return NextResponse.redirect(new URL("/records", request.url));
   }
 
   // authenticated → Kirim header/url pathnamena

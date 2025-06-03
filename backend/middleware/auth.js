@@ -18,8 +18,6 @@ const authenticateMiddleware = (req, res, next) => {
 const authorize = (allowedRoles = []) => {
   return (req, res, next) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-    console.log("User role:", req.user?.role); // Add this for debugging
-    console.log("Allowed roles:", allowedRoles);
 
     const roleHierarchy = {
       field: 1,

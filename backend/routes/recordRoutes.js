@@ -1,38 +1,77 @@
 // routes/recordRoutes.js
 const router = require("express").Router();
 const excelJS = require("exceljs");
+const multer = require("multer");
+const upload = multer();
+const sharp = require("sharp");
+const fs = require("fs");
+const path = require("path");
 const { authenticateMiddleware, authorize } = require("../middleware/auth");
 
 router.use(authenticateMiddleware);
 
+const calculateTotalNilai = (list_barang) => {
+  if (!Array.isArray(list_barang)) return 0;
+
+  return list_barang.reduce((total, item) => {
+    const qty = parseFloat(item.qty) || 0;
+    const harga = parseFloat(item.harga_per_unit) || 0;
+    return total + qty * harga;
+  }, 0);
+};
+
 router.get("/", async (req, res) => {
   try {
-    const { search, status, start_date, end_date } = req.query;
-    let baseQuery = "SELECT * FROM catatan";
+    const { search, status, kategori_id, start_date, end_date } = req.query;
+    let baseQuery = `
+      SELECT 
+        c.record_id,
+        c.nama,
+        c.tanggal,
+        c.lokasi,
+        c.list_barang,
+        c.keterangan,
+        c.status,
+        k.nama_kategori AS kategori,
+        c.kategori_id
+      FROM catatan c
+      JOIN kategori k ON c.kategori_id = k.kategori_id
+    `;
     const conditions = [];
     const values = [];
 
     if (search) {
       values.push(`%${search}%`);
-      conditions.push(
-        `(nama ILIKE $${values.length} OR list_barang::text ILIKE $${values.length}) OR lokasi ILIKE $${values.length}`
-      );
+      conditions.push(`
+        (c.nama ILIKE $${values.length} OR 
+        c.list_barang::text ILIKE $${values.length} OR 
+        c.lokasi ILIKE $${values.length})
+      `);
     }
 
     if (status) {
       values.push(status);
-      conditions.push(`status = $${values.length}`);
+      conditions.push(`c.status = $${values.length}`);
+    }
+
+    if (kategori_id) {
+      values.push(kategori_id);
+      conditions.push(`c.kategori_id = $${values.length}`);
     }
 
     if (start_date && end_date) {
-      values.push(start_date);
-      values.push(end_date);
-      conditions.push(`tanggal BETWEEN $${values.length - 1}::timestamp AND $${values.length}::timestamp`);
+      values.push(start_date, end_date);
+      conditions.push(`
+        c.tanggal BETWEEN $${values.length - 1}::timestamp 
+        AND $${values.length}::timestamp
+      `);
     }
 
-    if (conditions.length) baseQuery += " WHERE " + conditions.join(" AND ");
+    if (conditions.length) {
+      baseQuery += " WHERE " + conditions.join(" AND ");
+    }
 
-    baseQuery += " ORDER BY tanggal DESC";
+    baseQuery += " ORDER BY c.tanggal DESC";
 
     const result = await req.db.query(baseQuery, values);
     res.json({ status: "success", data: result.rows });
@@ -42,27 +81,90 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", authorize(["field", "operator", "admin", "super_admin"]), async (req, res) => {
-  try {
-    const { nama, nilai, list_barang, lokasi, status, keterangan } = req.body;
+router.post(
+  "/",
+  authorize(["field", "operator", "admin", "super_admin"]),
+  upload.any(), // Handle file uploads
+  async (req, res) => {
+    try {
+      const {
+        nama,
+        nilai,
+        list_barang,
+        lokasi,
+        status,
+        keterangan,
+        kategori_id,
+      } = req.body;
 
-    // Validate required fields
-    if (!nama || !status || !list_barang || !lokasi) return res.status(400).json({ error: "All fields are required" });
-    const query = `INSERT INTO catatan(nama, nilai, list_barang, lokasi, status, keterangan) VALUES ($1, $2, $3::JSONB, $4, $5, $6) RETURNING *`;
+      // Parse list_barang from JSON string
+      const items = Array.isArray(list_barang)
+        ? list_barang
+        : JSON.parse(list_barang || "[]");
 
-    const values = [nama, nilai, list_barang, lokasi, status, keterangan || null];
-    const result = await req.db.query(query, values);
+      // Validate required fields
+      if (!nama || !status || !lokasi || !kategori_id)
+        return res.status(400).json({
+          error: "Nama, status, lokasi, dan kategori_id diperlukan",
+        });
 
-    res.status(200).json({
-      status: 200,
-      message: "Data berhasil ditambahkan",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Database insert error:", error);
-    res.status(500).json({ error: `Failed to create record, ${error}` });
+      // Validate items
+      if (!Array.isArray(items) || items.length === 0)
+        return res.status(400).json({
+          error: "list_barang tidak boleh array yg kosong",
+        });
+
+      // Process images and prepare items
+      const processedItems = await processItems(items, null);
+
+      // Calculate total value
+      const totalNilai =
+        nilai ||
+        processedItems.reduce(
+          (sum, item) => sum + item.qty * item.harga_per_unit,
+          0
+        );
+
+      const query = `
+        INSERT INTO catatan(
+          nama, 
+          nilai, 
+          list_barang, 
+          lokasi, 
+          status, 
+          keterangan, 
+          kategori_id
+        ) 
+        VALUES ($1, $2, $3::JSONB, $4, $5, $6, $7) 
+        RETURNING record_id
+      `;
+
+      const values = [
+        nama,
+        totalNilai,
+        JSON.stringify(processedItems),
+        lokasi,
+        status,
+        keterangan || null,
+        kategori_id,
+      ];
+
+      const result = await req.db.query(query, values);
+      const recordId = result.rows[0].record_id;
+
+      res.status(200).json({
+        status: 200,
+        message: "Data berhasil ditambahkan",
+        data: { record_id: recordId },
+      });
+    } catch (error) {
+      console.error("Database insert error:", error);
+      res
+        .status(500)
+        .json({ error: `Failed to create record: ${error.message}` });
+    }
   }
-});
+);
 
 router.get("/export", async (req, res) => {
   try {
@@ -88,7 +190,11 @@ router.get("/export", async (req, res) => {
     if (start_date && end_date) {
       values.push(start_date);
       values.push(end_date);
-      conditions.push(`tanggal BETWEEN $${values.length - 1}::timestamp AND $${values.length}::timestamp`);
+      conditions.push(
+        `tanggal BETWEEN $${values.length - 1}::timestamp AND $${
+          values.length
+        }::timestamp`
+      );
     }
 
     if (conditions.length) {
@@ -193,7 +299,9 @@ router.get("/export", async (req, res) => {
     ];
 
     records.forEach((record) => {
-      const listText = (record.list_barang || []).map((item) => `${item.nama_barang} (${item.qty})`).join("\n");
+      const listText = (record.list_barang || [])
+        .map((item) => `${item.nama_barang} (${item.qty})`)
+        .join("\n");
 
       workSheet.addRow({
         nama: record.nama,
@@ -207,8 +315,14 @@ router.get("/export", async (req, res) => {
       });
     });
 
-    res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
-    res.setHeader("Content-Disposition", `attachment; filename=Catatan Inventory Jabnet.xlsx`);
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=Catatan Inventory Jabnet.xlsx`
+    );
 
     await workbook.xlsx.write(res);
     res.end();
@@ -220,12 +334,24 @@ router.get("/export", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     const paramId = req.params.id;
-    if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
+    if (isNaN(paramId)) {
+      return res.status(400).json({ error: "Invalid ID" });
+    }
 
-    const query = "SELECT * FROM catatan WHERE record_id = $1";
+    const query = `
+      SELECT 
+        c.*,
+        k.nama_kategori AS kategori
+      FROM catatan c
+      JOIN kategori k ON c.kategori_id = k.kategori_id
+      WHERE record_id = $1
+    `;
+
     const result = await req.db.query(query, [paramId]);
 
-    if (result.rows.length === 0) return res.status(404).json({ error: "Record not found" });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Record not found" });
+    }
 
     res.json({ status: "success", data: result.rows[0] });
   } catch (error) {
@@ -234,76 +360,92 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", authorize(["operator", "admin", "super_admin"]), async (req, res) => {
-  try {
-    const paramId = req.params.id;
-    if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
+router.put(
+  "/:id",
+  authorize(["operator", "admin", "super_admin"]),
+  async (req, res) => {
+    try {
+      const paramId = req.params.id;
+      if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
 
-    const { nama, nilai, list_barang, lokasi, status, keterangan } = req.body;
+      const { nama, nilai, list_barang, lokasi, status, keterangan } = req.body;
 
-    // Enhanced validation
-    const numericValue = Number(nilai);
-    if (isNaN(numericValue)) {
-      return res.status(400).json({ error: "Nilai must be a valid number" });
-    }
-    if (Math.abs(numericValue) > 9999999999.99) {
-      return res.status(400).json({
-        error: "Nilai cannot exceed 9,999,999,999.99",
-      });
-    }
+      // Enhanced validation
+      const numericValue = Number(nilai);
+      if (isNaN(numericValue)) {
+        return res.status(400).json({ error: "Nilai must be a valid number" });
+      }
+      if (Math.abs(numericValue) > 9999999999.99) {
+        return res.status(400).json({
+          error: "Nilai cannot exceed 9,999,999,999.99",
+        });
+      }
 
-    // Use transaction for safety
-    await req.db.query("BEGIN");
-    const query = `UPDATE catatan SET nama = $1, nilai = $2, list_barang = $3::JSONB, 
+      // Use transaction for safety
+      await req.db.query("BEGIN");
+      const query = `UPDATE catatan SET nama = $1, nilai = $2, list_barang = $3::JSONB, 
                   lokasi = $4, status = $5, keterangan = $6 
                   WHERE record_id = $7 RETURNING *`;
-    const value = [nama, nilai, list_barang, lokasi, status, keterangan || null, paramId];
+      const value = [
+        nama,
+        nilai,
+        list_barang,
+        lokasi,
+        status,
+        keterangan || null,
+        paramId,
+      ];
 
-    const result = await req.db.query(query, value);
-    await req.db.query("COMMIT");
+      const result = await req.db.query(query, value);
+      await req.db.query("COMMIT");
 
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Record not found" });
-    }
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "Record not found" });
+      }
 
-    res.status(200).json({
-      status: 200,
-      message: "Berhasil Update data",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    await req.db.query("ROLLBACK");
-    console.error("Database error:", error);
-
-    if (error.code === "22003") {
-      // Specific numeric overflow code
-      res.status(400).json({
-        error: "Nilai terlalu besar. Maksimum 9,999,999,999.99",
+      res.status(200).json({
+        status: 200,
+        message: "Berhasil Update data",
+        data: result.rows[0],
       });
-    } else {
-      res.status(500).json({
-        error: "Terjadi kesalahan server",
-      });
+    } catch (error) {
+      await req.db.query("ROLLBACK");
+      console.error("Database error:", error);
+
+      if (error.code === "22003") {
+        // Specific numeric overflow code
+        res.status(400).json({
+          error: "Nilai terlalu besar. Maksimum 9,999,999,999.99",
+        });
+      } else {
+        res.status(500).json({
+          error: "Terjadi kesalahan server",
+        });
+      }
     }
   }
-});
+);
 
-router.delete(`/:id`, authorize(["operator", "admin", "super_admin"]), async (req, res) => {
-  try {
-    const paramId = parseInt(req.params.id);
-    if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
-    const query = `DELETE FROM catatan WHERE record_id = $1 RETURNING *`;
+router.delete(
+  `/:id`,
+  authorize(["operator", "admin", "super_admin"]),
+  async (req, res) => {
+    try {
+      const paramId = parseInt(req.params.id);
+      if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
+      const query = `DELETE FROM catatan WHERE record_id = $1 RETURNING *`;
 
-    const result = await req.db.query(query, [paramId]);
-    res.status(200).json({
-      status: 200,
-      message: "Berhasil Hapus Data !!",
-      data: result.rows[0],
-    });
-  } catch (error) {
-    console.error("Database insert error:", error);
-    res.status(500).json({ error: `Failed to delete record, ${error}` });
+      const result = await req.db.query(query, [paramId]);
+      res.status(200).json({
+        status: 200,
+        message: "Berhasil Hapus Data !!",
+        data: result.rows[0],
+      });
+    } catch (error) {
+      console.error("Database insert error:", error);
+      res.status(500).json({ error: `Failed to delete record, ${error}` });
+    }
   }
-});
+);
 
 module.exports = router;

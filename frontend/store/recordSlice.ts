@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { recordsProp } from "../types";
-import { getLocalStorageItem, StorageKeys } from "app/utils/localStorage";
-
 const API_BASE_URL = "https://inventory.jabnet.id/api/records";
 
 interface FieldUpdate {
@@ -27,28 +25,33 @@ const initialState: recordState = {
     nilai: 0,
     tanggal: new Date().toISOString(),
     keterangan: "",
+    kategori: "",
   },
   status: "idle",
   isHomeLoading: true,
   error: null,
 };
 
-// Function untuk ambil data dari database
+// Function untuk ambil data dari database baik semuanya atau dengan filter
 export const fetchRecordsThunk = createAsyncThunk(
   "records/fetchRecordsThunk",
   async (query: string = "", { rejectWithValue }) => {
     try {
-      const token = getLocalStorageItem(StorageKeys.auth_token);
       const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
-      const response = await fetch(url, {
+      const response = await fetch(url.toString(), {
         method: "GET",
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...(token && { Authorization: `Bearer ${token}` }) },
+        mode: "cors",
+        // headers: { "Content-Type": "application/json" },
       });
 
       const responseData = await response.json();
 
-      if (!response.ok) return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
+      if (!response.ok) {
+        window.location.href = "/login";
+        return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
+      }
+      console.log(responseData.data);
       return responseData.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");
@@ -56,13 +59,14 @@ export const fetchRecordsThunk = createAsyncThunk(
   }
 );
 
+// Ambil data dari database berdasarkan ID
 export const fetchRecordByIdThunk = createAsyncThunk(
   `records/fetchRecordByIdThunk`,
   async (record_id: number, { rejectWithValue }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
         method: "GET",
-        headers: { "Content-Type": "application/json" },
+        // headers: { "Content-Type": "application/json" },
         credentials: "include",
       });
 

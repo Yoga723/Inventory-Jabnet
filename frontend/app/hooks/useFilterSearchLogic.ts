@@ -9,7 +9,8 @@ export const useFilterSearchLogic = () => {
   const dispatch = useAppDispatch();
   // state untuk search & filter
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedFilter, setSelectedFilter] = useState("All");
+  const [statusFilter, setStatusFIlter] = useState("All");
+  const [kategoriFilter, setKategoriFilter] = useState("All");
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>([null, null]);
   const [selectedDateFilter, setSelectedDateFilter] = useState("");
 
@@ -19,7 +20,8 @@ export const useFilterSearchLogic = () => {
   const buildQueryParams = () => {
     const params = new URLSearchParams();
     if (searchTerm) params.append("search", searchTerm);
-    if (selectedFilter !== "All") params.append("status", selectedFilter);
+    if (statusFilter !== "All") params.append("status", statusFilter);
+    if (kategoriFilter !== "All") params.append("kategori", kategoriFilter);
 
     if (selectedDateFilter === "custom" && dateRange[0] && dateRange[1]) {
       params.append("start_date", formatISO(startOfDay(dateRange[0])));
@@ -40,13 +42,25 @@ export const useFilterSearchLogic = () => {
     dispatch(fetchRecordsThunk(buildQueryParams()));
   };
 
-  const handleFilterChange = (filter: string) => {
-    setSelectedFilter(filter);
+  const handleStatusChange = (filter: string) => {
+    setStatusFIlter(filter);
+  };
+
+  const handleKategoriChange = (kategoriFilter: string) => {
+    setKategoriFilter(kategoriFilter);
   };
 
   const handleDateFilterChange = (days: string) => {
     setSelectedDateFilter(days);
   };
+
+    const handleResetFilter = () => {
+      setKategoriFilter("All");
+      setStatusFIlter("All");
+      setDateRange([null, null]);
+      setSelectedDateFilter("");
+      dispatch(fetchRecordsThunk(""));
+    };
 
   const handleExport = async (event) => {
     event.preventDefault();
@@ -57,17 +71,20 @@ export const useFilterSearchLogic = () => {
   };
 
   return {
+    handleResetFilter,
+    kategoriFilter,
+    handleKategoriChange,
     handleExport,
     isFilterOpen,
     setIsFilterOpen,
     searchTerm,
     setSearchTerm,
-    selectedFilter,
+    statusFilter,
     dateRange,
     setDateRange,
     selectedDateFilter,
     handleSearch,
-    handleFilterChange,
+    handleStatusChange,
     handleDateFilterChange,
     buildQueryParams,
   };

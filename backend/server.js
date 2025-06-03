@@ -12,11 +12,11 @@ const port = process.env.PORT || 4000;
 
 // 1) Database pool
 const pool = new Pool({
-  host: process.env.psqlHost,
-  port: Number(process.env.psqlPort),
-  database: process.env.psqlDB,
-  user: process.env.psqlUser,
-  password: String(process.env.psqlPass).trim(),
+  host: process.env.PSQLHOST,
+  port: Number(process.env.PSQLPORT),
+  database: process.env.PSQLDB,
+  user: process.env.PSQLUSER,
+  password: String(process.env.PSQLPASS).trim(),
 });
 
 // 2) Inject pool into req
@@ -33,10 +33,11 @@ app.use(
       "http://localhost:4000",
       "http://inventory.jabnet.id",
       "https://inventory.jabnet.id",
+      "https://103.194.47.162",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "mode"],
   })
 ); // Enable CORS
 app.use(express.json()); // JSON body parser

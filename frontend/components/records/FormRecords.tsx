@@ -8,13 +8,28 @@ import { useAppSelector } from "store/Hooks";
 import AlertModal from "components/modals/AlertModal";
 
 const FormRecords = () => {
-  const { payload, handleInputChange, handleItemsChange, createRecord, putRecord, recordsStatus } = useRecordsLogic(); // Jang handle request
+  const {
+    showAlert,
+    pendingAction,
+    formError,
+    payload,
+    handleInputChange,
+    handleItemsChange,
+    createRecord,
+    putRecord,
+    recordsStatus,
+    handleCancel,
+    handleConfirmation,
+    showConfirmation,
+  } = useRecordsLogic(); // Jang handle request
   const { isModalOpen, closeModal, currentRecordId } = useRecordsContext(); // Jang buka/close modal
   const { full_name } = useAppSelector((state) => state.user);
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    if (currentRecordId) await putRecord(event, currentRecordId);
-    else if (currentRecordId == null) await createRecord(event);
+    const handler = currentRecordId ? () => putRecord(currentRecordId) : createRecord;
+
+    showConfirmation("submit", handler);
   };
 
   return (
@@ -58,6 +73,7 @@ const FormRecords = () => {
                 value={payload.status}
                 name="status"
                 id="status"
+                required
                 onChange={(e) => handleInputChange("status", e.target.value as "Masuk" | "Keluar")}
                 className="border p-2 w-full">
                 <option value="Masuk">Masuk</option>
@@ -69,7 +85,7 @@ const FormRecords = () => {
           {/* INPUT lokasi BARANG */}
           <div className="w-full px-4 mb-4 mt-2 space-y-2">
             <label
-              className="input w-full"
+              className="input w-full font-semibold"
               htmlFor="lokasi">
               <span>
                 Lokasi <span className="text-red-600 mr-3">*</span>
@@ -82,7 +98,37 @@ const FormRecords = () => {
                 onChange={(e) => handleInputChange("lokasi", e.target.value)}
                 placeholder={`Bumi Pak Dadang`}
                 className=" w-full"
+                required
               />
+            </label>
+            {formError.inputError.errorLokasi && <p>LOKASI belum diisi</p>}
+          </div>
+
+          {/* INPUT Kategori BARANG */}
+          <div className="w-full px-4 mb-4 mt-2 space-y-2">
+            <label
+              className={`font-semibold select w-full ${formError.inputError.errorKategori && "select-error"}`}
+              htmlFor="kategori">
+              <span className="min-w-20">
+                Kategori <span className="text-red-600 mr-3">*</span>
+              </span>
+              <select
+                name="kategori"
+                value={payload.kategori}
+                id="katergori"
+                required
+                onChange={(e) => handleInputChange("kategori", e.target.value)}
+                className={`border p-2 w-full ${formError.inputError.errorKategori && "select-error"}`}>
+                <option
+                  value={""}
+                  disabled>
+                  Pilih Kategori
+                </option>
+                <option value="Backbone">Backbone</option>
+                <option value="Distribusi">Distribusi</option>
+                <option value="Peralatan dan Server">Peralatan dan Server</option>
+                <option value="Perlengkapan Kantor">Perlengkapan Kantor</option>
+              </select>
             </label>
           </div>
 
@@ -151,6 +197,14 @@ const FormRecords = () => {
           </div>
         </form>
       </dialog>
+      <AlertModal
+        isOpen={showAlert}
+        content={pendingAction?.type === "delete" ? "Yakin hapus data ini?" : "Konfirmasi pengiriman data"}
+        action={pendingAction?.type}
+        primaryBtnStyle={pendingAction?.type === "delete" ? "error" : "success"}
+        onConfirm={handleConfirmation}
+        onCancel={handleCancel}
+      />
     </>
   );
 };

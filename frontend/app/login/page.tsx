@@ -18,11 +18,10 @@ const page = () => {
 
     await login(username, password);
   };
-
   return (
     <main className="w-screen h-screen flex flex-col justify-center items-center font-sans">
       <form
-        className="container relative w-64 p-6 rounded-lg flex flex-col justify-center items-center border-orange-300 border-[1px] shadow-xl/40 shadow-orange-300"
+        className="container relative w-64 p-6 min-w-md rounded-lg flex flex-col justify-center items-center border-orange-300 border-[1px] shadow-xl/40 shadow-orange-300"
         onSubmit={handleSubmit}>
         <Image
           src={theme == "light" ? "/images/jabnet-logo.webp" : "/images/jabnet-logo-dark.png"}
@@ -32,27 +31,32 @@ const page = () => {
           height={48}
           sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
         />
-        <label htmlFor="username">Username</label>
+        <label
+          htmlFor="username"
+          className={` my-5 ${error && "input-error"}`}>
+          Username
+        </label>
+
         <input
           type="text"
           name="username"
           id="username"
           placeholder="username"
-          className="border-2 border-gray-500  rounded-md p-2"
+          className="border-2 border-gray-500 rounded-md p-2"
         />
 
         {/* Input PASSWORD */}
         <label
           htmlFor="password"
-          className="mt-6">
+          className={` my-5 ${error && "input-error"}`}>
           Password
         </label>
         <input
-          type="password"
+          type="Password"
           name="password"
           id="password"
           placeholder="password"
-          className="border-2 border-gray-500  rounded-md p-2"
+          className="border-2 border-gray-500 rounded-md p-2"
         />
         <button
           type="submit"

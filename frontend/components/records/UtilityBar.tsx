@@ -4,7 +4,6 @@ import React from "react";
 import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useRecordsContext } from "../../context/records/RecordsContext";
 
 const dateOptions = [
   { label: "All Time", value: "" },
@@ -18,14 +17,17 @@ const dateOptions = [
 
 const UtilityBar = () => {
   const {
+    kategoriFilter,
+    handleResetFilter,
+    handleKategoriChange,
     searchTerm,
     setSearchTerm,
-    selectedFilter,
+    statusFilter,
     dateRange,
     setDateRange,
     selectedDateFilter,
     handleSearch,
-    handleFilterChange,
+    handleStatusChange,
     handleDateFilterChange,
     handleExport,
     isFilterOpen,
@@ -74,63 +76,91 @@ const UtilityBar = () => {
         </button>
       </section>
 
-      <dialog className={` modal bg-black bg-opacity-0 modal-middle ${isFilterOpen ? "modal-open" : "hidden"}`}>
+      <dialog className={` modal bg-black bg-opacity-0 modal-middle ${isFilterOpen ? "modal-open" : "hidden"} `}>
         <form
           method="dialog"
-          className="!overflow-visible modal-box max-w-md space-y-4 flex flex-col justify-center items-center">
+          className="!overflow-visible modal-box max-w-md space-y-4 flex flex-col justify-center items-center min-h-[310px]">
           <h3 className="font-bold text-lg">Set Filter</h3>
 
           {/* Status */}
-          <div className="w-full">
+          <div className="w-full font-bold">
             <label
-              className="label"
+              className="label w-full"
               htmlFor="status-filter">
-              <span className="label-text">Status</span>
+              <span className="label-text min-w-[70px]">Status</span>
+              <select
+                id="status-filter"
+                className="select select-bordered w-full"
+                value={statusFilter}
+                onChange={(event) => handleStatusChange(event.target.value)}>
+                <option>All</option>
+                <option>Masuk</option>
+                <option>Keluar</option>
+              </select>
             </label>
-            <select
-              id="status-filter"
-              className="select select-bordered w-full"
-              value={selectedFilter}
-              onChange={(event) => handleFilterChange(event.target.value)}>
-              <option>All</option>
-              <option>Masuk</option>
-              <option>Keluar</option>
-            </select>
+          </div>
+
+          {/* Kategori */}
+          <div className="w-full font-bold">
+            <label
+              className="label w-full"
+              htmlFor="kategori-filter">
+              <span className="label-text min-w-[70px]">Kategori</span>
+              <select
+                id="kategori-filter"
+                className="select select-bordered w-full"
+                value={kategoriFilter}
+                onChange={(event) => handleKategoriChange(event.target.value)}>
+                <option value="">All</option>
+                <option value="Backbone">Backbone</option>
+                <option value="Distribusi">Distribusi</option>
+                <option value="Peralatan dan Server">Peralatan dan Server</option>
+                <option value="Perlengkapan Kantor">Perlengkapan Kantor</option>
+              </select>
+            </label>
           </div>
 
           {/* Date */}
-          <div className="w-full">
+          <div className="w-full font-bold ">
             <label
-              className="label"
+              className="label w-full"
               htmlFor="tanggal-filter">
-              <span className="label-text">Tanggal</span>
+              <span className="label-text min-w-[70px]">Tanggal</span>
+              <select
+                id="tanggal-filter"
+                className="select select-bordered w-full"
+                value={selectedDateFilter}
+                onChange={(event) => handleDateFilterChange(event.target.value)}>
+                {dateOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
             </label>
-            <select
-              id="tanggal-filter"
-              className="select select-bordered w-full"
-              value={selectedDateFilter}
-              onChange={(event) => handleDateFilterChange(event.target.value)}>
-              {dateOptions.map((option) => (
-                <option
-                  key={option.value}
-                  value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            {selectedDateFilter === "custom" && (
-              <DatePicker
-                selectsRange
-                startDate={dateRange[0]}
-                endDate={dateRange[1]}
-                onChange={(upd) => setDateRange(upd)}
-                isClearable
-                className="input input-bordered w-full mt-6"
-              />
-            )}
+            <DatePicker
+              selectsRange
+              startDate={dateRange[0]}
+              endDate={dateRange[1]}
+              onChange={(upd) => setDateRange(upd)}
+              isClearable
+              className={`input input-bordered w-full mt-6 border-test ${
+                selectedDateFilter === "custom" ? "" : "invisible"
+              }`}
+            />
           </div>
 
-          <div className="w-full flex justify-center gap-10">
+          <div className="w-full flex justify-between items-center">
+            <button
+              onClick={() => {
+                handleResetFilter();
+                setIsFilterOpen(false);
+              }}
+              className="btn bg-base-300">
+              Reset Filter
+            </button>
             <button
               onClick={() => {
                 handleSearch();
