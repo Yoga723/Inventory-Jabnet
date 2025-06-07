@@ -117,3 +117,15 @@ html {
 .record-action-transition.open {
   @apply max-h-24 overflow-hidden transition-all duration-1000 ease-in-out;
 }
+
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}

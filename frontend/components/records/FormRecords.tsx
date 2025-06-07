@@ -9,7 +9,7 @@ import AlertModal from "components/modals/AlertModal";
 
 const FormRecords = () => {
   const {
-    showAlert,
+    showAlert,list_barang_options,
     pendingAction,
     formError,
     payload,
@@ -21,14 +21,15 @@ const FormRecords = () => {
     handleCancel,
     handleConfirmation,
     showConfirmation,
+    isModalOpen,
+    closeModal,
+    currentRecordId,
+    categories,
   } = useRecordsLogic(); // Jang handle request
-  const { isModalOpen, closeModal, currentRecordId } = useRecordsContext(); // Jang buka/close modal
   const { full_name } = useAppSelector((state) => state.user);
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-
     const handler = currentRecordId ? () => putRecord(currentRecordId) : createRecord;
-
     showConfirmation("submit", handler);
   };
 
@@ -36,7 +37,7 @@ const FormRecords = () => {
     <>
       <dialog
         id="record-modal"
-        className={`overflow-y-scroll bg-base-300 modal modal-middle ${isModalOpen ? "modal-open" : "hidden"}`}>
+        className={`overflow-y-scroll overflow-x-hidden bg-base-300 modal modal-middle ${isModalOpen ? "modal-open" : "hidden"}`}>
         <form
           id="record-form-modal"
           onSubmit={(event: React.FormEvent) => handleSubmit(event)}
@@ -113,21 +114,25 @@ const FormRecords = () => {
                 Kategori <span className="text-red-600 mr-3">*</span>
               </span>
               <select
-                name="kategori"
-                value={payload.kategori}
+                name="kategori_id"
+                value={payload.kategori_id || ""}
                 id="katergori"
                 required
-                onChange={(e) => handleInputChange("kategori", e.target.value)}
+                onChange={(e) => handleInputChange("kategori_id", parseInt(e.target.value))}
                 className={`border p-2 w-full ${formError.inputError.errorKategori && "select-error"}`}>
                 <option
                   value={""}
                   disabled>
                   Pilih Kategori
                 </option>
-                <option value="Backbone">Backbone</option>
-                <option value="Distribusi">Distribusi</option>
-                <option value="Peralatan dan Server">Peralatan dan Server</option>
-                <option value="Perlengkapan Kantor">Perlengkapan Kantor</option>
+                {categories &&
+                  categories.map((cat, index) => (
+                    <option
+                      key={index}
+                      value={cat.kategori_id}>
+                      {cat.nama_kategori}
+                    </option>
+                  ))}
               </select>
             </label>
           </div>
@@ -142,25 +147,7 @@ const FormRecords = () => {
               <BarangInput
                 items={payload.list_barang}
                 setItems={handleItemsChange}
-              />
-            </label>
-          </div>
-
-          {/* INPUT nilai BARANG */}
-          <div className="w-full px-4 mb-4 mt-2 space-y-2">
-            <label className="floating-label">
-              <span className="font-bold">
-                Total Harga Barang <span className="text-gray-400"> Opsional</span>
-              </span>
-              <input
-                id="nilai"
-                name="nilai"
-                type="number"
-                value={payload.nilai}
-                onChange={(e) => handleInputChange("nilai", e.target.value)}
-                pattern="[0-9.,]*"
-                className="input w-full"
-                placeholder={`2500000`}
+                itemsOptions={list_barang_options}
               />
             </label>
           </div>

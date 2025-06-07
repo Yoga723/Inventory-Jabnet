@@ -1,6 +1,6 @@
 "use client";
 import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -17,6 +17,7 @@ const dateOptions = [
 
 const UtilityBar = () => {
   const {
+    categories,
     kategoriFilter,
     handleResetFilter,
     handleKategoriChange,
@@ -37,6 +38,7 @@ const UtilityBar = () => {
   const onSearchKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") handleSearch();
   };
+
   return (
     <>
       <section className="flex flex-wrap gap-3 my-5 justify-start items-center max-sm:justify-around w-full">
@@ -111,11 +113,14 @@ const UtilityBar = () => {
                 className="select select-bordered w-full"
                 value={kategoriFilter}
                 onChange={(event) => handleKategoriChange(event.target.value)}>
-                <option value="">All</option>
-                <option value="Backbone">Backbone</option>
-                <option value="Distribusi">Distribusi</option>
-                <option value="Peralatan dan Server">Peralatan dan Server</option>
-                <option value="Perlengkapan Kantor">Perlengkapan Kantor</option>
+                <option value="All">All</option>
+                {categories && categories.map((cat) => (
+                  <option
+                    key={cat.kategori_id}
+                    value={cat.kategori_id}>
+                    {cat.nama_kategori}
+                  </option>
+                ))}
               </select>
             </label>
           </div>

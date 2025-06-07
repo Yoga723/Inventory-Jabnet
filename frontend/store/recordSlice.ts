@@ -21,7 +21,7 @@ const initialState: recordState = {
     nama: "",
     status: "Masuk",
     lokasi: "",
-    list_barang: [{ nama_barang: "", qty: 1 }],
+    list_barang: [{ nama_barang: "", qty: 1, harga_per_unit: 0 }],
     nilai: 0,
     tanggal: new Date().toISOString(),
     keterangan: "",
@@ -51,7 +51,6 @@ export const fetchRecordsThunk = createAsyncThunk(
         window.location.href = "/login";
         return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
       }
-      console.log(responseData.data);
       return responseData.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");

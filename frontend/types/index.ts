@@ -8,11 +8,14 @@ export interface recordsProp {
   keterangan?: string;
   status: string;
   kategori?: string;
+  kategori_id?:number;
 }
 
 export interface list_barang_props {
+  barang_id?: number;
   nama_barang: string;
   qty: number | 1;
+  harga_per_unit?: number; 
 }
 
 export interface UserState {

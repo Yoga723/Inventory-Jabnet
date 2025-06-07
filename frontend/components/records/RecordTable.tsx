@@ -44,7 +44,7 @@ const RecordTable = () => {
         <thead className={`table-header-group bg-base-100`}>
           <tr className={`bg-base-300 h-fit w-full`}>
             <th
-              colSpan={9}
+              colSpan={10}
               className="bg-base-300 w-full">
               <div className="flex justify-between items-center p-4">
                 <button
@@ -71,7 +71,7 @@ const RecordTable = () => {
             <th rowSpan={2}>Tanggal</th>
 
             <th
-              colSpan={2}
+              colSpan={3}
               rowSpan={1}>
               Barang
             </th>
@@ -84,6 +84,7 @@ const RecordTable = () => {
           <tr className="table-row">
             <th>Nama Barang</th>
             <th>Qty</th>
+            <th>Harga Per Unit</th>
           </tr>
         </thead>
         <tbody className="min-w-full gap-4 relative">
@@ -105,116 +106,135 @@ const RecordTable = () => {
               </td>
             </tr>
           )}
-          {recordsData.map((record, index) => (
-            <React.Fragment key={index}>
-              <tr
-                onClick={() => toggleRow(index)}
-                className={`cursor-pointer bg-base-100`}>
-                <td
-                  className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse font-bold  ${
-                    record.status === "Masuk" ? "text-success" : "text-error"
-                  }`}>
-                  {record.nama}
-                </td>
-                <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse`}>
-                  {new Date(record.tanggal).toLocaleDateString("en-GB")}
-                </td>
-
-                {/* Row Nama Barang */}
-                <td
-                  className={`${
-                    index != recordsData.length - 1 && "border-y-2 border-black"
-                  } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
-                  <ul>
-                    {record.list_barang.map((item, i) => (
-                      <li
-                        className="my-4"
-                        key={`${record.record_id}-name-${i}`}>
-                        {item.nama_barang}
-                      </li>
-                    ))}
-                  </ul>
-                </td>
-                {/* Row QTY Barang */}
-                <td
-                  className={`${
-                    index != recordsData.length - 1 && "border-y-2 border-black"
-                  } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
-                  <ul>
-                    {record.list_barang.map((item, i) => (
-                      <li
-                        className="my-4"
-                        key={`${record.record_id}-qty-${i}`}>
-                        {item.qty}
-                      </li>
-                    ))}
-                  </ul>
-                </td>
-
-                <td
-                  className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-16  ${
-                    record.status === "Masuk" ? "text-success" : "text-error"
-                  }`}>
-                  {record.status}
-                </td>
-                <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
-                  {record.lokasi}
-                </td>
-                <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
-                  {record.keterangan}
-                </td>
-                <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
-                  {record.kategori}
-                </td>
-                <td
-                  className={`${index != recordsData.length - 1 && "border-y-2 border-black"} ${
-                    record.status === "Masuk" ? "text-success" : "text-error"
-                  } text-pretty break-all overflow-auto min-w-36`}>
-                  {formatCurrency(Number(record.nilai))}
-                </td>
-              </tr>
-              {/* ROW untuk action button */}
-              {role && ["operator", "admin", "super_admin"].includes(role) && (
+          {recordsData &&
+            recordsData.map((record, index) => (
+              <React.Fragment key={index}>
                 <tr
-                  className={`record-action-transition ${
-                    expandedIndex === index
-                      ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
-                      : "hidden"
-                  } bg-base-100`}>
+                  onClick={() => toggleRow(index)}
+                  className={`cursor-pointer bg-base-100`}>
                   <td
-                    colSpan={9}
-                    className="px-2">
-                    <div className="flex items-center justify-start gap-8 p-1">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          populateForm(record.record_id);
-                          openModal(record.record_id);
-                        }}
-                        className={`cursor-pointer text-sm flex bg-none`}>
-                        <PencilIcon
-                          width={16}
-                          height={16}
-                          className="mr-1.5 text-secondary"
-                        />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => showConfirmation("delete", () => deleteRecord(record.record_id))}
-                        className={`cursor-pointer text-sm flex bg-none`}>
-                        <TrashIcon
-                          width={16}
-                          height={16}
-                          className="mr-1.5 text-error"
-                        />
-                        Hapus
-                      </button>
-                    </div>
+                    className={`${
+                      index != recordsData.length - 1 && "border-y-2 border-black"
+                    } td-collapse font-bold  ${record.status === "Masuk" ? "text-success" : "text-error"}`}>
+                    {record.nama}
+                  </td>
+                  <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse`}>
+                    {new Date(record.tanggal).toLocaleDateString("en-GB")}
+                  </td>
+
+                  {/* Row Nama Barang */}
+                  <td
+                    className={`${
+                      index != recordsData.length - 1 && "border-y-2 border-black"
+                    } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
+                    <ul>
+                      {record.list_barang.map((item, i) => (
+                        <li
+                          className="my-4"
+                          key={`${record.record_id}-name-${i}`}>
+                          {item.nama_barang}
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  {/* Row QTY Barang */}
+                  <td
+                    className={`${
+                      index != recordsData.length - 1 && "border-y-2 border-black"
+                    } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
+                    <ul>
+                      {record.list_barang.map((item, i) => (
+                        <li
+                          className="my-4"
+                          key={`${record.record_id}-qty-${i}`}>
+                          {item.qty}
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+                  {/* harga_per_unit */}
+                  <td
+                    className={`${
+                      index != recordsData.length - 1 && "border-y-2 border-black"
+                    } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
+                    <ul>
+                      {record.list_barang.map((item, i) => (
+                        <li
+                          className="my-4"
+                          key={`${record.record_id}-qty-${i}`}>
+                          {formatCurrency(Number(item.harga_per_unit))}
+                        </li>
+                      ))}
+                    </ul>
+                  </td>
+
+                  <td
+                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-16  ${
+                      record.status === "Masuk" ? "text-success" : "text-error"
+                    }`}>
+                    {record.status}
+                  </td>
+                  <td
+                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
+                    {record.lokasi}
+                  </td>
+                  <td
+                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
+                    {record.keterangan}
+                  </td>
+                  <td
+                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
+                    {record.kategori}
+                  </td>
+                  <td
+                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} ${
+                      record.status === "Masuk" ? "text-success" : "text-error"
+                    } text-pretty break-all overflow-auto min-w-36`}>
+                    {formatCurrency(Number(record.nilai))}
                   </td>
                 </tr>
-              )}
-            </React.Fragment>
-          ))}
+                {/* ROW untuk action button */}
+                {role && ["operator", "admin", "super_admin"].includes(role) && (
+                  <tr
+                    className={`record-action-transition ${
+                      expandedIndex === index
+                        ? " motion-opacity-in-0 -motion-translate-y-in-50 motion-ease-spring-smooth motion-duration-300"
+                        : "hidden"
+                    } bg-base-100`}>
+                    <td
+                      colSpan={10}
+                      className="px-2">
+                      <div className="flex items-center justify-start gap-8 p-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            populateForm(record.record_id);
+                            openModal(record.record_id);
+                          }}
+                          className={`cursor-pointer text-sm flex bg-none`}>
+                          <PencilIcon
+                            width={16}
+                            height={16}
+                            className="mr-1.5 text-secondary"
+                          />
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => showConfirmation("delete", () => deleteRecord(record.record_id))}
+                          className={`cursor-pointer text-sm flex bg-none`}>
+                          <TrashIcon
+                            width={16}
+                            height={16}
+                            className="mr-1.5 text-error"
+                          />
+                          Hapus
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </React.Fragment>
+            ))}
         </tbody>
       </table>
       <AlertModal
