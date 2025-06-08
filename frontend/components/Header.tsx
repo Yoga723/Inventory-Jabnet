@@ -3,11 +3,14 @@ import Link from "next/link";
 import React from "react";
 import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
-import { useAppSelector } from "store/Hooks";
-import { useLogin } from "app/hooks/useLogin";
+import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
+import { useRouter } from "next/navigation";
+import { logoutAction } from "app/actions/authUser";
 
 const Header = () => {
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const navButton = [
     { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/" },
     { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records" },
@@ -15,17 +18,12 @@ const Header = () => {
 
   const { full_name, role } = useAppSelector((state) => state.user);
 
-  const {
-    theme,
-    toggleTheme,
-    mobileSideBar,
-    mobileSidebarRef,
-    modalHeader,
-    usePath,
-    setMobileSideBar,
-    setModalHeader,
-  } = useHeaderLogic();
-  const { logoutHandler } = useLogin();
+  const { theme, toggleTheme, mobileSideBar, mobileSidebarRef, usePath } = useHeaderLogic();
+
+  const logoutHandler = () => {
+    logoutAction();
+    router.push("/login");
+  };
 
   return (
     <>

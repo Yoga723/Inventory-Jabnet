@@ -53,7 +53,7 @@ const FormRecords = () => {
               type="button"
               onClick={() => closeModal()}
               id="dismiss-record-modal"
-              className="px-2  btn btn-error btn-outline self-end md:mb-2 col-span-3">
+              className="px-2  btn btn-error self-end md:mb-2 col-span-3">
               <XMarkIcon className="h-5 w-5 text-red font-bold" />
             </button>
           </h1>

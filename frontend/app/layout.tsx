@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import StoreProvider from "../components/StoreProvider";
 import { RecordsProvider } from "../context/records/RecordsContext";
+import AuthLoader from "components/AuthLoader";
 
 export const metadata: Metadata = {
   title: "Inventory Jabnet",
@@ -38,7 +39,8 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={` antialiased`}>
-        <StoreProvider>
+        <StoreProvider >
+          <AuthLoader/>
           <RecordsProvider>{children}</RecordsProvider>
         </StoreProvider>
       </body>
