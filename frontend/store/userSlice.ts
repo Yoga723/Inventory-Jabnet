@@ -31,9 +31,15 @@ export const loginUser = createAsyncThunk(
 
 export const logout = createAsyncThunk("user/logout", async (tedipake, { dispatch }) => {
   // await persistor.purge();
+  const response = await fetch(`${API_BASE_URL}/logout`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include",
+  });
+  const data = await response.json();
+  console.log("Berhasil LOGOUT :", data.status);
   dispatch(clearUser());
 });
-
 
 const userSlice = createSlice({
   name: "user",

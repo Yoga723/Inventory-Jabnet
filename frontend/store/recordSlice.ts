@@ -215,7 +215,12 @@ const recordSlice = createSlice({
         state.error = null;
       })
       .addCase(createRecordsThunk.fulfilled, (state, { payload }) => {
-        state.items.unshift(payload);
+        state.items.unshift({
+          ...payload,
+          list_barang: Array.isArray(payload.list_barang)
+            ? payload.list_barang
+            : JSON.parse(payload.list_barang || "[]"),
+        });
         state.status = "succeeded";
         clearCurrentItem;
       })
@@ -228,7 +233,16 @@ const recordSlice = createSlice({
         state.error = null;
       })
       .addCase(putRecordsThunk.fulfilled, (state, { payload }) => {
-        state.items = state.items.map((item) => (item.record_id === payload.record_id ? payload : item));
+        state.items = state.items.map((item) =>
+          item.record_id === payload.record_id
+            ? {
+                ...payload,
+                list_barang: Array.isArray(payload.list_barang)
+                  ? payload.list_barang
+                  : JSON.parse(payload.list_barang || "[]"),
+              }
+            : item
+        );
         state.status = "succeeded";
       })
       .addCase(putRecordsThunk.rejected, (state, action) => {

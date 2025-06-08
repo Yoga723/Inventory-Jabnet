@@ -2,7 +2,7 @@
 /* Setting fitur dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
 @plugin "daisyui" {
-  themes: light --default, dark;
+  themes: light, dark --default;
   root: ":root";
   /* include: ;
   exclude: ;
@@ -10,8 +10,8 @@
 }
 
 @plugin "daisyui/theme" {
-   name: "light";
-   default: true;
+  name: "light";
+  default: true;
   prefersdark: false;
   color-scheme: "light";
   --color-base-100: oklch(98% 0 0);
@@ -79,7 +79,6 @@
   --noise: 1;
 }
 
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -118,7 +117,6 @@ html {
   @apply max-h-24 overflow-hidden transition-all duration-1000 ease-in-out;
 }
 
-
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -126,6 +124,6 @@ input::-webkit-inner-spin-button {
 }
 
 /* Firefox */
-input[type=number] {
+input[type="number"] {
   -moz-appearance: textfield;
 }

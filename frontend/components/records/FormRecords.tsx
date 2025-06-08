@@ -6,10 +6,12 @@ import Loading from "../Loading";
 import { useRecordsContext } from "../../context/records/RecordsContext";
 import { useAppSelector } from "store/Hooks";
 import AlertModal from "components/modals/AlertModal";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 
 const FormRecords = () => {
   const {
-    showAlert,list_barang_options,
+    showAlert,
+    list_barang_options,
     pendingAction,
     formError,
     payload,
@@ -37,15 +39,24 @@ const FormRecords = () => {
     <>
       <dialog
         id="record-modal"
-        className={`overflow-y-scroll overflow-x-hidden bg-base-300 modal modal-middle ${isModalOpen ? "modal-open" : "hidden"}`}>
+        className={`overflow-y-scroll lg:py-4 h-screen overflow-x-hidden bg-base-300 modal modal-middle ${
+          isModalOpen ? "modal-open" : "hidden"
+        }`}>
         <form
           id="record-form-modal"
           onSubmit={(event: React.FormEvent) => handleSubmit(event)}
-          className="flex flex-col lg:grid grid-cols-2 items-center card bg-base-100 max-sm:w-full md:min-w-4xl max-sm:h-full overflow-auto relative">
+          className="flex flex-col items-center card bg-base-100 max-sm:w-full md:min-w-4xl h-full overflow-auto relative">
           {recordsStatus == "loading" && <Loading />}
-          <h4 className="mb-1 mt-10 font-bold text-lg text-center col-span-2 ">
+          <h1 className="flex justify-between mb-1 mt-10 font-bold text-2xl text-center col-span-2 w-full px-4">
             {currentRecordId !== null ? "Update record" : "Tambah record baru"}
-          </h4>
+            <button
+              type="button"
+              onClick={() => closeModal()}
+              id="dismiss-record-modal"
+              className="px-2  btn btn-error btn-outline self-end md:mb-2 col-span-3">
+              <XMarkIcon className="h-5 w-5 text-red font-bold" />
+            </button>
+          </h1>
 
           {/* INPUT nama */}
           <div className="w-full px-4 mb-4 mt-2 space-y-2 hidden">
@@ -142,8 +153,8 @@ const FormRecords = () => {
             <label
               htmlFor="nama_barang_0"
               className="font-semibold">
-              List Barang <span className="text-red-600">*</span>
-              <span className="text-gray-400">(dalam bentuk pcs/meter)</span>
+              {/* List Barang <span className="text-red-600">*</span> */}
+              {/* <span className="text-gray-400">(dalam bentuk pcs/meter)</span> */}
               <BarangInput
                 items={payload.list_barang}
                 setItems={handleItemsChange}

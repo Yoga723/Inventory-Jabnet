@@ -102,8 +102,6 @@ const useRecordsLogic = () => {
       list_barang: string;
     };
 
-    console.log("this is data to send",dataToSend)
-
     const res = await dispatch(createRecordsThunk(dataToSend));
 
     if (res.meta.requestStatus == "fulfilled") {

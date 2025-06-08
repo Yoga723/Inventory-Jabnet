@@ -37,89 +37,95 @@ export default function BarangInput({ items, setItems, itemsOptions = [] }: bara
   return (
     <div className="space-y-4 mt-2">
       {items.map((item, index) => (
-        <div
-          key={index}
-          className="grid grid-cols-3 md:flex gap-2">
-          {/* Barang Selection Dropdown */}
-          <fieldset
-            // htmlFor={`barang_${index}`}
-            className="fieldset mb-1 col-span-3 font-medium">
-            <legend className="fieldset-legend">
-              Barang <span className="text-red-600">*</span>
-            </legend>
-            <select
-              id={`barang_${index}`}
-              value={item.barang_id || ""}
-              onChange={(e) => handleBarangChange(index, parseInt(e.target.value))}
-              className="select select-bordered w-full"
-              required>
-              <option
-                value=""
-                disabled>
-                Pilih Barang
-              </option>
-              {itemsOptions.map((option) => (
+        <div key={index}>
+          <h2 className="flex items-center justify-center md:px-4 text-2xl w-full text-accent ">
+            <hr className="w-full" />
+            <p className="w-full text-center">Barang {index + 1}</p>
+            <hr className="w-full" />
+          </h2>
+          <div className="grid grid-cols-3 md:flex gap-2">
+            {/* Barang Selection Dropdown */}
+            <fieldset
+              // htmlFor={`barang_${index}`}
+              className="fieldset mb-1 col-span-3 font-medium">
+              <legend className="fieldset-legend">
+                Nama Barang <span className="text-red-600">*</span>
+              </legend>
+              <select
+                id={`barang_${index}`}
+                value={item.barang_id || ""}
+                onChange={(e) => handleBarangChange(index, parseInt(e.target.value))}
+                className="select select-bordered w-full"
+                required>
                 <option
-                  key={option.barang_id}
-                  value={option.barang_id}>
-                  {option.nama_barang}
+                  value=""
+                  disabled>
+                  Pilih Barang
                 </option>
-              ))}
-            </select>
-          </fieldset>
-          {/* Quantity Input */}
-          <fieldset
-            // htmlFor={`qty_${index}`}
-            className="fieldset mb-1 font-medium col-span-1">
-            <legend className="fieldset-legend">
-              Qty <span className="text-red-600">*</span>
-            </legend>
-            <input
-              id={`qty_${index}`}
-              type="number"
-              min="1"
-              value={item.qty}
-              onChange={(e) => updateItem(index, "qty", Number(e.target.value))}
-              className="input"
-              required
-            />
-          </fieldset>
-          {/* harga per unit input */}
-          <fieldset
-            // htmlFor={`harga_per_unit_${index}`}
-            className="fieldset mb-1 font-medium col-span-1">
-            <legend className="fieldset-legend">Harga/Unit</legend>
-            <input
-              id={`harga_per_unit_${index}`}
-              type="number"
-              min="0"
-              value={item.harga_per_unit}
-              onChange={(e) => updateItem(index, "harga_per_unit", Number(e.target.value))}
-              className="input"
-              // pattern="[0-9.,]*"
-            />
-          </fieldset>
+                {itemsOptions.map((option) => (
+                  <option
+                    key={option.barang_id}
+                    value={option.barang_id}>
+                    {option.nama_barang}
+                  </option>
+                ))}
+              </select>
+            </fieldset>
+            {/* Quantity Input */}
+            <fieldset
+              // htmlFor={`qty_${index}`}
+              className="fieldset mb-1 font-medium col-span-1">
+              <legend className="fieldset-legend">
+                Qty <span className="text-red-600">*</span>
+              </legend>
+              <input
+                id={`qty_${index}`}
+                type="number"
+                min="1"
+                value={item.qty}
+                onChange={(e) => updateItem(index, "qty", Number(e.target.value))}
+                className="input"
+                required
+              />
+            </fieldset>
+            {/* harga per unit input */}
+            <fieldset
+              // htmlFor={`harga_per_unit_${index}`}
+              className="fieldset mb-1 font-medium col-span-1">
+              <legend className="fieldset-legend">Harga/Unit</legend>
+              <input
+                id={`harga_per_unit_${index}`}
+                type="number"
+                min="0"
+                value={item.harga_per_unit}
+                onChange={(e) => updateItem(index, "harga_per_unit", Number(e.target.value))}
+                className="input"
+                // pattern="[0-9.,]*"
+              />
+            </fieldset>
 
-          {/* input gambar */}
-          <fieldset
-            // htmlFor={`harga_per_unit_${index}`}
-            className="fieldset mb-1 font-medium col-span-1">
-            <legend className="fieldset-legend">Gambar</legend>
-            <input
-              id={`gambar_barang_${index}`}
-              type="file"
-              onChange={(e) => updateItem(index, "harga_per_unit", Number(e.target.value))}
-              className="file-input p-1" disabled
-            />
-          </fieldset>
-          {items.length > 1 && (
+            {/* input gambar */}
+            <fieldset
+              // htmlFor={`harga_per_unit_${index}`}
+              className="fieldset mb-1 font-medium col-span-1">
+              <legend className="fieldset-legend">Gambar</legend>
+              <input
+                id={`gambar_barang_${index}`}
+                type="file"
+                onChange={(e) => updateItem(index, "harga_per_unit", Number(e.target.value))}
+                className="file-input p-1"
+                disabled
+              />
+            </fieldset>
+            {items.length > 1 && (
               <button
-              type="button"
-              onClick={() => removeItem(index)}
-              className="px-2  btn btn-error btn-outline self-end md:mb-2 col-span-3">
-              <XMarkIcon className="h-5 w-5 text-red font-bold" />
-            </button>
-          )}
+                type="button"
+                onClick={() => removeItem(index)}
+                className="px-2  btn btn-error btn-outline self-end md:mb-2 col-span-3">
+                <XMarkIcon className="h-5 w-5 text-red font-bold" />
+              </button>
+            )}
+          </div>
         </div>
       ))}
 
