@@ -11,7 +11,7 @@ import { XMarkIcon } from "@heroicons/react/24/solid";
 const FormRecords = () => {
   const {
     showAlert,
-    list_barang_options,
+    itemListOptions,
     pendingAction,
     formError,
     payload,
@@ -156,9 +156,9 @@ const FormRecords = () => {
               {/* List Barang <span className="text-red-600">*</span> */}
               {/* <span className="text-gray-400">(dalam bentuk pcs/meter)</span> */}
               <BarangInput
-                items={payload.list_barang}
+                items={payload.item_list}
                 setItems={handleItemsChange}
-                itemsOptions={list_barang_options}
+                itemsOptions={itemListOptions}
               />
             </label>
           </div>

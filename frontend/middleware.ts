@@ -1,9 +1,12 @@
 // middleware.ts
 import { NextResponse, NextRequest } from "next/server";
 
+const protectedRoutes = ["/item-managements", "/item-managements/(.*)"];
+
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("auth_token")?.value || request.cookies.get("__Secure-auth_token")?.value; // Simpan login credential di cookies
+  // const role = request.cookies.get("user_role")?.value;
 
   const newReqHeaders = new Headers(request.headers);
   newReqHeaders.set("x-current-path", request.nextUrl.pathname);
@@ -14,7 +17,8 @@ export function middleware(request: NextRequest) {
 
   if (pathname.startsWith("/settings")) {
     const role = request.cookies.get("userRole")?.value;
-    if (!role) return NextResponse.redirect(new URL("/records", request.url));
+    if (role == "field") return NextResponse.redirect(new URL("/dashboard", request.url));
+    if (!role) return NextResponse.redirect(new URL("/login", request.url));
   }
 
   // authenticated → Kirim header/url pathnamena

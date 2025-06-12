@@ -4,14 +4,14 @@ export const dummyData = [
     nama: "Yoga, Asep, Agus",
     tanggal: "2025-05-02T09:59:41.592Z",
     lokasi: "Jln.Patriot 521, Garut",
-    list_barang: [
+    item_list: [
       {
         qty: 2,
-        nama_barang: "Router",
+        item_name: "Router",
       },
       {
         qty: 250,
-        nama_barang: "Kabel",
+        item_name: "Kabel",
       },
     ],
     nilai: "2250000.00",
@@ -24,14 +24,14 @@ export const dummyData = [
     nama: "KUAL",
     tanggal: "2025-05-02T10:07:59.635Z",
     lokasi: "Jln-jln aja",
-    list_barang: [
+    item_list: [
       {
         qty: 4,
-        nama_barang: "Krayon",
+        item_name: "Krayon",
       },
       {
         qty: 3,
-        nama_barang: "Ruter",
+        item_name: "Ruter",
       },
     ],
     nilai: "3520000.00",

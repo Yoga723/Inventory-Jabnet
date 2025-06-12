@@ -2,6 +2,7 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import recordsReducer from "./recordSlice";
 import userReducer from "./userSlice";
 import themeReducer from "./themeSlice";
+import inventoryReducer from "./inventorySlice";
 import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -10,6 +11,7 @@ const rootReducer = combineReducers({
   records: recordsReducer,
   user: userReducer,
   theme: themeReducer,
+  inventory: inventoryReducer,
 });
 
 // 2. Buat konfigurasi persist hanya untuk slice 'user'

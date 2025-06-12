@@ -21,7 +21,7 @@ const initialState: recordState = {
     nama: "",
     status: "Masuk",
     lokasi: "",
-    list_barang: [{ nama_barang: "", qty: 1, harga_per_unit: 0 }],
+    item_list: [{ item_name: "", qty: 1, price_per_item: 0 }],
     nilai: 0,
     tanggal: new Date().toISOString(),
     keterangan: "",
@@ -51,6 +51,7 @@ export const fetchRecordsThunk = createAsyncThunk(
         window.location.href = "/login";
         return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
       }
+      console.log("RESPONSE DATA", responseData.data)
       return responseData.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");
@@ -83,8 +84,8 @@ export const createRecordsThunk = createAsyncThunk(
   "records/createRecord",
   async (
     // Omit hela record_id jeng tanggal dan eta mah opsional/dijien ti databasena
-    newRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
-      list_barang: string;
+    newRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & {
+      item_list: string;
     },
     { dispatch, rejectWithValue }
   ) => {
@@ -115,8 +116,8 @@ export const putRecordsThunk = createAsyncThunk(
       updatedRecordPayload,
     }: {
       recordId: number;
-      updatedRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
-        list_barang: string;
+      updatedRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & {
+        item_list: string;
       };
     },
     { rejectWithValue }
@@ -217,9 +218,7 @@ const recordSlice = createSlice({
       .addCase(createRecordsThunk.fulfilled, (state, { payload }) => {
         state.items.unshift({
           ...payload,
-          list_barang: Array.isArray(payload.list_barang)
-            ? payload.list_barang
-            : JSON.parse(payload.list_barang || "[]"),
+          item_list: Array.isArray(payload.item_list) ? payload.item_list : JSON.parse(payload.item_list || "[]"),
         });
         state.status = "succeeded";
         clearCurrentItem;
@@ -237,9 +236,7 @@ const recordSlice = createSlice({
           item.record_id === payload.record_id
             ? {
                 ...payload,
-                list_barang: Array.isArray(payload.list_barang)
-                  ? payload.list_barang
-                  : JSON.parse(payload.list_barang || "[]"),
+                item_list: Array.isArray(payload.item_list) ? payload.item_list : JSON.parse(payload.item_list || "[]"),
               }
             : item
         );

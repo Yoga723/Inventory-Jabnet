@@ -4,16 +4,16 @@ import React from "react";
 import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
-import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
+import { ArchiveBoxIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import { logoutAction } from "app/actions/authUser";
 
 const Header = () => {
-  const dispatch = useAppDispatch();
   const router = useRouter();
   const navButton = [
-    { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/" },
-    { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records" },
+    { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/", allowedRoles: [] },
+    { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records", allowedRoles: [] },
+    { title: "Items", icon: "/images/icons/items-icon.png", destination: "/item-managements", allowedRoles: [] },
   ];
 
   const { full_name, role } = useAppSelector((state) => state.user);
@@ -25,9 +25,13 @@ const Header = () => {
     router.push("/login");
   };
 
+  const filteredNav = navButton.filter(btn =>
+    btn.allowedRoles.length === 0 ||
+    btn.allowedRoles.includes(role!)
+  );
   return (
     <>
-      <nav className="sticky z-50 top-0 navbar bg-base-100 shadow-sm px-8 ">
+      <nav className="sticky z-50 top-0 navbar bg-base-100 shadow-sm md:px-8 ">
         <div className="navbar-start">
           <Link
             href="/"
@@ -42,12 +46,12 @@ const Header = () => {
           </Link>
         </div>
         <div className="navbar-center hidden lg:flex gap-4">
-          {navButton.map((btn) => (
+          {filteredNav.map((btn) => (
             <Link
               key={btn.destination}
               href={btn.destination}
               className={`
-              flex items-center p-3 h-full hover:bg-base-300 rounded-lg shadow-lg drop-shadow-lg 
+              flex items-center p-3 gap-1 h-full hover:bg-base-300 rounded-lg shadow-lg drop-shadow-lg 
               ${usePath === btn.destination && "border-b-2 border-amber-300"}
             `}>
               <Image
@@ -182,12 +186,12 @@ const Header = () => {
               htmlFor="my-drawer-4"
               aria-label="close sidebar"
               className="drawer-overlay"></label>
-            <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4 pt-20">
+            <ul className="menu bg-base-200 text-base-content min-h-full w-80 gap-4 p-4 pt-20">
               {/* Sidebar content here */}
-              <li>
-                <a>Sidebar Item 1</a>
+              <li className="text-lg">
+                <Link href={"/item-managements"}><ArchiveBoxIcon width={20} height={20}/> Manajemen Inventori</Link>
               </li>
-              <li>
+              <li className="text-lg">
                 <a>Sidebar Item 2</a>
               </li>
             </ul>

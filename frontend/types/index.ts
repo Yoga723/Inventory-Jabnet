@@ -3,19 +3,19 @@ export interface recordsProp {
   nama: string;
   tanggal: string;
   lokasi: string;
-  list_barang: list_barang_props[];
+  item_list: item_list_props[];
   nilai?: number;
   keterangan?: string;
   status: string;
   kategori?: string;
-  kategori_id?:number;
+  kategori_id?: number;
 }
 
-export interface list_barang_props {
-  barang_id?: number;
-  nama_barang: string;
+export interface item_list_props {
+  item_id?: number;
+  item_name: string;
   qty: number | 1;
-  harga_per_unit?: number; 
+  price_per_item?: number;
 }
 
 export interface UserState {
@@ -25,4 +25,19 @@ export interface UserState {
   role: string | null;
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
+}
+
+// Props untuk kategori barang seperti Backbone, Distribusi, dll
+export interface Kategori {
+  kategori_id: number;
+  nama_kategori: string;
+}
+
+// Item props untuk daftar item yang ada didatabase
+export interface Item {
+  item_id: number;
+  item_name: string;
+  kategori_id: number;
+  nama_kategori?: string;
+  created_at: string;
 }

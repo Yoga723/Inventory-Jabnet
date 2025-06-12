@@ -5,9 +5,10 @@ import FormRecords from "./FormRecords";
 import Loading from "../Loading";
 import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import { useAppSelector } from "../../store/Hooks";
-import { PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { InformationCircleIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import AlertModal from "../modals/AlertModal";
 import { useRecordsContext } from "../../context/records/RecordsContext";
+import Link from "next/link";
 
 const RecordTable = () => {
   const {
@@ -128,11 +129,11 @@ const RecordTable = () => {
                       index != recordsData.length - 1 && "border-y-2 border-black"
                     } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                     <ul>
-                      {record.list_barang.map((item, i) => (
+                      {record.item_list.map((item, i) => (
                         <li
                           className="my-4"
                           key={`${record.record_id}-name-${i}`}>
-                          {item.nama_barang}
+                          {item.item_name}
                         </li>
                       ))}
                     </ul>
@@ -143,7 +144,7 @@ const RecordTable = () => {
                       index != recordsData.length - 1 && "border-y-2 border-black"
                     } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                     <ul>
-                      {record.list_barang.map((item, i) => (
+                      {record.item_list.map((item, i) => (
                         <li
                           className="my-4"
                           key={`${record.record_id}-qty-${i}`}>
@@ -152,17 +153,17 @@ const RecordTable = () => {
                       ))}
                     </ul>
                   </td>
-                  {/* harga_per_unit */}
+                  {/* price_per_item */}
                   <td
                     className={`${
                       index != recordsData.length - 1 && "border-y-2 border-black"
                     } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                     <ul>
-                      {record.list_barang.map((item, i) => (
+                      {record.item_list.map((item, i) => (
                         <li
                           className="my-4"
                           key={`${record.record_id}-qty-${i}`}>
-                          {formatCurrency(Number(item.harga_per_unit))}
+                          {formatCurrency(Number(item.price_per_item))}
                         </li>
                       ))}
                     </ul>
@@ -205,6 +206,16 @@ const RecordTable = () => {
                       colSpan={10}
                       className="px-2">
                       <div className="flex items-center justify-start gap-8 p-1">
+                        <Link
+                        href={`/records/${record.record_id}`}
+                          className={`cursor-pointer text-sm flex justify-center bg-none`}>
+                          <InformationCircleIcon
+                            width={16}
+                            height={16}
+                            className="mr-1.5 text-neutral"
+                          />
+                          Details
+                        </Link>
                         <button
                           type="button"
                           onClick={() => {

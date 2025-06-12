@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { list_barang_props, recordsProp } from "../../types";
+import { item_list_props, recordsProp } from "../../types";
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import {
   createRecordsThunk,
@@ -29,7 +29,7 @@ const useRecordsLogic = () => {
     error: recordsError,
   } = useAppSelector((state) => state.records);
   const [categories, setCategories] = useState<{ kategori_id: number; nama_kategori: string }[]>([]);
-  const [list_barang_options, setList_barang_options] = useState<{ barang_id: number; nama_barang: string }[]>([]);
+  const [itemListOptions, setItemListOptions] = useState<{ item_id: number; item_name: string }[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null); // Jang row table
   // Hold Action sampe ada konfirmasi dari AlertModal
   const [pendingAction, setPendingAction] = useState<{ type: ModalAction; handler: () => Promise<void> } | null>(null);
@@ -44,6 +44,8 @@ const useRecordsLogic = () => {
           credentials: "include",
         });
         const data = await response.json();
+
+        console.log("RESPONSE FROM KATEGORI")
         setCategories(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);
@@ -58,21 +60,21 @@ const useRecordsLogic = () => {
       const fetchItems = async () => {
         try {
           const response = await fetch(
-            `https://inventory.jabnet.id/api/records/barang?kategori_id=${payload.kategori_id}`,
+            `https://inventory.jabnet.id/api/records/item?kategori_id=${payload.kategori_id}`,
             {
               method: "GET",
               credentials: "include",
             }
           );
           const data = await response.json();
-          setList_barang_options(data);
+          setItemListOptions(data);
         } catch (error) {
           console.error("Failed to fetch items:", error);
         }
       };
       fetchItems();
     } else {
-      setList_barang_options([]);
+      setItemListOptions([]);
     }
   }, [payload.kategori_id]);
 
@@ -97,9 +99,9 @@ const useRecordsLogic = () => {
       ...payload,
       nama: full_name,
       kategori: categories[payload.kategori_id].nama_kategori,
-      list_barang: JSON.stringify(payload.list_barang),
-    } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & {
-      list_barang: string;
+      item_list: JSON.stringify(payload.item_list),
+    } satisfies Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & {
+      item_list: string;
     };
 
     const res = await dispatch(createRecordsThunk(dataToSend));
@@ -113,12 +115,12 @@ const useRecordsLogic = () => {
   const putRecord = useCallback(
     async (recordId: number) => {
       if (!validatePayload()) return;
-      // Remove hela record_id, tanggal, & set list_barang jadi string
+      // Remove hela record_id, tanggal, & set item_list jadi string
       const dataToSend = {
         ...payload,
         nama: full_name,
-        list_barang: JSON.stringify(payload.list_barang),
-      } satisfies Omit<recordsProp, "record_id" | "tanggal" | "list_barang"> & { list_barang: string };
+        item_list: JSON.stringify(payload.item_list),
+      } satisfies Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & { item_list: string };
 
       const res = await dispatch(putRecordsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
       if (res.meta.requestStatus == "fulfilled") {
@@ -150,8 +152,8 @@ const useRecordsLogic = () => {
 
   // Handler khusus list barang
   const handleItemsChange = useCallback(
-    (items: list_barang_props[]) => {
-      dispatch(updateCurrentItemField({ field: "list_barang", value: items }));
+    (items: item_list_props[]) => {
+      dispatch(updateCurrentItemField({ field: "item_list", value: items }));
     },
     [dispatch]
   );
@@ -160,7 +162,7 @@ const useRecordsLogic = () => {
     const hasErrorNama = !full_name.trim();
     const hasErrorLokasi = !payload.lokasi.trim();
     const hasErrorListBarang =
-      !payload.list_barang.length || payload.list_barang.some((item) => !item.nama_barang.trim());
+      !payload.item_list.length || payload.item_list.some((item) => !item.item_name.trim());
     const hasErrorKategori = payload.kategori_id == null;
 
     const newErrors = {
@@ -209,7 +211,7 @@ const useRecordsLogic = () => {
   };
 
   return {
-    list_barang_options,
+    itemListOptions,
     isModalOpen,
     categories,
     closeModal,
