@@ -1,6 +1,14 @@
+// frontend/app/actions/authUser.ts
 "use server";
-
 import { cookies } from "next/headers";
+
+const cookieOptions = {
+  httpOnly: true,
+  path: "/",
+  secure: true,
+  sameSite: "none" as const,
+  partitioned: true,
+};
 
 export async function loginAction(username: string, password: string) {
   try {
@@ -15,16 +23,11 @@ export async function loginAction(username: string, password: string) {
       return { error: error.error || "Login failed" };
     }
 
+    // Set HTTP-only cookie
     const json = await response.json();
     const token = json.data.token;
-
-    // Set HTTP-only cookie
     (await cookies()).set("auth_token", token, {
-      httpOnly: true,
-      path: "/",
-      secure: true,
-      sameSite: "none",
-      partitioned: true,
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60, // 7 days
     });
 
@@ -38,15 +41,13 @@ export async function loginAction(username: string, password: string) {
 export const logoutAction = async () => {
   try {
     (await cookies()).set("auth_token", "", {
-      httpOnly: true,
-      path: "/",
-      secure: true,
-      sameSite: "none",
-      partitioned: true,
+      ...cookieOptions,
       maxAge: 0,
     });
+
+    return { success: true };
   } catch (error) {
-    console.log("Terjadi kesalahan saat mencoba logout", error)
-    return {error : "Gagal Logout"}
+    console.log("Logout error", error);
+    return { error: "Logout failed" };
   }
 };

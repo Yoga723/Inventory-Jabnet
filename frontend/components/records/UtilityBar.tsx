@@ -1,9 +1,10 @@
 "use client";
-import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useState } from "react";
 import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useProductsContext } from "context/products/ProductsContext";
 
 const dateOptions = [
   { label: "All Time", value: "" },
@@ -38,6 +39,7 @@ const UtilityBar = () => {
   const onSearchKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") handleSearch();
   };
+  const { openModal } = useProductsContext();
 
   return (
     <>
@@ -63,18 +65,29 @@ const UtilityBar = () => {
 
         <button
           type="button"
+          onClick={(event) => handleExport(event)}
+          className="btn btn-info btn-soft">
+          <BookOpenIcon className="w-5 h-5 mr-2" />
+          Export
+        </button>
+
+        <button
+          type="button"
           onClick={() => setIsFilterOpen(true)}
           className="btn btn- btn-soft">
           <FunnelIcon className="w-5 h-5 mr-2" />
           Filter
         </button>
-
         <button
           type="button"
-          onClick={(event) => handleExport(event)}
-          className="btn btn-info btn-soft">
-          <BookOpenIcon className="w-5 h-5 mr-2" />
-          Export
+          onClick={() => openModal(null)}
+          className="btn btn-primary btn-soft">
+          <PlusIcon
+            width={20}
+            height={20}
+            className="ml-1.5"
+          />
+          Tambah
         </button>
       </section>
 
@@ -114,13 +127,14 @@ const UtilityBar = () => {
                 value={kategoriFilter}
                 onChange={(event) => handleKategoriChange(event.target.value)}>
                 <option value="All">All</option>
-                {categories && categories.map((cat) => (
-                  <option
-                    key={cat.kategori_id}
-                    value={cat.kategori_id}>
-                    {cat.nama_kategori}
-                  </option>
-                ))}
+                {categories &&
+                  categories.map((cat) => (
+                    <option
+                      key={cat.kategori_id}
+                      value={cat.kategori_id}>
+                      {cat.nama_kategori}
+                    </option>
+                  ))}
               </select>
             </label>
           </div>

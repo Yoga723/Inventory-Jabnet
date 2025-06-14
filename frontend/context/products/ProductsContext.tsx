@@ -1,10 +1,9 @@
 "use client";
-import AlertModal from "components/modals/AlertModal";
 import { createContext, useContext, useState, ReactNode } from "react";
 import { useAppDispatch } from "store/Hooks";
-import { clearCurrentItem } from "store/recordSlice";
+import { clearCurrentItem } from "store/productsSlice";
 
-interface RecordsContextType {
+interface ProductsContextType {
   currentRecordId: number | null;
   isModalOpen: boolean;
   openModal: (recordId: number | null) => void;
@@ -14,9 +13,9 @@ interface RecordsContextType {
   closeAlert: () => void;
 }
 
-const RecordsContext = createContext<RecordsContextType>(null!);
+const ProductsContext = createContext<ProductsContextType>(null!);
 
-export const RecordsProvider = ({ children }: { children: ReactNode }) => {
+export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const dispatch = useAppDispatch();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -32,11 +31,11 @@ export const RecordsProvider = ({ children }: { children: ReactNode }) => {
   const openAlert = () => setIsAlertOpen(true);
 
   return (
-    <RecordsContext.Provider
+    <ProductsContext.Provider
       value={{ isModalOpen, currentRecordId, openModal, closeModal, isAlertOpen, closeAlert, openAlert }}>
       {children}
-    </RecordsContext.Provider>
+    </ProductsContext.Provider>
   );
 };
 
-export const useRecordsContext = () => useContext(RecordsContext);
+export const useProductsContext = () => useContext(ProductsContext);

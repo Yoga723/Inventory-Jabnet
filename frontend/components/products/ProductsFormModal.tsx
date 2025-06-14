@@ -2,7 +2,7 @@ import React from "react";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { Kategori } from "types";
 
-interface ItemFormModalProps {
+interface ProductsFormProps {
   isOpen: boolean;
   item: any;
   categories: Kategori[];
@@ -12,7 +12,7 @@ interface ItemFormModalProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
 }
 
-const ItemFormModal: React.FC<ItemFormModalProps> = ({
+const ProductsForm: React.FC<ProductsFormProps> = ({
   isOpen,
   item,
   categories,
@@ -92,4 +92,4 @@ const ItemFormModal: React.FC<ItemFormModalProps> = ({
   );
 };
 
-export default ItemFormModal;
+export default ProductsForm;

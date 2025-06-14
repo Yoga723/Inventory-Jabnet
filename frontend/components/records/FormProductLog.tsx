@@ -1,14 +1,13 @@
 "use client";
 import React from "react";
-import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import BarangInput from "../BarangInput";
 import Loading from "../Loading";
-import { useRecordsContext } from "../../context/records/RecordsContext";
 import { useAppSelector } from "store/Hooks";
 import AlertModal from "components/modals/AlertModal";
 import { XMarkIcon } from "@heroicons/react/24/solid";
+import useLogProductsLogic from "app/hooks/useLogProductsLogic";
 
-const FormRecords = () => {
+const FormProductLog = () => {
   const {
     showAlert,
     itemListOptions,
@@ -17,9 +16,9 @@ const FormRecords = () => {
     payload,
     handleInputChange,
     handleItemsChange,
-    createRecord,
-    putRecord,
-    recordsStatus,
+    createProductLog,
+    putProductLog,
+    productsStatus,
     handleCancel,
     handleConfirmation,
     showConfirmation,
@@ -27,11 +26,11 @@ const FormRecords = () => {
     closeModal,
     currentRecordId,
     categories,
-  } = useRecordsLogic(); // Jang handle request
+  } = useLogProductsLogic(); // Jang handle request
   const { full_name } = useAppSelector((state) => state.user);
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const handler = currentRecordId ? () => putRecord(currentRecordId) : createRecord;
+    const handler = currentRecordId ? () => putProductLog(currentRecordId) : createProductLog;
     showConfirmation("submit", handler);
   };
 
@@ -46,13 +45,13 @@ const FormRecords = () => {
           id="record-form-modal"
           onSubmit={(event: React.FormEvent) => handleSubmit(event)}
           className="flex flex-col items-center card bg-base-100 max-sm:w-full md:min-w-4xl h-full overflow-auto relative">
-          {recordsStatus == "loading" && <Loading />}
+          {productsStatus == "loading" && <Loading />}
           <h1 className="flex justify-between mb-1 mt-10 font-bold text-2xl text-center col-span-2 w-full px-4">
             {currentRecordId !== null ? "Update record" : "Tambah record baru"}
             <button
               type="button"
               onClick={() => closeModal()}
-              id="dismiss-record-modal"
+              id="dismiss-product-log-modal"
               className="px-2  btn btn-error self-end md:mb-2 col-span-3">
               <XMarkIcon className="h-5 w-5 text-red font-bold" />
             </button>
@@ -188,7 +187,7 @@ const FormRecords = () => {
             <button
               type="button"
               onClick={() => closeModal()}
-              id="dismiss-record-modal"
+              id="dismiss-product-log-modal"
               className="px-6 btn bg-base-300 ">
               Close
             </button>
@@ -207,4 +206,4 @@ const FormRecords = () => {
   );
 };
 
-export default FormRecords;
+export default FormProductLog;

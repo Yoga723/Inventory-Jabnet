@@ -1,4 +1,4 @@
-export interface recordsProp {
+export interface productsProp {
   record_id?: number;
   nama: string;
   tanggal: string;
@@ -40,4 +40,17 @@ export interface Item {
   kategori_id: number;
   nama_kategori?: string;
   created_at: string;
+}
+
+// PROPS UNTUK CUSTOMERS
+export interface Customers {
+  id: number;
+  name: string;
+  no_telepon: string;
+  address?: string;
+  sn?: string;
+  olt?: string | null;
+  odp?: string | null;
+  port_odp?: string | null;
+  paket_id?: number;
 }

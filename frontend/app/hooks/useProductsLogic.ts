@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { createItem, fetchItem, fetchCategories, updateItem, deleteItem } from "store/inventorySlice";
 
-const useInventoryManagement = () => {
+const useProductsLogic = () => {
   const dispatch = useAppDispatch();
   const { categories, items, status, error } = useAppSelector((state) => state.inventory);
   const [showFormModal, setShowFormModal] = useState(false);
@@ -51,6 +51,7 @@ const useInventoryManagement = () => {
         kategori_id: categories[0].kategori_id,
       }));
     }
+    console.log("THIS IS CATEGORY :", categories);
   }, [categories]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -138,4 +139,4 @@ const useInventoryManagement = () => {
   };
 };
 
-export default useInventoryManagement;
+export default useProductsLogic;

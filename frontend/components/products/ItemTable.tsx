@@ -2,28 +2,22 @@ import React from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { Item, Kategori } from "types";
 
-
-interface ItemTableProps {
+interface ProductsTableProps {
   items: Item[];
   categories: Kategori[];
   onEdit: (item: Item) => void;
   onDelete: (id: number) => void;
 }
 
-const ItemTable: React.FC<ItemTableProps> = ({ 
-  items, 
-  categories, 
-  onEdit, 
-  onDelete 
-}) => {
+const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit, onDelete }) => {
   const getCategoryName = (kategori_id: number) => {
-    const category = categories.find(cat => cat.kategori_id === kategori_id);
+    const category = categories.find((cat) => cat.kategori_id === kategori_id);
     return category ? category.nama_kategori : "Unknown";
   };
 
   return (
-    <div className="overflow-x-auto">
-      <table className="table w-full">
+    <>
+      <table className="table w-full overflow-x-auto">
         <thead>
           <tr>
             <th>ID</th>
@@ -44,14 +38,12 @@ const ItemTable: React.FC<ItemTableProps> = ({
                 <div className="flex space-x-2">
                   <button
                     onClick={() => onEdit(item)}
-                    className="btn btn-sm btn-warning"
-                  >
+                    className="btn btn-sm btn-warning">
                     <PencilIcon className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => onDelete(item.item_id)}
-                    className="btn btn-sm btn-error"
-                  >
+                    className="btn btn-sm btn-error">
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </div>
@@ -60,14 +52,14 @@ const ItemTable: React.FC<ItemTableProps> = ({
           ))}
         </tbody>
       </table>
-      
+
       {items.length === 0 && (
         <div className="text-center py-8">
           <p className="text-gray-500">Belum ada barang yang terdaftar</p>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
-export default ItemTable;
+export default ProductsTable;

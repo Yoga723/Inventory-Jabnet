@@ -1,15 +1,15 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { recordsProp } from "../types";
+import { productsProp } from "../types";
 const API_BASE_URL = "https://inventory.jabnet.id/api/records";
 
 interface FieldUpdate {
-  field: keyof recordsProp;
+  field: keyof productsProp;
   value: any;
 }
 
 export interface recordState {
-  items: recordsProp[];
-  currentItem: recordsProp | null;
+  items: productsProp[];
+  currentItem: productsProp | null;
   status: "idle" | "loading" | "succeeded" | "failed";
   isHomeLoading?: true | false;
   error: string | null;
@@ -33,8 +33,8 @@ const initialState: recordState = {
 };
 
 // Function untuk ambil data dari database baik semuanya atau dengan filter
-export const fetchRecordsThunk = createAsyncThunk(
-  "records/fetchRecordsThunk",
+export const fetchProductsThunk = createAsyncThunk(
+  "records/fetchProductsThunk",
   async (query: string = "", { rejectWithValue }) => {
     try {
       const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
@@ -51,7 +51,6 @@ export const fetchRecordsThunk = createAsyncThunk(
         window.location.href = "/login";
         return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
       }
-      console.log("RESPONSE DATA", responseData.data)
       return responseData.data;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");
@@ -60,8 +59,8 @@ export const fetchRecordsThunk = createAsyncThunk(
 );
 
 // Ambil data dari database berdasarkan ID
-export const fetchRecordByIdThunk = createAsyncThunk(
-  `records/fetchRecordByIdThunk`,
+export const fetchProductsByIdThunk = createAsyncThunk(
+  `records/fetchProductsByIdThunk`,
   async (record_id: number, { rejectWithValue }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
@@ -80,11 +79,11 @@ export const fetchRecordByIdThunk = createAsyncThunk(
   }
 );
 
-export const createRecordsThunk = createAsyncThunk(
-  "records/createRecord",
+export const createProductsThunk = createAsyncThunk(
+  "records/createProductsThunk",
   async (
     // Omit hela record_id jeng tanggal dan eta mah opsional/dijien ti databasena
-    newRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & {
+    newRecordPayload: Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
       item_list: string;
     },
     { dispatch, rejectWithValue }
@@ -108,15 +107,15 @@ export const createRecordsThunk = createAsyncThunk(
   }
 );
 
-export const putRecordsThunk = createAsyncThunk(
-  `records/putRecordsThunk`,
+export const putProductsThunk = createAsyncThunk(
+  `records/putProductsThunk`,
   async (
     {
       recordId,
       updatedRecordPayload,
     }: {
       recordId: number;
-      updatedRecordPayload: Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & {
+      updatedRecordPayload: Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
         item_list: string;
       };
     },
@@ -140,8 +139,8 @@ export const putRecordsThunk = createAsyncThunk(
   }
 );
 
-export const deleteRecordsThunk = createAsyncThunk(
-  "records/deleteRecord",
+export const deleteProductsThunk = createAsyncThunk(
+  "records/deleteProductLog",
   async (record_id: number, { dispatch, rejectWithValue }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
@@ -159,7 +158,7 @@ export const deleteRecordsThunk = createAsyncThunk(
   }
 );
 
-const recordSlice = createSlice({
+const productsSlice = createSlice({
   name: "records",
   initialState,
   reducers: {
@@ -174,7 +173,7 @@ const recordSlice = createSlice({
       // @ts-ignore
       state.currentItem[field] = value;
     },
-    resetRecordsStatus: (state) => {
+    resetproductsStatus: (state) => {
       state.status = "idle";
       state.error = null;
     },
@@ -183,39 +182,39 @@ const recordSlice = createSlice({
   // Jadi tinggal addCase pending = harus A, case fulfilled harus B, dst
   extraReducers(builder) {
     builder
-      .addCase(fetchRecordsThunk.pending, (state) => {
+      .addCase(fetchProductsThunk.pending, (state) => {
         state.isHomeLoading = true;
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchRecordsThunk.fulfilled, (state, action: PayloadAction<recordsProp[]>) => {
+      .addCase(fetchProductsThunk.fulfilled, (state, action: PayloadAction<productsProp[]>) => {
         state.isHomeLoading = false;
         state.status = "succeeded";
         state.items = action.payload;
       })
-      .addCase(fetchRecordsThunk.rejected, (state, action) => {
+      .addCase(fetchProductsThunk.rejected, (state, action) => {
         state.isHomeLoading = false;
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(fetchRecordByIdThunk.pending, (state) => {
+      .addCase(fetchProductsByIdThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchRecordByIdThunk.fulfilled, (state, action: PayloadAction<recordsProp>) => {
+      .addCase(fetchProductsByIdThunk.fulfilled, (state, action: PayloadAction<productsProp>) => {
         state.status = "succeeded";
         // Set men keterangan null jadina empty string
         state.currentItem = { ...action.payload, keterangan: action.payload.keterangan ?? "" };
       })
-      .addCase(fetchRecordByIdThunk.rejected, (state, action) => {
+      .addCase(fetchProductsByIdThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(createRecordsThunk.pending, (state) => {
+      .addCase(createProductsThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(createRecordsThunk.fulfilled, (state, { payload }) => {
+      .addCase(createProductsThunk.fulfilled, (state, { payload }) => {
         state.items.unshift({
           ...payload,
           item_list: Array.isArray(payload.item_list) ? payload.item_list : JSON.parse(payload.item_list || "[]"),
@@ -223,15 +222,15 @@ const recordSlice = createSlice({
         state.status = "succeeded";
         clearCurrentItem;
       })
-      .addCase(createRecordsThunk.rejected, (state, action) => {
+      .addCase(createProductsThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(putRecordsThunk.pending, (state) => {
+      .addCase(putProductsThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(putRecordsThunk.fulfilled, (state, { payload }) => {
+      .addCase(putProductsThunk.fulfilled, (state, { payload }) => {
         state.items = state.items.map((item) =>
           item.record_id === payload.record_id
             ? {
@@ -242,24 +241,24 @@ const recordSlice = createSlice({
         );
         state.status = "succeeded";
       })
-      .addCase(putRecordsThunk.rejected, (state, action) => {
+      .addCase(putProductsThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(deleteRecordsThunk.pending, (state) => {
+      .addCase(deleteProductsThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(deleteRecordsThunk.fulfilled, (state, { payload }) => {
+      .addCase(deleteProductsThunk.fulfilled, (state, { payload }) => {
         state.items = state.items.filter((item) => item.record_id !== payload);
         state.status = "succeeded";
       })
-      .addCase(deleteRecordsThunk.rejected, (state, action) => {
+      .addCase(deleteProductsThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });
   },
 });
 
-export const { resetRecordsStatus, clearCurrentItem, updateCurrentItemField } = recordSlice.actions;
-export default recordSlice.reducer;
+export const { resetproductsStatus, clearCurrentItem, updateCurrentItemField } = productsSlice.actions;
+export default productsSlice.reducer;

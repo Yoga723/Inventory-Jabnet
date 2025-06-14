@@ -20,6 +20,7 @@ const userSlice = createSlice({
       state.username = action.payload.username;
       state.full_name = action.payload.full_name;
       state.role = action.payload.role;
+      state.token = action.payload.token; // Store token
       state.status = "succeeded";
     },
     clearUser(state) {

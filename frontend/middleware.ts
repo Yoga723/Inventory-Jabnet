@@ -1,7 +1,7 @@
 // middleware.ts
 import { NextResponse, NextRequest } from "next/server";
 
-const protectedRoutes = ["/item-managements", "/item-managements/(.*)"];
+const protectedRoutes = ["/products", "/products/(.*)"];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;

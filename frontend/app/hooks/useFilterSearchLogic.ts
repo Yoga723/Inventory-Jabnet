@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { addDays, formatISO, startOfDay, endOfDay } from "date-fns";
-import { fetchRecordsThunk } from "../../store/recordSlice";
+import { fetchProductsThunk } from "../../store/productsSlice";
 import { useAppDispatch } from "../../store/Hooks";
 
 export const useFilterSearchLogic = () => {
@@ -63,7 +63,7 @@ export const useFilterSearchLogic = () => {
   };
 
   const handleSearch = () => {
-    dispatch(fetchRecordsThunk(buildQueryParams()));
+    dispatch(fetchProductsThunk(buildQueryParams()));
   };
 
   const handleStatusChange = (filter: string) => {
@@ -83,7 +83,7 @@ export const useFilterSearchLogic = () => {
     setStatusFIlter("All");
     setDateRange([null, null]);
     setSelectedDateFilter("");
-    dispatch(fetchRecordsThunk(""));
+    dispatch(fetchProductsThunk(""));
   };
 
   const handleExport = async (event) => {

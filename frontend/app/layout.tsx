@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import StoreProvider from "../components/StoreProvider";
-import { RecordsProvider } from "../context/records/RecordsContext";
+import { ProductsProvider } from "../context/products/ProductsContext";
 import AuthLoader from "components/AuthLoader";
 
 export const metadata: Metadata = {
@@ -41,7 +41,7 @@ export default async function RootLayout({
       <body className={` antialiased`}>
         <StoreProvider >
           <AuthLoader/>
-          <RecordsProvider>{children}</RecordsProvider>
+          <ProductsProvider>{children}</ProductsProvider>
         </StoreProvider>
       </body>
     </html>

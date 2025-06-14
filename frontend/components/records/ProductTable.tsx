@@ -1,45 +1,45 @@
 "use client";
 import React, { useEffect } from "react";
 import { formatCurrency } from "../../app/utils/priceFormat";
-import FormRecords from "./FormRecords";
 import Loading from "../Loading";
-import useRecordsLogic from "../../app/hooks/useRecordsLogic";
 import { useAppSelector } from "../../store/Hooks";
 import { InformationCircleIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroicons/react/24/solid";
 import AlertModal from "../modals/AlertModal";
-import { useRecordsContext } from "../../context/records/RecordsContext";
+import { useProductsContext } from "../../context/products/ProductsContext";
 import Link from "next/link";
+import useLogProductsLogic from "app/hooks/useLogProductsLogic";
+import FormProductLog from "./FormProductLog";
 
-const RecordTable = () => {
+const ProductTable = () => {
   const {
     pendingAction,
     handleCancel,
     handleConfirmation,
     showAlert,
-    getRecords,
+    getProductsLog,
     calculateTotalHarga,
-    deleteRecord,
+    deleteProductLog,
     showConfirmation,
     expandedIndex,
     toggleRow,
     populateForm,
-  } = useRecordsLogic();
+  } = useLogProductsLogic();
   const {
-    items: recordsData, // ie intina items as recordsData
+    items: productsData, // ie intina items as productsData
     isHomeLoading,
-    status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: recordsError,
-  } = useAppSelector((state) => state.records);
+    status: productsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: productsError,
+  } = useAppSelector((state) => state.productsLog);
   const { role } = useAppSelector((state) => state.user);
-  const { openModal } = useRecordsContext();
+  const { openModal } = useProductsContext();
 
   useEffect(() => {
-    getRecords();
+    getProductsLog();
   }, []);
 
   return (
     <div className="overflow-x-auto w-full">
-      <FormRecords />
+      <FormProductLog />
       {/* Table Records */}
       <table className="table-records">
         <thead className={`table-header-group bg-base-100`}>
@@ -48,20 +48,8 @@ const RecordTable = () => {
               colSpan={10}
               className="bg-base-300 w-full">
               <div className="flex justify-between items-center p-4">
-                <button
-                  type="button"
-                  onClick={() => openModal(null)}
-                  className="btn btn-primary btn-soft">
-                  <PlusIcon
-                    width={20}
-                    height={20}
-                    className="ml-1.5"
-                  />
-                  Tambah
-                </button>
-
                 <div className="flex flex-col text-start">
-                  <span className="text-sm">Total Items: {recordsData.length}</span>
+                  <span className="text-sm">Total Items: {productsData.length}</span>
                   <span className="text-sm">Perkiraan Total : {formatCurrency(calculateTotalHarga())} </span>
                 </div>
               </div>
@@ -98,7 +86,7 @@ const RecordTable = () => {
               </td>
             </tr>
           )}
-          {recordsStatus === "failed" && (
+          {productsStatus === "failed" && (
             <tr>
               <td
                 colSpan={9}
@@ -107,26 +95,26 @@ const RecordTable = () => {
               </td>
             </tr>
           )}
-          {recordsData &&
-            recordsData.map((record, index) => (
+          {productsData &&
+            productsData.map((record, index) => (
               <React.Fragment key={index}>
                 <tr
                   onClick={() => toggleRow(index)}
                   className={`cursor-pointer bg-base-100`}>
                   <td
                     className={`${
-                      index != recordsData.length - 1 && "border-y-2 border-black"
+                      index != productsData.length - 1 && "border-y-2 border-black"
                     } td-collapse font-bold  ${record.status === "Masuk" ? "text-success" : "text-error"}`}>
                     {record.nama}
                   </td>
-                  <td className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse`}>
+                  <td className={`${index != productsData.length - 1 && "border-y-2 border-black"} td-collapse`}>
                     {new Date(record.tanggal).toLocaleDateString("en-GB")}
                   </td>
 
                   {/* Row Nama Barang */}
                   <td
                     className={`${
-                      index != recordsData.length - 1 && "border-y-2 border-black"
+                      index != productsData.length - 1 && "border-y-2 border-black"
                     } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                     <ul>
                       {record.item_list.map((item, i) => (
@@ -141,7 +129,7 @@ const RecordTable = () => {
                   {/* Row QTY Barang */}
                   <td
                     className={`${
-                      index != recordsData.length - 1 && "border-y-2 border-black"
+                      index != productsData.length - 1 && "border-y-2 border-black"
                     } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                     <ul>
                       {record.item_list.map((item, i) => (
@@ -156,7 +144,7 @@ const RecordTable = () => {
                   {/* price_per_item */}
                   <td
                     className={`${
-                      index != recordsData.length - 1 && "border-y-2 border-black"
+                      index != productsData.length - 1 && "border-y-2 border-black"
                     } td-collapse min-w-30 max-w-62 whitespace-normal wrap-break-word text-center`}>
                     <ul>
                       {record.item_list.map((item, i) => (
@@ -170,32 +158,32 @@ const RecordTable = () => {
                   </td>
 
                   <td
-                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-16  ${
+                    className={`${index != productsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-16  ${
                       record.status === "Masuk" ? "text-success" : "text-error"
                     }`}>
                     {record.status}
                   </td>
                   <td
-                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
+                    className={`${index != productsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
                     {record.lokasi}
                   </td>
                   <td
-                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
+                    className={`${index != productsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
                     {record.keterangan}
                   </td>
                   <td
-                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
+                    className={`${index != productsData.length - 1 && "border-y-2 border-black"} td-collapse min-w-52`}>
                     {record.kategori}
                   </td>
                   <td
-                    className={`${index != recordsData.length - 1 && "border-y-2 border-black"} ${
+                    className={`${index != productsData.length - 1 && "border-y-2 border-black"} ${
                       record.status === "Masuk" ? "text-success" : "text-error"
                     } text-pretty break-all overflow-auto min-w-36`}>
                     {formatCurrency(Number(record.nilai))}
                   </td>
                 </tr>
                 {/* ROW untuk action button */}
-                {role && ["operator", "admin", "super_admin"].includes(role) && (
+                {role && ["field","operator", "admin", "super_admin"].includes(role) && (
                   <tr
                     className={`record-action-transition ${
                       expandedIndex === index
@@ -207,7 +195,7 @@ const RecordTable = () => {
                       className="px-2">
                       <div className="flex items-center justify-start gap-8 p-1">
                         <Link
-                        href={`/records/${record.record_id}`}
+                          href={`/records/${record.record_id}`}
                           className={`cursor-pointer text-sm flex justify-center bg-none`}>
                           <InformationCircleIcon
                             width={16}
@@ -231,7 +219,7 @@ const RecordTable = () => {
                           Edit
                         </button>
                         <button
-                          onClick={() => showConfirmation("delete", () => deleteRecord(record.record_id))}
+                          onClick={() => showConfirmation("delete", () => deleteProductLog(record.record_id))}
                           className={`cursor-pointer text-sm flex bg-none`}>
                           <TrashIcon
                             width={16}
@@ -260,4 +248,4 @@ const RecordTable = () => {
   );
 };
 
-export default RecordTable;
+export default ProductTable;

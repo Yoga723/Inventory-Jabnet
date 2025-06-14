@@ -40,7 +40,7 @@ export default function RecordHistoryPage() {
       <main className="md:px-8 px-2 pb-28 pt-5 overflow-hidden bg-base-200 h-full max-w-screen">
         <h1 className="text-2xl font-bold">History {id}</h1>
 
-        {history && (<p>{history.nama}</p>)}
+        {/* {history && (<p>{history.nama}</p>)} */}
 
         {loading ? (
           <div className="flex justify-center">
@@ -50,12 +50,12 @@ export default function RecordHistoryPage() {
           <div className="alert alert-info">No history found for this record</div>
         ) : (
           <div className="space-y-4">
-            {history.map((item) => (
+            {/* {history.map((item) => (
               <HistoryItem
                 key={item.history_id}
                 item={item}
               />
-            ))}
+            ))} */}
           </div>
         )}
       </main>

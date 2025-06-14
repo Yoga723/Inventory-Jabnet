@@ -7,13 +7,24 @@ import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { ArchiveBoxIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import { logoutAction } from "app/actions/authUser";
+import HomeIcon from "@mui/icons-material/Home";
+import StorageIcon from "@mui/icons-material/Storage";
+import GroupIcon from "@mui/icons-material/Group";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import InventoryIcon from "@mui/icons-material/Inventory";
 
 const Header = () => {
   const router = useRouter();
   const navButton = [
-    { title: "Dashboard", icon: "/images/icons/dashboard-icon.png", destination: "/", allowedRoles: [] },
-    { title: "Records", icon: "/images/icons/reports-icon.png", destination: "/records", allowedRoles: [] },
-    { title: "Items", icon: "/images/icons/items-icon.png", destination: "/item-managements", allowedRoles: [] },
+    { title: "Dashboard", icon: <DashboardIcon className="text-accent" />, destination: "/", allowedRoles: [] },
+    { title: "Log Products", icon: <StorageIcon className="text-accent" />, destination: "/log-products", allowedRoles: [] },
+    {
+      title: "Products",
+      icon: <InventoryIcon className="text-accent" />,
+      destination: "/products",
+      allowedRoles: [],
+    },
+    { title: "Customers", icon: <GroupIcon className="text-accent" />, destination: "/customers", allowedRoles: [] },
   ];
 
   const { full_name, role } = useAppSelector((state) => state.user);
@@ -25,10 +36,7 @@ const Header = () => {
     router.push("/login");
   };
 
-  const filteredNav = navButton.filter(btn =>
-    btn.allowedRoles.length === 0 ||
-    btn.allowedRoles.includes(role!)
-  );
+  const filteredNav = navButton.filter((btn) => btn.allowedRoles.length === 0 || btn.allowedRoles.includes(role!));
   return (
     <>
       <nav className="sticky z-50 top-0 navbar bg-base-100 shadow-sm md:px-8 ">
@@ -48,18 +56,19 @@ const Header = () => {
         <div className="navbar-center hidden lg:flex gap-4">
           {filteredNav.map((btn) => (
             <Link
-              key={btn.destination}
+              key={btn.title}
               href={btn.destination}
               className={`
               flex items-center p-3 gap-1 h-full hover:bg-base-300 rounded-lg shadow-lg drop-shadow-lg 
               ${usePath === btn.destination && "border-b-2 border-amber-300"}
             `}>
-              <Image
+              {btn.icon}
+              {/* <Image
                 src={btn.icon}
                 alt={btn.title}
                 width={25}
                 height={25}
-              />
+              /> */}
               <span>{btn.title}</span>
             </Link>
           ))}
@@ -116,42 +125,9 @@ const Header = () => {
           href={navButton[0].destination}
           type={`button`}
           className={` ${usePath === "/" && "dock-active"}`}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"
-            />
-          </svg>
+          <HomeIcon />
 
           <span className="dock-label">Home</span>
-        </Link>
-
-        <Link
-          href={navButton[1].destination}
-          type="button"
-          className={` ${usePath === "/records" && "dock-active"}`}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth="1.5"
-            stroke="currentColor"
-            className="size-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25"
-            />
-          </svg>
-
-          <span className="dock-label">Records</span>
         </Link>
 
         <div className="drawer drawer-end">
@@ -181,6 +157,7 @@ const Header = () => {
               Show More
             </label>
           </div>
+
           <div className="drawer-side">
             <label
               htmlFor="my-drawer-4"
@@ -188,11 +165,23 @@ const Header = () => {
               className="drawer-overlay"></label>
             <ul className="menu bg-base-200 text-base-content min-h-full w-80 gap-4 p-4 pt-20">
               {/* Sidebar content here */}
-              <li className="text-lg">
-                <Link href={"/item-managements"}><ArchiveBoxIcon width={20} height={20}/> Manajemen Inventori</Link>
+              <li className={`text-lg ${usePath.includes("/products") && "border-b-2 bg-base-300 rounded-md"}`}>
+                <Link href={"/products"}>
+                  <InventoryIcon />
+                  Products
+                </Link>
               </li>
-              <li className="text-lg">
-                <a>Sidebar Item 2</a>
+              <li className={`text-lg ${usePath.includes("/log-products") && "border-b-2 bg-base-300 rounded-md"}`}>
+                <Link href={"/log-products"}>
+                  <StorageIcon />
+                  Log Products
+                </Link>
+              </li>
+              <li className={`text-lg ${usePath.includes("/customers") && "border-b-2 bg-base-300 rounded-md"}`}>
+                <Link href={"/customers"}>
+                  <GroupIcon />
+                  Customers
+                </Link>
               </li>
             </ul>
           </div>

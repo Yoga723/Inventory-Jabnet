@@ -482,7 +482,7 @@ router.get("/item", async (req, res) => {
   } catch (error) {}
 });
 
-router.post("/item", async (req, res) => {
+router.post("/item", authorize(["admin", "super_admin"]), async (req, res) => {
   const { item_name, kategori_id } = req.body;
 
   try {
@@ -526,49 +526,53 @@ router.post("/item", async (req, res) => {
   }
 });
 
-router.put("/item/:id", async (req, res) => {
-  const paramId = parseInt(req.params.id);
-  const { item_name, kategori_id } = req.body;
+router.put(
+  "/item/:id",
+  authorize(["admin", "super_admin"]),
+  async (req, res) => {
+    const paramId = parseInt(req.params.id);
+    const { item_name, kategori_id } = req.body;
 
-  try {
-    // Check if category exists
-    const categoryCheck = await req.db.query(
-      "SELECT kategori_id FROM kategori WHERE kategori_id = $1",
-      [kategori_id]
-    );
+    try {
+      // Check if category exists
+      const categoryCheck = await req.db.query(
+        "SELECT kategori_id FROM kategori WHERE kategori_id = $1",
+        [kategori_id]
+      );
 
-    if (categoryCheck.rowCount === 0) {
-      return res.status(404).json({
-        error: "Category not found",
-        code: 404,
+      if (categoryCheck.rowCount === 0) {
+        return res.status(404).json({
+          error: "Category not found",
+          code: 404,
+        });
+      }
+
+      // UPDATE BARANG
+      const result = await req.db.query(
+        `UPDATE barang SET item_name = $1, kategori_id = $2 WHERE item_id = $3 RETURNING item_name, kategori_id, created_at`,
+        [item_name, kategori_id, paramId]
+      );
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "Item not found", code: 404 });
+      }
+
+      return res.status(200).json({
+        message: "BERHASIL UPDATE BARANG",
+        code: 200,
+        data: result.rows[0], // now includes item_id
+      });
+    } catch (error) {
+      return res.json({
+        message: "Gagal Update Barang!",
+        code: 500,
+        error: error.message,
       });
     }
-
-    // UPDATE BARANG
-    const result = await req.db.query(
-      `UPDATE barang SET item_name = $1, kategori_id = $2 WHERE item_id = $3 RETURNING item_name, kategori_id, created_at`,
-      [item_name, kategori_id, paramId]
-    );
-
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Item not found", code: 404 });
-    }
-
-    return res.status(200).json({
-      message: "BERHASIL UPDATE BARANG",
-      code: 200,
-      data: result.rows[0],           // now includes item_id
-    });
-  } catch (error) {
-    return res.json({
-      message: "Gagal Update Barang!",
-      code: 500,
-      error: error.message,
-    });
   }
-});
+);
 
-router.delete(`/item/:id`, async (req, res) => {
+router.delete(`/item/:id`, authorize(["admin", "super_admin"]),async (req, res) => {
   try {
     const paramId = parseInt(req.params.id);
     if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });

@@ -1,3 +1,4 @@
+// login/page.tsx
 "use client";
 import Image from "next/image";
 import React, { FormEvent, useEffect, useState } from "react";
@@ -21,7 +22,7 @@ const page = () => {
           credentials: "include",
         });
 
-        if (response.ok) router.replace("/records");
+        if (response.ok) router.replace("/products");
       } catch (error) {
         console.error("Auth check error:", error);
       }
@@ -46,9 +47,8 @@ const page = () => {
 
       if (result.success) {
         dispath(setUser(result.user));
-        console.log(result);
         router.refresh();
-        router.replace("/records");
+        router.replace("/products");
       } else {
         setError(result.error || "Login failed");
       }

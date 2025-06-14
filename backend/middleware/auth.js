@@ -1,13 +1,18 @@
 const jwt = require("jsonwebtoken");
 
+const pgPool = require("../config/dbinventory");
+const mariaPool = require("../config/dbcustomers");
+
 // Middleware jang verifikasi JWT jeng set req.user
 const authenticateMiddleware = (req, res, next) => {
   const token = req.cookies.auth_token;
-  if (!token) return res.status(401).json({ error: "Not Authenticated eyy" });
+  if (!token) return res.status(401).json({ error: "Not Authenticated" });
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = payload;
+    // req.db = pgPool;
+    req.dbPelanggan = mariaPool;
     next();
   } catch (error) {
     return res.status(401).json({ error: "Tokenna invalid, coba login dei" });
@@ -17,7 +22,7 @@ const authenticateMiddleware = (req, res, next) => {
 // Middleware jang cek authorized role
 const authorize = (allowedRoles = []) => {
   return (req, res, next) => {
-    if (!req.user) return res.status(401).json({ error: "Not authenticated" });
+    if (!req.user) return res.status(401).json({ error: "Not Authorized" });
 
     const roleHierarchy = {
       field: 1,
@@ -28,11 +33,15 @@ const authorize = (allowedRoles = []) => {
 
     // Check rolena aya atau hente
     if (!roleHierarchy[req.user.role]) {
-      console.log("Rolena eweh ie mah ceng, cek dei di database inventory_system");
+      console.log(
+        "Rolena eweh ie mah ceng, cek dei di database inventory_system"
+      );
       return res.status(403).json({ error: "Invalid user role" });
     }
 
-    const hasAccess = allowedRoles.some((role) => roleHierarchy[req.user.role] >= roleHierarchy[role]);
+    const hasAccess = allowedRoles.some(
+      (role) => roleHierarchy[req.user.role] >= roleHierarchy[role]
+    );
 
     if (!hasAccess) {
       console.log(`Access denied for ${req.user.role} to ${req.path}`);

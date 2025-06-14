@@ -1,14 +1,15 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "components/Header";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import Loading from "components/Loading";
-import ItemTable from "components/item-managements/ItemTable";
-import useInventoryManagement from "app/hooks/useInventoryManagement";
-import ItemFormModal from "components/item-managements/ItemFormModal";
 import AlertModal from "components/modals/AlertModal";
+import useProductsLogic from "app/hooks/useProductsLogic";
+import ProductsForm from "components/products/ProductsFormModal";
+import ProductsTable from "components/products/ItemTable";
+import CategoryTable from "components/products/CategoryTable";
 
-const ItemManagementPage = () => {
+const ProductsPage = () => {
   const {
     categories,
     items,
@@ -29,7 +30,7 @@ const ItemManagementPage = () => {
     handleConfirmation,
     handleCancel,
     openFormModal,
-  } = useInventoryManagement();
+  } = useProductsLogic();
 
   if (status === "loading") {
     return (
@@ -43,15 +44,13 @@ const ItemManagementPage = () => {
     <>
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">Manajemen Barang</h1>
-          <button
-            onClick={() => openFormModal()}
-            className="btn btn-primary">
-            <PlusIcon className="h-5 w-5 mr-1.5" />
-            Tambah Barang Baru
-          </button>
-        </div>
+        <h1 className="text-3xl font-bold">List Barang</h1>
+        <button
+          onClick={() => openFormModal()}
+          className="btn btn-primary my-5">
+          <PlusIcon className="h-5 w-5 mr-1.5" />
+          Tambah Barang Baru
+        </button>
 
         {error && (
           <div className="alert alert-error shadow-lg my-4">
@@ -69,14 +68,14 @@ const ItemManagementPage = () => {
           onCategoryChange={setSelectedCategory}
         /> */}
 
-        <ItemTable
+        <ProductsTable
           items={items}
           categories={categories}
           onEdit={openFormModal}
           onDelete={handleDelete}
         />
 
-        <ItemFormModal
+        <ProductsForm
           isOpen={showFormModal}
           item={null}
           categories={categories}
@@ -84,6 +83,20 @@ const ItemManagementPage = () => {
           onClose={() => setShowFormModal(false)}
           onSubmit={handleSubmit}
           onChange={handleInputChange}
+        />
+
+        <h1 className="text-3xl font-bold mt-16">List Kategori</h1>
+        <button
+          onClick={() => openFormModal()}
+          className="btn btn-primary my-5">
+          <PlusIcon className="h-5 w-5 mr-1.5" />
+          Tambah Kategori Baru
+        </button>
+
+        <CategoryTable
+          categories={categories}
+          onEdit={openFormModal}
+          onDelete={handleDelete}
         />
 
         <AlertModal
@@ -99,4 +112,4 @@ const ItemManagementPage = () => {
   );
 };
 
-export default ItemManagementPage;
+export default ProductsPage;

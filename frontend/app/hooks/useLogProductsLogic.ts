@@ -1,21 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { item_list_props, recordsProp } from "../../types";
+import { item_list_props, productsProp } from "../../types";
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import {
-  createRecordsThunk,
-  deleteRecordsThunk,
-  fetchRecordByIdThunk,
-  fetchRecordsThunk,
-  putRecordsThunk,
+  createProductsThunk,
+  deleteProductsThunk,
+  fetchProductsByIdThunk,
+  fetchProductsThunk,
+  putProductsThunk,
   updateCurrentItemField,
-} from "../../store/recordSlice";
+} from "../../store/productsSlice";
 import { ModalAction } from "components/modals/AlertModal";
-import { useRecordsContext } from "context/records/RecordsContext";
+import { useProductsContext } from "context/products/ProductsContext";
 
-const useRecordsLogic = () => {
-  const { isModalOpen, closeModal, currentRecordId } = useRecordsContext();
+const useLogProductsLogic = () => {
+  const { isModalOpen, closeModal, currentRecordId } = useProductsContext();
   const { full_name } = useAppSelector((state) => state.user);
   const [formError, setFormError] = useState({
     inputError: { errorNama: false, errorLokasi: false, errorListBarang: false, errorKategori: false },
@@ -23,11 +23,11 @@ const useRecordsLogic = () => {
   const [showAlert, setShowAlert] = useState(false);
   const dispatch = useAppDispatch();
   const {
-    items: recordsData,
+    items: productsData,
     currentItem: payload,
-    status: recordsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
-    error: recordsError,
-  } = useAppSelector((state) => state.records);
+    status: productsStatus, // 'idle' | 'loading' | 'succeeded' | 'failed'
+    error: productsError,
+  } = useAppSelector((state) => state.productsLog);
   const [categories, setCategories] = useState<{ kategori_id: number; nama_kategori: string }[]>([]);
   const [itemListOptions, setItemListOptions] = useState<{ item_id: number; item_name: string }[]>([]);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null); // Jang row table
@@ -78,21 +78,21 @@ const useRecordsLogic = () => {
     }
   }, [payload.kategori_id]);
 
-  const getRecords = useCallback(() => {
-    dispatch(fetchRecordsThunk(""));
+  const getProductsLog = useCallback(() => {
+    dispatch(fetchProductsThunk(""));
   }, [dispatch]);
 
   // Functions untuk isi input form saat user click tombol edit
   const populateForm = useCallback(
     async (recordId: number) => {
-      await dispatch(fetchRecordByIdThunk(recordId));
+      await dispatch(fetchProductsByIdThunk(recordId));
     },
     [dispatch]
   );
 
   // Functions untuk handle input dan forms POST, UPDATE/PUT, DELETE
 
-  const createRecord = useCallback(async () => {
+  const createProductLog = useCallback(async () => {
     if (!validatePayload()) return;
 
     const dataToSend = {
@@ -100,19 +100,19 @@ const useRecordsLogic = () => {
       nama: full_name,
       kategori: categories[payload.kategori_id].nama_kategori,
       item_list: JSON.stringify(payload.item_list),
-    } satisfies Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & {
+    } satisfies Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
       item_list: string;
     };
 
-    const res = await dispatch(createRecordsThunk(dataToSend));
+    const res = await dispatch(createProductsThunk(dataToSend));
 
     if (res.meta.requestStatus == "fulfilled") {
-      const dismissModal = document.getElementById("dismiss-record-modal");
+      const dismissModal = document.getElementById("dismiss-product-log-modal");
       if (dismissModal) (dismissModal as HTMLElement).click();
     }
   }, [dispatch, payload, full_name]);
 
-  const putRecord = useCallback(
+  const putProductLog = useCallback(
     async (recordId: number) => {
       if (!validatePayload()) return;
       // Remove hela record_id, tanggal, & set item_list jadi string
@@ -120,21 +120,21 @@ const useRecordsLogic = () => {
         ...payload,
         nama: full_name,
         item_list: JSON.stringify(payload.item_list),
-      } satisfies Omit<recordsProp, "record_id" | "tanggal" | "item_list"> & { item_list: string };
+      } satisfies Omit<productsProp, "record_id" | "tanggal" | "item_list"> & { item_list: string };
 
-      const res = await dispatch(putRecordsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
+      const res = await dispatch(putProductsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
       if (res.meta.requestStatus == "fulfilled") {
-        const dismissModal = document.getElementById("dismiss-record-modal");
+        const dismissModal = document.getElementById("dismiss-product-log-modal");
         if (dismissModal) (dismissModal as HTMLElement).click();
       }
     },
     [dispatch, payload, full_name]
   );
 
-  const deleteRecord = useCallback(
+  const deleteProductLog = useCallback(
     async (recordId: number) => {
       try {
-        await dispatch(deleteRecordsThunk(recordId));
+        await dispatch(deleteProductsThunk(recordId));
       } catch (error) {
         console.error("Delete failed:", error);
       }
@@ -144,7 +144,7 @@ const useRecordsLogic = () => {
 
   // Update useState saat user isi input
   const handleInputChange = useCallback(
-    (field: keyof recordsProp, value: any) => {
+    (field: keyof productsProp, value: any) => {
       dispatch(updateCurrentItemField({ field, value }));
     },
     [dispatch]
@@ -201,7 +201,7 @@ const useRecordsLogic = () => {
   };
 
   const calculateTotalHarga = () => {
-    const totalHarga = recordsData.reduce((acc, item) => {
+    const totalHarga = productsData.reduce((acc, item) => {
       const nilaiNum = Number(item.nilai);
       if (item.status === "Masuk") return acc + nilaiNum;
       if (item.status === "Keluar") return acc - nilaiNum;
@@ -222,21 +222,21 @@ const useRecordsLogic = () => {
     pendingAction,
     showAlert,
     payload,
-    recordsData,
-    recordsStatus,
+    productsData,
+    productsStatus,
     validatePayload,
     formError,
     expandedIndex,
     calculateTotalHarga,
     toggleRow,
     populateForm,
-    putRecord,
-    deleteRecord,
-    getRecords,
-    createRecord,
+    putProductLog,
+    deleteProductLog,
+    getProductsLog,
+    createProductLog,
     handleInputChange,
     handleItemsChange,
   };
 };
 
-export default useRecordsLogic;
+export default useLogProductsLogic;
