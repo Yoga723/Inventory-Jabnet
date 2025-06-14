@@ -1,5 +1,5 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import productslogReducer from "./productsSlice";
+import productslogReducer from "./logProductsSlice";
 import userReducer from "./userSlice";
 import themeReducer from "./themeSlice";
 import inventoryReducer from "./inventorySlice";

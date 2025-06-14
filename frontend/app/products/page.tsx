@@ -19,10 +19,7 @@ const ProductsPage = () => {
     showAlert,
     pendingAction,
     formData,
-    searchTerm,
-    setSearchTerm,
-    selectedCategory,
-    setSelectedCategory,
+    formType,
     handleInputChange,
     handleSubmit,
     handleDelete,
@@ -46,7 +43,7 @@ const ProductsPage = () => {
       <main className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold">List Barang</h1>
         <button
-          onClick={() => openFormModal()}
+          onClick={() => openFormModal('item')}
           className="btn btn-primary my-5">
           <PlusIcon className="h-5 w-5 mr-1.5" />
           Tambah Barang Baru
@@ -71,12 +68,13 @@ const ProductsPage = () => {
         <ProductsTable
           items={items}
           categories={categories}
-          onEdit={openFormModal}
-          onDelete={handleDelete}
+          onEdit={(item) => openFormModal('item', item)}
+          onDelete={(id) => handleDelete(id, 'item')}
         />
 
         <ProductsForm
           isOpen={showFormModal}
+          formType={formType}
           item={null}
           categories={categories}
           formData={formData}
@@ -87,7 +85,7 @@ const ProductsPage = () => {
 
         <h1 className="text-3xl font-bold mt-16">List Kategori</h1>
         <button
-          onClick={() => openFormModal()}
+          onClick={() => openFormModal('category')}
           className="btn btn-primary my-5">
           <PlusIcon className="h-5 w-5 mr-1.5" />
           Tambah Kategori Baru
@@ -95,13 +93,13 @@ const ProductsPage = () => {
 
         <CategoryTable
           categories={categories}
-          onEdit={openFormModal}
-          onDelete={handleDelete}
+          onEdit={(category) => openFormModal('category', category)}
+          onDelete={(id) => handleDelete(id, 'category')}
         />
 
         <AlertModal
           isOpen={showAlert}
-          content="Yakin ingin menghapus barang ini?"
+          content="Yakin ingin menghapus ini?"
           action={pendingAction?.type}
           primaryBtnStyle="error"
           onConfirm={handleConfirmation}

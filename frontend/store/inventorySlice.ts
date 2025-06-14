@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Item, Kategori } from "types";
-const API_BASE_URL = "https://inventory.jabnet.id/api/records";
+const API_BASE_URL = "https://inventory.jabnet.id/api/products";
 
 interface InventoryState {
   categories: Kategori[];
@@ -16,7 +16,10 @@ const initialState: InventoryState = {
   error: null,
 };
 
-// Async Thunk
+// ======================================================
+// THUNK KATEGORI
+// ======================================================
+
 export const fetchCategories = createAsyncThunk("inventory/fetchCategories", async (_, { rejectWithValue }) => {
   try {
     const response = await fetch(`${API_BASE_URL}/kategori`, { method: "GET", credentials: "include" });
@@ -29,9 +32,64 @@ export const fetchCategories = createAsyncThunk("inventory/fetchCategories", asy
   }
 });
 
+export const createCategory = createAsyncThunk(
+  "inventory/createCategory",
+  async (category: { nama_kategori: string }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/kategori`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(category),
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to create category");
+      const { data } = await response.json();
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCategory = createAsyncThunk(
+  "inventory/updateCategory",
+  async ({ id, category }: { id: number; category: { nama_kategori: string } }, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/kategori/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(category),
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Failed to update category");
+      const { data } = await response.json();
+      return data;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCategory = createAsyncThunk("inventory/deleteCategory", async (id: number, { rejectWithValue }) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/kategori/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+    if (!response.ok) throw new Error("Failed to delete category");
+    return id;
+  } catch (error: any) {
+    return rejectWithValue(error.message);
+  }
+});
+
+// ======================================================
+// THUNK PRODUCT/ITEMS JABNET
+// ======================================================
+
 export const fetchItem = createAsyncThunk("inventory/fetchItem", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/item`, { method: "GET", credentials: "include" });
+    const response = await fetch(`${API_BASE_URL}`, { method: "GET", credentials: "include" });
 
     if (!response) throw new Error("Gagal fetch item");
 
@@ -53,7 +111,7 @@ export const createItem = createAsyncThunk(
   "inventory/createItem",
   async (item: { item_name: string; kategori_id: number }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/item`, {
+      const response = await fetch(`${API_BASE_URL}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
@@ -77,7 +135,7 @@ export const updateItem = createAsyncThunk(
   "inventory/updateItem",
   async ({ id, item }: { id: number; item: { item_name: string; kategori_id: number } }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/item/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
@@ -95,7 +153,7 @@ export const updateItem = createAsyncThunk(
 
 export const deleteItem = createAsyncThunk("inventory/deleteItem", async (id: number, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/item/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -112,7 +170,7 @@ const inventorySlice = createSlice({
   reducers: {},
   extraReducers(builder) {
     builder
-      // Fetch Kategori
+      // CASE KATEGORI
       .addCase(fetchCategories.pending, (state) => {
         state.status = "loading";
       })
@@ -124,7 +182,36 @@ const inventorySlice = createSlice({
         state.status = "failed";
         state.error = action.payload as string;
       })
-      //   Fetch Item
+      .addCase(createCategory.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(createCategory.fulfilled, (state, action: PayloadAction<Kategori>) => {
+        state.categories.push(action.payload);
+        state.status = "succeeded";
+      })
+      .addCase(createCategory.rejected, (state) => {
+        state.status = "failed";
+      })
+      .addCase(updateCategory.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(updateCategory.fulfilled, (state, action: PayloadAction<Kategori>) => {
+        const updated = action.payload;
+        const idx = state.categories.findIndex((cat) => cat.kategori_id === updated.kategori_id);
+        if (idx !== -1) {
+          state.categories[idx] = updated;
+        }
+        state.status = "succeeded";
+      })
+      .addCase(deleteCategory.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(deleteCategory.fulfilled, (state, action: PayloadAction<number>) => {
+        state.categories = state.categories.filter((cat) => cat.kategori_id !== action.payload);
+        state.status = "succeeded";
+      })
+
+      // CASE PRODUCTS
       .addCase(fetchItem.pending, (state) => {
         state.status = "loading";
       })
@@ -135,11 +222,10 @@ const inventorySlice = createSlice({
       .addCase(fetchItem.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-      }) // Create Item
+      })
       .addCase(createItem.fulfilled, (state, action) => {
         state.items.push(action.payload.data);
       })
-      // Update Item
       .addCase(updateItem.fulfilled, (state, action) => {
         const updated = action.payload;
         const idx = state.items.findIndex((i) => i.item_id === updated.item_id);
@@ -152,7 +238,6 @@ const inventorySlice = createSlice({
           };
         }
       })
-      // Delete Item
       .addCase(deleteItem.fulfilled, (state, action: PayloadAction<number>) => {
         state.items = state.items.filter((item) => item.item_id !== action.payload);
       });

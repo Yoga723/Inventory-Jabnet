@@ -4,13 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import { item_list_props, productsProp } from "../../types";
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import {
-  createProductsThunk,
-  deleteProductsThunk,
-  fetchProductsByIdThunk,
-  fetchProductsThunk,
-  putProductsThunk,
+  createLogProductsThunk,
+  deleteLogProductsThunk,
+  fetchLogProductsByIdThunk,
+  fetchLogProductsThunk,
+  putLogProductsThunk,
   updateCurrentItemField,
-} from "../../store/productsSlice";
+} from "../../store/logProductsSlice";
 import { ModalAction } from "components/modals/AlertModal";
 import { useProductsContext } from "context/products/ProductsContext";
 
@@ -39,7 +39,7 @@ const useLogProductsLogic = () => {
     if (!isModalOpen) return;
     const fetchCategories = async () => {
       try {
-        const response = await fetch("https://inventory.jabnet.id/api/records/kategori", {
+        const response = await fetch("https://inventory.jabnet.id/api/products/kategori", {
           method: "GET",
           credentials: "include",
         });
@@ -60,7 +60,7 @@ const useLogProductsLogic = () => {
       const fetchItems = async () => {
         try {
           const response = await fetch(
-            `https://inventory.jabnet.id/api/records/item?kategori_id=${payload.kategori_id}`,
+            `https://inventory.jabnet.id/api/products?kategori_id=${payload.kategori_id}`,
             {
               method: "GET",
               credentials: "include",
@@ -79,13 +79,13 @@ const useLogProductsLogic = () => {
   }, [payload.kategori_id]);
 
   const getProductsLog = useCallback(() => {
-    dispatch(fetchProductsThunk(""));
+    dispatch(fetchLogProductsThunk(""));
   }, [dispatch]);
 
   // Functions untuk isi input form saat user click tombol edit
   const populateForm = useCallback(
     async (recordId: number) => {
-      await dispatch(fetchProductsByIdThunk(recordId));
+      await dispatch(fetchLogProductsByIdThunk(recordId));
     },
     [dispatch]
   );
@@ -104,7 +104,7 @@ const useLogProductsLogic = () => {
       item_list: string;
     };
 
-    const res = await dispatch(createProductsThunk(dataToSend));
+    const res = await dispatch(createLogProductsThunk(dataToSend));
 
     if (res.meta.requestStatus == "fulfilled") {
       const dismissModal = document.getElementById("dismiss-product-log-modal");
@@ -122,7 +122,7 @@ const useLogProductsLogic = () => {
         item_list: JSON.stringify(payload.item_list),
       } satisfies Omit<productsProp, "record_id" | "tanggal" | "item_list"> & { item_list: string };
 
-      const res = await dispatch(putProductsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
+      const res = await dispatch(putLogProductsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
       if (res.meta.requestStatus == "fulfilled") {
         const dismissModal = document.getElementById("dismiss-product-log-modal");
         if (dismissModal) (dismissModal as HTMLElement).click();
@@ -134,7 +134,7 @@ const useLogProductsLogic = () => {
   const deleteProductLog = useCallback(
     async (recordId: number) => {
       try {
-        await dispatch(deleteProductsThunk(recordId));
+        await dispatch(deleteLogProductsThunk(recordId));
       } catch (error) {
         console.error("Delete failed:", error);
       }

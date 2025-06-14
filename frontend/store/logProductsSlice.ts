@@ -7,7 +7,7 @@ interface FieldUpdate {
   value: any;
 }
 
-export interface recordState {
+export interface ProductState {
   items: productsProp[];
   currentItem: productsProp | null;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -15,7 +15,7 @@ export interface recordState {
   error: string | null;
 }
 
-const initialState: recordState = {
+const initialState: ProductState = {
   items: [],
   currentItem: {
     nama: "",
@@ -33,8 +33,8 @@ const initialState: recordState = {
 };
 
 // Function untuk ambil data dari database baik semuanya atau dengan filter
-export const fetchProductsThunk = createAsyncThunk(
-  "records/fetchProductsThunk",
+export const fetchLogProductsThunk = createAsyncThunk(
+  "records/fetchLogProductsThunk",
   async (query: string = "", { rejectWithValue }) => {
     try {
       const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
@@ -59,8 +59,8 @@ export const fetchProductsThunk = createAsyncThunk(
 );
 
 // Ambil data dari database berdasarkan ID
-export const fetchProductsByIdThunk = createAsyncThunk(
-  `records/fetchProductsByIdThunk`,
+export const fetchLogProductsByIdThunk = createAsyncThunk(
+  `records/fetchLogProductsByIdThunk`,
   async (record_id: number, { rejectWithValue }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/${record_id}`, {
@@ -79,8 +79,8 @@ export const fetchProductsByIdThunk = createAsyncThunk(
   }
 );
 
-export const createProductsThunk = createAsyncThunk(
-  "records/createProductsThunk",
+export const createLogProductsThunk = createAsyncThunk(
+  "records/createLogProductsThunk",
   async (
     // Omit hela record_id jeng tanggal dan eta mah opsional/dijien ti databasena
     newRecordPayload: Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
@@ -107,8 +107,8 @@ export const createProductsThunk = createAsyncThunk(
   }
 );
 
-export const putProductsThunk = createAsyncThunk(
-  `records/putProductsThunk`,
+export const putLogProductsThunk = createAsyncThunk(
+  `records/putLogProductsThunk`,
   async (
     {
       recordId,
@@ -139,7 +139,7 @@ export const putProductsThunk = createAsyncThunk(
   }
 );
 
-export const deleteProductsThunk = createAsyncThunk(
+export const deleteLogProductsThunk = createAsyncThunk(
   "records/deleteProductLog",
   async (record_id: number, { dispatch, rejectWithValue }) => {
     try {
@@ -158,8 +158,8 @@ export const deleteProductsThunk = createAsyncThunk(
   }
 );
 
-const productsSlice = createSlice({
-  name: "records",
+const logProductsSlice = createSlice({
+  name: "logProducts",
   initialState,
   reducers: {
     clearCurrentItem: (state) => {
@@ -182,39 +182,39 @@ const productsSlice = createSlice({
   // Jadi tinggal addCase pending = harus A, case fulfilled harus B, dst
   extraReducers(builder) {
     builder
-      .addCase(fetchProductsThunk.pending, (state) => {
+      .addCase(fetchLogProductsThunk.pending, (state) => {
         state.isHomeLoading = true;
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchProductsThunk.fulfilled, (state, action: PayloadAction<productsProp[]>) => {
+      .addCase(fetchLogProductsThunk.fulfilled, (state, action: PayloadAction<productsProp[]>) => {
         state.isHomeLoading = false;
         state.status = "succeeded";
         state.items = action.payload;
       })
-      .addCase(fetchProductsThunk.rejected, (state, action) => {
+      .addCase(fetchLogProductsThunk.rejected, (state, action) => {
         state.isHomeLoading = false;
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(fetchProductsByIdThunk.pending, (state) => {
+      .addCase(fetchLogProductsByIdThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchProductsByIdThunk.fulfilled, (state, action: PayloadAction<productsProp>) => {
+      .addCase(fetchLogProductsByIdThunk.fulfilled, (state, action: PayloadAction<productsProp>) => {
         state.status = "succeeded";
         // Set men keterangan null jadina empty string
         state.currentItem = { ...action.payload, keterangan: action.payload.keterangan ?? "" };
       })
-      .addCase(fetchProductsByIdThunk.rejected, (state, action) => {
+      .addCase(fetchLogProductsByIdThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(createProductsThunk.pending, (state) => {
+      .addCase(createLogProductsThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(createProductsThunk.fulfilled, (state, { payload }) => {
+      .addCase(createLogProductsThunk.fulfilled, (state, { payload }) => {
         state.items.unshift({
           ...payload,
           item_list: Array.isArray(payload.item_list) ? payload.item_list : JSON.parse(payload.item_list || "[]"),
@@ -222,15 +222,15 @@ const productsSlice = createSlice({
         state.status = "succeeded";
         clearCurrentItem;
       })
-      .addCase(createProductsThunk.rejected, (state, action) => {
+      .addCase(createLogProductsThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(putProductsThunk.pending, (state) => {
+      .addCase(putLogProductsThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(putProductsThunk.fulfilled, (state, { payload }) => {
+      .addCase(putLogProductsThunk.fulfilled, (state, { payload }) => {
         state.items = state.items.map((item) =>
           item.record_id === payload.record_id
             ? {
@@ -241,24 +241,24 @@ const productsSlice = createSlice({
         );
         state.status = "succeeded";
       })
-      .addCase(putProductsThunk.rejected, (state, action) => {
+      .addCase(putLogProductsThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       })
-      .addCase(deleteProductsThunk.pending, (state) => {
+      .addCase(deleteLogProductsThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(deleteProductsThunk.fulfilled, (state, { payload }) => {
+      .addCase(deleteLogProductsThunk.fulfilled, (state, { payload }) => {
         state.items = state.items.filter((item) => item.record_id !== payload);
         state.status = "succeeded";
       })
-      .addCase(deleteProductsThunk.rejected, (state, action) => {
+      .addCase(deleteLogProductsThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
       });
   },
 });
 
-export const { resetproductsStatus, clearCurrentItem, updateCurrentItemField } = productsSlice.actions;
-export default productsSlice.reducer;
+export const { resetproductsStatus, clearCurrentItem, updateCurrentItemField } = logProductsSlice.actions;
+export default logProductsSlice.reducer;

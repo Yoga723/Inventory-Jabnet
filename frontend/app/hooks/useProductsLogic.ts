@@ -3,7 +3,17 @@
 import { ModalAction } from "components/modals/AlertModal";
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
-import { createItem, fetchItem, fetchCategories, updateItem, deleteItem } from "store/inventorySlice";
+import {
+  createItem,
+  fetchItem,
+  fetchCategories,
+  updateItem,
+  deleteItem,
+  updateCategory,
+  createCategory,
+  deleteCategory,
+} from "store/inventorySlice";
+import { Item, Kategori } from "types";
 
 const useProductsLogic = () => {
   const dispatch = useAppDispatch();
@@ -15,11 +25,7 @@ const useProductsLogic = () => {
     handler: () => Promise<void>;
     itemId?: number;
   } | null>(null);
-  const [editItem, setEditItem] = useState<{
-    item_id?: number;
-    item_name: string;
-    kategori_id: number;
-  } | null>(null);
+  const [formType, setFormType] = useState<"item" | "category">("item");
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<number | "all">("all");
 
@@ -37,11 +43,12 @@ const useProductsLogic = () => {
     return matchesSearch && matchesCategory;
   });
 
-  // Form state
-  const [formData, setFormData] = useState<{ item_id?: number; item_name: string; kategori_id: number }>({
-    item_name: "",
-    kategori_id: categories[0]?.kategori_id || 0,
-  });
+  const [formData, setFormData] = useState<{
+    item_id?: number;
+    item_name?: string;
+    kategori_id?: number;
+    nama_kategori?: string;
+  }>({});
 
   // Update form data when categories load
   useEffect(() => {
@@ -51,7 +58,6 @@ const useProductsLogic = () => {
         kategori_id: categories[0].kategori_id,
       }));
     }
-    console.log("THIS IS CATEGORY :", categories);
   }, [categories]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -61,28 +67,54 @@ const useProductsLogic = () => {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-
-    if (!formData.item_name.trim()) return alert("Nama barang harus diisi");
-
-    try {
-      if (formData.item_id) await dispatch(updateItem({ id: formData.item_id!, item: formData }));
-      else await dispatch(createItem(formData));
-
-      setShowFormModal(false);
-      setEditItem(null);
-    } catch (error) {
-      console.error("Error saving item:", error);
+    if (formType === "item") {
+      if (!formData.item_name?.trim()) return alert("Nama barang harus diisi");
+      try {
+        if (formData.item_id)
+          await dispatch(
+            updateItem({
+              id: formData.item_id,
+              item: { item_name: formData.item_name, kategori_id: formData.kategori_id! },
+            })
+          );
+        else
+          await dispatch(
+            createItem({
+              item_name: formData.item_name,
+              kategori_id: formData.kategori_id || categories[0]?.kategori_id || 0,
+            })
+          );
+        setShowFormModal(false);
+      } catch (error) {
+        console.error("Error saving item:", error);
+      }
+    } else {
+      // category
+      if (!formData.nama_kategori?.trim()) return alert("Nama kategori harus diisi");
+      try {
+        if (formData.kategori_id)
+          await dispatch(
+            updateCategory({ id: formData.kategori_id, category: { nama_kategori: formData.nama_kategori } })
+          );
+        else await dispatch(createCategory({ nama_kategori: formData.nama_kategori }));
+        setShowFormModal(false);
+      } catch (error) {
+        console.error("Error saving category:", error);
+      }
     }
   };
 
-  const handleDelete = (itemId: number) => {
+  const handleDelete = (id: number, type: "item" | "category") => {
     setPendingAction({
       type: "delete",
       handler: async () => {
-        await dispatch(deleteItem(itemId));
+        if (type === "item") {
+          await dispatch(deleteItem(id));
+        } else {
+          await dispatch(deleteCategory(id));
+        }
         setShowAlert(false);
       },
-      itemId,
     });
     setShowAlert(true);
   };
@@ -98,19 +130,34 @@ const useProductsLogic = () => {
     setShowAlert(false);
   };
 
-  const openFormModal = (item: any = null) => {
-    setEditItem(item);
-    if (item) {
-      setFormData({
-        item_id: item.item_id,
-        item_name: item.item_name,
-        kategori_id: item.kategori_id,
-      });
+  const openFormModal = (type: "item" | "category", data: Item | Kategori | null = null) => {
+    setFormType(type);
+    if (data) {
+      if (type === "item") {
+        const itemData = data as Item;
+        setFormData({
+          item_id: itemData.item_id,
+          item_name: itemData.item_name,
+          kategori_id: itemData.kategori_id,
+        });
+      } else {
+        const categoryData = data as Kategori;
+        setFormData({
+          kategori_id: categoryData.kategori_id,
+          nama_kategori: categoryData.nama_kategori,
+        });
+      }
     } else {
-      setFormData({
-        item_name: "",
-        kategori_id: categories[0]?.kategori_id || 0,
-      });
+      if (type === "item") {
+        setFormData({
+          item_name: "",
+          kategori_id: categories[0]?.kategori_id || 0,
+        });
+      } else {
+        setFormData({
+          nama_kategori: "",
+        });
+      }
     }
     setShowFormModal(true);
   };
@@ -126,6 +173,7 @@ const useProductsLogic = () => {
     setShowAlert,
     pendingAction,
     formData,
+    formType,
     searchTerm,
     setSearchTerm,
     selectedCategory,

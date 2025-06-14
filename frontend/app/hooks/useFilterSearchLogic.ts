@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { addDays, formatISO, startOfDay, endOfDay } from "date-fns";
-import { fetchProductsThunk } from "../../store/productsSlice";
+import { fetchLogProductsThunk } from "../../store/logProductsSlice";
 import { useAppDispatch } from "../../store/Hooks";
 
 export const useFilterSearchLogic = () => {
@@ -23,7 +23,7 @@ export const useFilterSearchLogic = () => {
     if (!isFilterOpen) return;
     const fetchCategories = async () => {
       try {
-        const response = await fetch("https://inventory.jabnet.id/api/records/kategori", {
+        const response = await fetch("https://inventory.jabnet.id/api/products/kategori", {
           method: "GET",
           credentials: "include",
         });
@@ -63,7 +63,7 @@ export const useFilterSearchLogic = () => {
   };
 
   const handleSearch = () => {
-    dispatch(fetchProductsThunk(buildQueryParams()));
+    dispatch(fetchLogProductsThunk(buildQueryParams()));
   };
 
   const handleStatusChange = (filter: string) => {
@@ -83,7 +83,7 @@ export const useFilterSearchLogic = () => {
     setStatusFIlter("All");
     setDateRange([null, null]);
     setSelectedDateFilter("");
-    dispatch(fetchProductsThunk(""));
+    dispatch(fetchLogProductsThunk(""));
   };
 
   const handleExport = async (event) => {

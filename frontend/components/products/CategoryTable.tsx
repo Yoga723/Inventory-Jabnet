@@ -1,10 +1,10 @@
 import React from "react";
 import { PencilIcon, TrashIcon } from "@heroicons/react/24/solid";
-import { Item, Kategori } from "types";
+import { Kategori } from "types";
 
 interface CategoryTableProps {
   categories: Kategori[];
-  onEdit: (item: Item) => void;
+  onEdit: (category: Kategori) => void;
   onDelete: (id: number) => void;
 }
 
@@ -16,7 +16,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, onEdit, onDel
 
   return (
     <>
-      <table className="table w-full overflow-x-auto mb-16">
+      <table className="table w-full overflow-x-auto mb-10">
         <thead>
           <tr>
             <th>ID</th>
@@ -32,7 +32,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, onEdit, onDel
               <td>
                 <div className="flex space-x-2">
                   <button
-                    // onClick={() => onEdit(item)}
+                    onClick={() => onEdit(item)}
                     className="btn btn-sm btn-warning">
                     <PencilIcon className="h-4 w-4" />
                   </button>

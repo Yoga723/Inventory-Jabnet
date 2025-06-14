@@ -38,10 +38,10 @@ const ProductTable = () => {
   }, []);
 
   return (
-    <div className="overflow-x-auto w-full">
+    <section className="overflow-x-auto w-full">
       <FormProductLog />
       {/* Table Records */}
-      <table className="table-records">
+      <table className="table-records w-full">
         <thead className={`table-header-group bg-base-100`}>
           <tr className={`bg-base-300 h-fit w-full`}>
             <th
@@ -244,7 +244,7 @@ const ProductTable = () => {
         onConfirm={handleConfirmation}
         onCancel={handleCancel}
       />
-    </div>
+    </section>
   );
 };
 

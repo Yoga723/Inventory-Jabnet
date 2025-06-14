@@ -16,8 +16,8 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit
   };
 
   return (
-    <>
-      <table className="table w-full overflow-x-auto">
+    <div className=" overflow-x-auto w-full">
+      <table className="table w-full">
         <thead>
           <tr>
             <th>ID</th>
@@ -58,7 +58,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit
           <p className="text-gray-500">Belum ada barang yang terdaftar</p>
         </div>
       )}
-    </>
+    </div>
   );
 };
 
