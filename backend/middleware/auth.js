@@ -1,18 +1,19 @@
+// backend/middleware/auth.js
 const jwt = require("jsonwebtoken");
 
-const pgPool = require("../config/dbinventory");
-const mariaPool = require("../config/dbcustomers");
 
 // Middleware jang verifikasi JWT jeng set req.user
 const authenticateMiddleware = (req, res, next) => {
   const token = req.cookies.auth_token;
-  if (!token) return res.status(401).json({ error: "Not Authenticated" });
+  if (!token) {
+    console.log("TIDAK ADA TOKEN");
+    return res.status(401).json({ error: "Not Authenticated" });
+  }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
     req.user = payload;
-    // req.db = pgPool;
-    req.dbPelanggan = mariaPool;
+    
     next();
   } catch (error) {
     return res.status(401).json({ error: "Tokenna invalid, coba login dei" });

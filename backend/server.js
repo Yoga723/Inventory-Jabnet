@@ -42,6 +42,12 @@ app.use("/api/records", (req, res, next) => {
 });
 
 // INJECT DATABASE KE ROUTE
+app.use("/api/products", (req, res, next) => {
+  req.db = pgPool;            // inventory (Postgres)
+  next();
+});
+
+// INJECT DATABASE KE ROUTE
 app.use("/api/user", (req, res, next) => {
   req.db = pgPool;            // inventory (Postgres)
   next();

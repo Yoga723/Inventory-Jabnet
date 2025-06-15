@@ -40,25 +40,8 @@ const ProductsPage = () => {
   return (
     <>
       <Header />
-      <main className="container mx-auto px-4">
-
-        <h1 className="text-3xl font-bold mt-8">List Kategori</h1>
-        <button
-          onClick={() => openFormModal('category')}
-          className="btn btn-primary my-5">
-          <PlusIcon className="h-5 w-5 mr-1.5" />
-          Tambah Kategori Baru
-        </button>
-
-        {/* <CategoryTable
-          categories={categories}
-          onEdit={(category) => openFormModal('category', category)}
-          onDelete={(id) => handleDelete(id, 'category')}
-        /> */}
-
-        <hr className="min-h-2 border-none bg-base-300"/>
-
-        <h1 className="text-3xl font-bold mt-2">List Barang</h1>
+      <main className="container mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold">List Barang</h1>
         <button
           onClick={() => openFormModal('item')}
           className="btn btn-primary my-5">
@@ -98,6 +81,20 @@ const ProductsPage = () => {
           onClose={() => setShowFormModal(false)}
           onSubmit={handleSubmit}
           onChange={handleInputChange}
+        />
+
+        <h1 className="text-3xl font-bold mt-16">List Kategori</h1>
+        <button
+          onClick={() => openFormModal('category')}
+          className="btn btn-primary my-5">
+          <PlusIcon className="h-5 w-5 mr-1.5" />
+          Tambah Kategori Baru
+        </button>
+
+        <CategoryTable
+          categories={categories}
+          onEdit={(category) => openFormModal('category', category)}
+          onDelete={(id) => handleDelete(id, 'category')}
         />
 
         <AlertModal

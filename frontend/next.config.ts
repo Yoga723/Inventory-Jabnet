@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
       ],
     },
   },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: "/api/:path*", // Match all requests to /api/...
+  //       destination: "https://inventory.jabnet.id/api/:path*", // And forward them to your backend
+  //     },
+  //   ];
+  // },
   images: {
     // disableStaticImages: true,
     // unoptimized: true,

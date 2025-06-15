@@ -1,8 +1,8 @@
 import React from "react";
 import Header from "../../components/Header";
+import ProductTable from "../../components/records/ProductTable";
 import UtilityBar from "../../components/records/UtilityBar";
 import "./style.css";
-import LogProductTable from "components/records/LogProductTable";
 
 const RecordsPage = () => {
   return (
@@ -12,7 +12,7 @@ const RecordsPage = () => {
         {/* Utility (Search, Filter, and Tambah button) */}
         <h1 className="text-3xl font-bold">Database Inventory</h1>
         <UtilityBar />
-        <LogProductTable />
+        <ProductTable />
       </main>
     </>
   );

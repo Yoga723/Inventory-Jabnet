@@ -19,6 +19,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, onEdit, onDel
       <table className="table w-full overflow-x-auto mb-10">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Nama Kategori</th>
             <th>Aksi</th>
           </tr>
@@ -26,6 +27,7 @@ const CategoryTable: React.FC<CategoryTableProps> = ({ categories, onEdit, onDel
         <tbody>
           {categories.map((item) => (
             <tr key={item.kategori_id}>
+              <td>{item.kategori_id}</td>
               <td>{item.nama_kategori}</td>
               <td>
                 <div className="flex space-x-2">
