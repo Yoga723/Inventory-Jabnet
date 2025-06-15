@@ -1,15 +1,3 @@
 @import "tailwindcss";
 /* Setting fitur dark mode */
 @custom-variant dark (&:where(.dark, .dark *));
-
-.table-records {
-  @apply ring-2 ring-gray-400 drop-shadow-2xl/50  border-none table-auto shrink-0 lg:min-w-[700px] w-screen h-fit rounded-xl ;
-}
-
-.table-records th {
-  font-size: clamp(11px, 2vw, 14px);
-  @apply border-none text-center px-1.5;
-}
-.table-records td {
-  @apply text-center min-h-10 px-5 py-1 text-xs;
-}

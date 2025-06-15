@@ -10,7 +10,7 @@ import Link from "next/link";
 import useLogProductsLogic from "app/hooks/useLogProductsLogic";
 import FormProductLog from "./FormProductLog";
 
-const ProductTable = () => {
+const LogProductTable = () => {
   const {
     pendingAction,
     handleCancel,
@@ -41,7 +41,7 @@ const ProductTable = () => {
     <section className="overflow-x-auto w-full">
       <FormProductLog />
       {/* Table Records */}
-      <table className="table-records w-full">
+      <table className="table table-pin-rows table-xs w-full text-center">
         <thead className={`table-header-group bg-base-100`}>
           <tr className={`bg-base-300 h-fit w-full`}>
             <th
@@ -62,7 +62,7 @@ const ProductTable = () => {
             <th
               colSpan={3}
               rowSpan={1}>
-              Barang
+              List Barang
             </th>
             <th rowSpan={2}>Status</th>
             <th rowSpan={2}>Lokasi</th>
@@ -100,7 +100,7 @@ const ProductTable = () => {
               <React.Fragment key={index}>
                 <tr
                   onClick={() => toggleRow(index)}
-                  className={`cursor-pointer bg-base-100`}>
+                  className={`cursor-pointer bg-base-100 hover:bg-base-300`}>
                   <td
                     className={`${
                       index != productsData.length - 1 && "border-y-2 border-black"
@@ -248,4 +248,4 @@ const ProductTable = () => {
   );
 };
 
-export default ProductTable;
+export default LogProductTable;

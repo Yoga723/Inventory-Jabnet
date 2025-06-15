@@ -16,11 +16,10 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit
   };
 
   return (
-    <div className=" overflow-x-auto w-full">
-      <table className="table w-full">
+    <div className=" overflow-x-auto w-full max-md:pb-32 pb-16 ">
+      <table className="table table-zebra w-full">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nama Barang</th>
             <th>Kategori</th>
             <th>Dibuat Pada</th>
@@ -30,7 +29,6 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit
         <tbody>
           {items.map((item) => (
             <tr key={item.item_id}>
-              <td>{item.item_id}</td>
               <td>{item.item_name}</td>
               <td>{getCategoryName(item.kategori_id)}</td>
               <td>{new Date(item.created_at).toLocaleDateString()}</td>
