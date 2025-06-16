@@ -31,17 +31,18 @@ const getAuthHeaders = () => {
 
 export const fetchCategories = createAsyncThunk("inventory/fetchCategories", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch("https://inventory.jabnet.id/api/products/kategori", {
+    const response = await fetch(`https://inventory.jabnet.id/api/products/kategori`, {
       method: "GET",
-      credentials:"include",
-      headers: getAuthHeaders(),
+      credentials: "include",
     });
+    console.log("FETCHING KATEGORI");
     if (!response.ok) {
       const errorData = await response.json();
       return rejectWithValue(errorData.error || "Failed to fetch categories");
     }
+    console.log("KATEGORI FETCHED");
     const data = await response.json();
-    return data.data;
+    return data;
   } catch (error) {
     return rejectWithValue(error.message);
   }
@@ -115,6 +116,7 @@ export const fetchItem = createAsyncThunk("inventory/fetchItem", async (_, { rej
       item_name: item.item_name,
       kategori_id: item.kategori_id,
       nama_kategori: item.nama_kategori,
+      stock: item.stock,
       created_at: item.created_at,
     }));
   } catch (error) {
@@ -191,7 +193,7 @@ const inventorySlice = createSlice({
       })
       .addCase(fetchCategories.fulfilled, (state, action: PayloadAction<Kategori[]>) => {
         state.status = "succeeded";
-        state.categories = action.payload;
+        state.categories = action.payload || [];
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.status = "failed";

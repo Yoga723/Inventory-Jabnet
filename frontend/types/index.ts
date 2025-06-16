@@ -40,6 +40,7 @@ export interface Item {
   kategori_id: number;
   nama_kategori?: string;
   created_at: string;
+  stock?: number;
 }
 
 // PROPS UNTUK CUSTOMERS

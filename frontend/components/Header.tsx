@@ -19,22 +19,19 @@ const navButton = [
     title: "Dashboard",
     icon: <DashboardIcon className="text-accent" />,
     destination: "/",
-    allowedRoles: [], // Visible to all
+    allowedRoles: [],
     childLink: null,
   },
   {
     title: "Products",
     icon: <InventoryIcon className="text-accent" />,
-    // ✅ FIX: The parent "Products" item must also have roles defined.
-    // This will hide the entire dropdown from roles not in this list (like 'field').
-    allowedRoles: ["super_admin", "admin", "operator"],
+    allowedRoles: [],
     childLink: [
       {
         title: "Log Products",
         icon: <StorageIcon className="text-accent" />,
         destination: "/log-products",
-        // ✅ FIX: This child link should have the same roles.
-        allowedRoles: ["super_admin", "admin", "operator"],
+        allowedRoles: [],
       },
       {
         title: "Products",
@@ -48,7 +45,7 @@ const navButton = [
     title: "Customers",
     icon: <GroupIcon className="text-accent" />,
     destination: "/customers",
-    allowedRoles: [], // Visible to all
+    allowedRoles: [],
     childLink: null,
   },
 ];
@@ -97,7 +94,6 @@ const Header = () => {
                       {btn.icon} {btn.title}
                     </summary>
                     <ul className="bg-base-300 rounded-t-none">
-                      {/* ✅ FIX: Added filtering for child links for security and correctness. */}
                       {btn.childLink
                         .filter((child) => child.allowedRoles.length === 0 || child.allowedRoles.includes(role!))
                         .map((child) => (
@@ -219,7 +215,6 @@ const Header = () => {
                       {nav.title}
                     </summary>
                     <ul className="p-0">
-                      {/* ✅ FIX: Added filtering for child links for security and correctness. */}
                       {nav.childLink
                         .filter((child) => child.allowedRoles.length === 0 || child.allowedRoles.includes(role!))
                         .map((child) => (

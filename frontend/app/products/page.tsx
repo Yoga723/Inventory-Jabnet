@@ -29,7 +29,7 @@ const ProductsPage = () => {
     openFormModal,
   } = useProductsLogic();
 
-  if (status === "loading") {
+  if (status === "loading" || status === "idle") {
     return (
       <div className="flex justify-center items-center h-screen">
         <Loading />
@@ -41,14 +41,6 @@ const ProductsPage = () => {
     <>
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold">List Barang</h1>
-        <button
-          onClick={() => openFormModal('item')}
-          className="btn btn-primary my-5">
-          <PlusIcon className="h-5 w-5 mr-1.5" />
-          Tambah Barang Baru
-        </button>
-
         {error && (
           <div className="alert alert-error shadow-lg my-4">
             <div>
@@ -56,6 +48,28 @@ const ProductsPage = () => {
             </div>
           </div>
         )}
+
+        <h1 className="text-3xl font-bold">List Kategori</h1>
+        <button
+          onClick={() => openFormModal("category")}
+          className="btn btn-primary my-5">
+          <PlusIcon className="h-5 w-5 mr-1.5" />
+          Tambah Kategori Baru
+        </button>
+
+        <CategoryTable
+          categories={categories}
+          onEdit={(category) => openFormModal("category", category)}
+          onDelete={(id) => handleDelete(id, "category")}
+        />
+
+        <h1 className="text-3xl font-bold">List Barang</h1>
+        <button
+          onClick={() => openFormModal("item")}
+          className="btn btn-primary my-5">
+          <PlusIcon className="h-5 w-5 mr-1.5" />
+          Tambah Barang Baru
+        </button>
 
         {/* <ItemFilter
           searchTerm={searchTerm}
@@ -68,8 +82,8 @@ const ProductsPage = () => {
         <ProductsTable
           items={items}
           categories={categories}
-          onEdit={(item) => openFormModal('item', item)}
-          onDelete={(id) => handleDelete(id, 'item')}
+          onEdit={(item) => openFormModal("item", item)}
+          onDelete={(id) => handleDelete(id, "item")}
         />
 
         <ProductsForm
@@ -81,20 +95,6 @@ const ProductsPage = () => {
           onClose={() => setShowFormModal(false)}
           onSubmit={handleSubmit}
           onChange={handleInputChange}
-        />
-
-        <h1 className="text-3xl font-bold mt-16">List Kategori</h1>
-        <button
-          onClick={() => openFormModal('category')}
-          className="btn btn-primary my-5">
-          <PlusIcon className="h-5 w-5 mr-1.5" />
-          Tambah Kategori Baru
-        </button>
-
-        <CategoryTable
-          categories={categories}
-          onEdit={(category) => openFormModal('category', category)}
-          onDelete={(id) => handleDelete(id, 'category')}
         />
 
         <AlertModal

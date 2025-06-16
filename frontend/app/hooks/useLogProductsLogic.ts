@@ -45,7 +45,6 @@ const useLogProductsLogic = () => {
         });
         const data = await response.json();
 
-        console.log("RESPONSE FROM KATEGORI")
         setCategories(data);
       } catch (error) {
         console.error("Failed to fetch categories:", error);

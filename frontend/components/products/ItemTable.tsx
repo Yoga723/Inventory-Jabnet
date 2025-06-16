@@ -9,31 +9,32 @@ interface ProductsTableProps {
   onDelete: (id: number) => void;
 }
 
-const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit, onDelete }) => {
+const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories = [], onEdit, onDelete }) => {
   const getCategoryName = (kategori_id: number) => {
+    if (!categories || categories.length === 0) {
+      return "Loading...";
+    }
     const category = categories.find((cat) => cat.kategori_id === kategori_id);
     return category ? category.nama_kategori : "Unknown";
   };
 
   return (
-    <div className=" overflow-x-auto w-full">
+    <section className="mb-16 overflow-x-auto w-full">
       <table className="table w-full">
         <thead>
           <tr>
-            <th>ID</th>
             <th>Nama Barang</th>
             <th>Kategori</th>
-            <th>Dibuat Pada</th>
+            <th>Stock</th>
             <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
           {items.map((item) => (
             <tr key={item.item_id}>
-              <td>{item.item_id}</td>
               <td>{item.item_name}</td>
               <td>{getCategoryName(item.kategori_id)}</td>
-              <td>{new Date(item.created_at).toLocaleDateString()}</td>
+              <td>{item.stock}</td>
               <td>
                 <div className="flex space-x-2">
                   <button
@@ -58,7 +59,7 @@ const ProductsTable: React.FC<ProductsTableProps> = ({ items, categories, onEdit
           <p className="text-gray-500">Belum ada barang yang terdaftar</p>
         </div>
       )}
-    </div>
+    </section>
   );
 };
 
