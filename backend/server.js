@@ -16,6 +16,7 @@ const port = process.env.PORT || 4000;
 app.use(
   cors({
     origin: [
+      "https://localhost:3000",
       "http://localhost:3000",
       "http://localhost:4000",
       "http://inventory.jabnet.id",

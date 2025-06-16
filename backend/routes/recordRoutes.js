@@ -302,7 +302,7 @@ router.post(
 
 router.put(
   "/:id",
-  authorize(["operator", "admin", "super_admin"]),
+  authorize(["field","operator", "admin", "super_admin"]),
   upload.any(),
   async (req, res) => {
     try {
@@ -399,7 +399,7 @@ router.put(
 
 router.delete(
   `/:id`,
-  authorize(["operator", "admin", "super_admin"]),
+  authorize(["field","operator", "admin", "super_admin"]),
   async (req, res) => {
     try {
       const paramId = parseInt(req.params.id);

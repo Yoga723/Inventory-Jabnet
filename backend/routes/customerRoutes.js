@@ -13,8 +13,6 @@ router.get("/", async (req, res) => {
   const offset = (page - 1) * limit;
 
   try {
-    console.log(await req.dbPelanggan.query(`SELECT * FROM customers LIMIT 3`));
-
     const [totalResult] = await req.dbPelanggan.query(
       `SELECT COUNT(*) as count FROM customers`
     );
