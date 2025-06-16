@@ -1,38 +1,101 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const { authenticateMiddleware, authorize } = require("../middleware/auth");
-const { json } = require("body-parser");
+
 const router = express.Router();
 
-router.use(authenticateMiddleware);
-
-router.get("/", async (req, res) => {
-  const page = parseInt(req.query.page, 10) || 1;
-  const limit = parseInt(req.query.limit, 10) || 20;
-
-  // Calculate offset SQL query
-  const offset = (page - 1) * limit;
-
+// POST /api/user/login
+router.post("/login", async (req, res) => {
   try {
-    const [totalResult] = await req.dbPelanggan.query(
-      `SELECT COUNT(*) as count FROM customers`
+    if (!process.env.JWT_SECRET) throw new Error("Missing JWT in .env!!!");
+    const { username, password } = req.body;
+    // 1) Look up user
+    const { rows } = await req.db.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
     );
-    const totalCustomers = totalResult ? totalResult.count : 0;
-
-    const customers = await req.dbPelanggan.query(
-      `SELECT * FROM customers ORDER BY id LIMIT ? OFFSET ?`,
-      [limit, offset]
+    const user = rows[0];
+    // 2) Validate password
+    const valid = user && (await bcrypt.compare(password, user.password_hash));
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+    // 3) Sign JWT
+    const token = jwt.sign(
+      { user_id: user.user_id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
     );
+    // 4) Set HTTP-only cookie
+    const cookieOptions = {
+      httpOnly: true,
+      path: "/",
+      secure: true,
+      sameSite: "none",
+      partitioned: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+    };
 
-    // const response = JSON.stringify(customers);
-
-    res.status(201).json({
-      data: customers,
-      pagination: { page: page, limit: limit, total: totalCustomers },
-    });
+    res
+      .cookie("auth_token", token, cookieOptions)
+      // .cookie("__Secure-auth-token", token, cookieOptions)
+      .json({
+        status: "success",
+        data: {
+          token,
+          user: {
+            user_id: user.user_id,
+            username: user.username,
+            full_name: user.full_name,
+            role: user.role,
+          },
+        },
+      });
   } catch (err) {
-    console.log("ERROR DI GET CUSTOMERS :", err.message);
-    res.status(500).json({ error: err.message });
+    console.error("Login route error:", err); // <-- ADD THIS LINE
+    return res.status(500).json({ error: err.message });
   }
 });
+
+router.post("/logout", (req, res) => {
+  const cookieOptions = {
+    httpOnly: true,
+    path: "/",
+    secure: true,
+    sameSite: "none",
+    partitioned: true,
+  };
+
+  return res
+    .clearCookie("auth_token", cookieOptions).status(200)
+    // .clearCookie("__Secure-auth_token", cookieOptions)
+    .json({ status: "success", message: "Logged out" });
+});
+
+router.get("/me", authenticateMiddleware, async (req, res) => {
+  try {
+    const { rows } = await req.db.query(
+      "SELECT user_id, username, full_name, role FROM users WHERE user_id = $1",
+      [req.user.user_id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({ status: "success", data: rows[0] });
+  } catch (error) {
+    console.error("User query error:", error);
+    res.status(500).json({ error: "Database error" });
+  }
+});
+
+router.get(
+  "/settings",
+  authenticateMiddleware,
+  authorize(["admin", "super_admin"]),
+  async (req, res) => {}
+);
 
 module.exports = router;

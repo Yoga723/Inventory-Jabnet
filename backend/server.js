@@ -16,7 +16,6 @@ const port = process.env.PORT || 4000;
 app.use(
   cors({
     origin: [
-      "https://localhost:3000",
       "http://localhost:3000",
       "http://localhost:4000",
       "http://inventory.jabnet.id",
@@ -38,12 +37,6 @@ app.use(cookieParser());
 
 // INJECT DATABASE KE ROUTE
 app.use("/api/records", (req, res, next) => {
-  req.db = pgPool;            // inventory (Postgres)
-  next();
-});
-
-// INJECT DATABASE KE ROUTE
-app.use("/api/products", (req, res, next) => {
   req.db = pgPool;            // inventory (Postgres)
   next();
 });

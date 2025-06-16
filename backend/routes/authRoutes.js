@@ -1,4 +1,3 @@
-// backend/routes/authRoutes.js
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -17,22 +16,11 @@ router.post("/login", async (req, res) => {
       [username]
     );
     const user = rows[0];
-
-    if (!user)
-      return res
-        .status(401)
-        .json({ error: "Incorrect username or password", status: 401 });
-
     // 2) Validate password
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
-    if (!isPasswordCorrect)
-      return res
-        .status(401)
-        .json({ error: "Incorrect username or password", status: 401 });
-
+    const valid = user && (await bcrypt.compare(password, user.password_hash));
+    if (!valid) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
     // 3) Sign JWT
     const token = jwt.sign(
       { user_id: user.user_id, role: user.role },
@@ -65,7 +53,7 @@ router.post("/login", async (req, res) => {
         },
       });
   } catch (err) {
-    console.error("Login route error:", err);
+    console.error("Login route error:", err); // <-- ADD THIS LINE
     return res.status(500).json({ error: err.message });
   }
 });
@@ -79,13 +67,10 @@ router.post("/logout", (req, res) => {
     partitioned: true,
   };
 
-  return (
-    res
-      .clearCookie("auth_token", cookieOptions)
-      .status(200)
-      // .clearCookie("__Secure-auth_token", cookieOptions)
-      .json({ status: "success", message: "Logged out" })
-  );
+  return res
+    .clearCookie("auth_token", cookieOptions).status(200)
+    // .clearCookie("__Secure-auth_token", cookieOptions)
+    .json({ status: "success", message: "Logged out" });
 });
 
 router.get("/me", authenticateMiddleware, async (req, res) => {
