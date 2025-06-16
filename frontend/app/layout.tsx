@@ -40,7 +40,7 @@ export default async function RootLayout({
     <html lang="en">
       <body className={` antialiased`}>
         <StoreProvider >
-          <AuthLoader/>
+          {/* <AuthLoader/> */}
           <ProductsProvider>{children}</ProductsProvider>
         </StoreProvider>
       </body>

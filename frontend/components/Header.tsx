@@ -12,6 +12,7 @@ import StorageIcon from "@mui/icons-material/Storage";
 import GroupIcon from "@mui/icons-material/Group";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import { logout } from "store/userSlice";
 
 const Header = () => {
   const router = useRouter();

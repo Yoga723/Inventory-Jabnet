@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { getLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { Item, Kategori } from "types";
 const API_BASE_URL = "https://inventory.jabnet.id/api/products";
 
@@ -16,17 +17,31 @@ const initialState: InventoryState = {
   error: null,
 };
 
+const getAuthHeaders = () => {
+  const token = getLocalStorageItem(StorageKeys.AUTH_TOKEN);
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+};
+
 // ======================================================
 // THUNK KATEGORI
 // ======================================================
 
 export const fetchCategories = createAsyncThunk("inventory/fetchCategories", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/kategori`, { method: "GET", credentials: "include" });
-
-    if (!response) throw new Error("Gagal fetch kategori");
-
-    return await response.json();
+    const response = await fetch("https://inventory.jabnet.id/api/products/kategori", {
+      method: "GET",
+      credentials:"include",
+      headers: getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      return rejectWithValue(errorData.error || "Failed to fetch categories");
+    }
+    const data = await response.json();
+    return data.data;
   } catch (error) {
     return rejectWithValue(error.message);
   }
@@ -175,8 +190,8 @@ const inventorySlice = createSlice({
         state.status = "loading";
       })
       .addCase(fetchCategories.fulfilled, (state, action: PayloadAction<Kategori[]>) => {
-        state.categories = action.payload;
         state.status = "succeeded";
+        state.categories = action.payload;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
         state.status = "failed";

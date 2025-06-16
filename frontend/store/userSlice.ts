@@ -8,7 +8,7 @@ const initialState: UserState = {
   full_name: null,
   role: null,
   status: "idle",
-  token: "",
+  token: null, // Changed from "" to null
 };
 
 const userSlice = createSlice({
@@ -22,14 +22,21 @@ const userSlice = createSlice({
       state.role = action.payload.role;
       state.token = action.payload.token; // Store token
       state.status = "succeeded";
+      if (action.payload.token) {
+        setLocalStorageItem(StorageKeys.AUTH_TOKEN, action.payload.token);
+      }
+    },
+    logout(state) {
+      removeLocalStorageItem(StorageKeys.AUTH_TOKEN);
+      Object.assign(state, initialState, { status: "idle" });
     },
     clearUser(state) {
       Object.assign(state, initialState);
-      removeLocalStorageItem(StorageKeys.USERSTATE);
+      removeLocalStorageItem(StorageKeys.AUTH_TOKEN);
       return state;
     },
   },
 });
 
-export const { setUser, clearUser } = userSlice.actions;
+export const { setUser, clearUser, logout } = userSlice.actions;
 export default userSlice.reducer;

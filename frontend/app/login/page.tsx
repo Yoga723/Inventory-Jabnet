@@ -15,21 +15,22 @@ const page = () => {
   const { theme } = useHeaderLogic();
   const dispath = useAppDispatch();
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        const response = await fetch("https://inventory.jabnet.id/api/user/me", {
-          credentials: "include",
-        });
+  // useEffect(() => {
+  //   const checkAuth = async () => {
+  //     try {
+  //       const response = await fetch("https://inventory.jabnet.id/api/user/me", {
+  //         credentials: "include",
+  //       });
+  //       console.log("THIS IS RESPONSE :", response.json());
 
-        if (response.ok) router.replace("/products");
-      } catch (error) {
-        console.error("Auth check error:", error);
-      }
-    };
+  //       if (response.ok) router.replace("/products");
+  //     } catch (error) {
+  //       console.error("Auth check error:", error);
+  //     }
+  //   };
 
-    checkAuth();
-  }, [router]);
+  //   checkAuth();
+  // }, [router]);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

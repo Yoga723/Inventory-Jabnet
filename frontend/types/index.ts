@@ -22,7 +22,7 @@ export interface UserState {
   user_id: number | null;
   username: string | null;
   full_name: string | null;
-  role: string | null;
+  role: "super_admin" | "admin" | "field" | "operator" | null;
   token: string | null;
   status: "idle" | "loading" | "succeeded" | "failed";
 }

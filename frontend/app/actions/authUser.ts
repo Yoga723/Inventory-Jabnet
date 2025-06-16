@@ -40,10 +40,11 @@ export async function loginAction(username: string, password: string) {
 
 export const logoutAction = async () => {
   try {
-    (await cookies()).set("auth_token", "", {
-      ...cookieOptions,
-      maxAge: 0,
-    });
+    (await cookies()).delete("auth_token");
+    // (await cookies()).set("auth_token", "", {
+    //   ...cookieOptions,
+    //   maxAge: 0,
+    // });
 
     return { success: true };
   } catch (error) {
