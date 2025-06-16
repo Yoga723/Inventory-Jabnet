@@ -17,14 +17,6 @@ const initialState: InventoryState = {
   error: null,
 };
 
-const getAuthHeaders = () => {
-  const token = getLocalStorageItem(StorageKeys.AUTH_TOKEN);
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-};
-
 // ======================================================
 // THUNK KATEGORI
 // ======================================================
@@ -35,7 +27,6 @@ export const fetchCategories = createAsyncThunk("inventory/fetchCategories", asy
       method: "GET",
       credentials: "include",
     });
-    console.log("FETCHING KATEGORI");
     if (!response.ok) {
       const errorData = await response.json();
       return rejectWithValue(errorData.error || "Failed to fetch categories");

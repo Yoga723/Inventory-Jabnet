@@ -1,37 +1,54 @@
 // customers/page.tsx
 "use client";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "components/Header";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import Loading from "components/Loading";
 import AlertModal from "components/modals/AlertModal";
 import CustomerTable from "components/customers/CustomerTable";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
-import { fetchCustomers } from "store/customersSlice";
+import { createCustomer, fetchCustomers, updateCustomer } from "store/customersSlice";
 import UtilBar from "components/customers/UtilBar";
+import { Customers } from "types";
+import CustomerFormModal from "components/customers/CustomerFormModal";
 
 const CustomerPage = () => {
   const dispatch = useAppDispatch();
-  const selector = useAppSelector((state) => state.customers); // PILIH STATE CUSTOMERS
+  const { customers, status, hasMore, error, totalCustomers, currentPage } = useAppSelector((state) => state.customers);
 
-  const { currentPage, customers, status, hasMore, error, totalCustomers } = selector;
-
-  // if (status === "loading") {
-  //   return (
-  //     <div className="flex justify-center items-center h-screen">
-  //       <Loading />
-  //     </div>
-  //   );
-  // }
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [customerData, setCustomerData] = useState<Partial<Customers> | null>(null);
 
   useEffect(() => {
-    if (customers.length == 0) dispatch(fetchCustomers({ page: 1 }));
-  }, [dispatch, customers.length]);
+    if (status === "idle") dispatch(fetchCustomers({ page: 1 }));
+  }, [dispatch, status]);
 
   const handleLoadMore = () => {
-    if (status != "loading" && hasMore) {
+    if (status !== "loading" && hasMore) {
       dispatch(fetchCustomers({ page: currentPage + 1 }));
     }
+  };
+
+  const handleOpenModal = (customer: Customers | null) => {
+    setCustomerData(customer);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setCustomerData(null);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customerData) {
+      if (customerData.id) {
+        dispatch(updateCustomer(customerData as Customers));
+      } else {
+        dispatch(createCustomer(customerData as Omit<Customers, "id">));
+      }
+    }
+    handleCloseModal();
   };
 
   return (
@@ -43,15 +60,30 @@ const CustomerPage = () => {
         </div>
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">List Pelanggan</h1>
-          {/* <button
-            onClick={() => openFormModal()}
-            className="btn btn-primary">
-            <PlusIcon className="h-5 w-5 mr-1.5" />
-            Tambah Customer Baru
-          </button> */}
         </div>
-        <UtilBar/>
-        <CustomerTable />
+        <UtilBar onAdd={() => handleOpenModal(null)} />
+        <CustomerTable onEdit={handleOpenModal} />
+        {/* {status === "loading" && (
+          <div className="flex justify-center">
+            <Loading />
+          </div>
+        )} */}
+        {hasMore && status !== "loading" && (
+          <div className="text-center mt-4 pb-10">
+            <button
+              onClick={handleLoadMore}
+              className="btn btn-primary">
+              Load More
+            </button>
+          </div>
+        )}
+        <CustomerFormModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmit}
+          customerData={customerData}
+          setCustomerData={setCustomerData}
+        />
         {error && (
           <div className="alert alert-error shadow-lg my-4">
             <div>

@@ -10,6 +10,7 @@ import { logoutAction } from "app/actions/authUser";
 import HomeIcon from "@mui/icons-material/Home";
 import StorageIcon from "@mui/icons-material/Storage";
 import GroupIcon from "@mui/icons-material/Group";
+import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { logout } from "store/userSlice";
@@ -156,26 +157,14 @@ const Header = () => {
       <div className="dock lg:hidden z-[52]">
         <Link
           href="/"
-          className={usePath === "/" ? "active" : ""}>
+          className={`text-xs ${usePath === "/" ? "active" : ""}`}>
           <HomeIcon />
           <span className="btm-nav-label">Home</span>
         </Link>
         <label
           htmlFor="mobile-drawer"
-          className="cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>
+          className="text-xs cursor-pointer">
+          <MenuIcon />
           <span className="btm-nav-label">More</span>
         </label>
       </div>

@@ -34,7 +34,6 @@ const useLogProductsLogic = () => {
   // Hold Action sampe ada konfirmasi dari AlertModal
   const [pendingAction, setPendingAction] = useState<{ type: ModalAction; handler: () => Promise<void> } | null>(null);
 
-  // GET data data kategori ti database
   useEffect(() => {
     if (!isModalOpen) return;
     const fetchCategories = async () => {
