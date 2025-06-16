@@ -4,14 +4,14 @@ export const records = [
     nama: "Yoga, Asep, Agus",
     tanggal: "2025-05-02T09:59:41.592Z",
     lokasi: "Jln.Patriot 521, Garut",
-    item_list: [
+    list_barang: [
       {
         qty: 2,
-        item_name: "Router",
+        nama_barang: "Router",
       },
       {
         qty: 250,
-        item_name: "Kabel",
+        nama_barang: "Kabel",
       },
     ],
     nilai: "2250000.00",
@@ -24,14 +24,14 @@ export const records = [
     nama: "KUAL",
     tanggal: "2025-05-02T10:07:59.635Z",
     lokasi: "Jln-jln aja",
-    item_list: [
+    list_barang: [
       {
         qty: 4,
-        item_name: "Krayon",
+        nama_barang: "Krayon",
       },
       {
         qty: 3,
-        item_name: "Ruter",
+        nama_barang: "Ruter",
       },
     ],
     nilai: "3520000.00",

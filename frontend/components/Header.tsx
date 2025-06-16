@@ -4,7 +4,7 @@ import React from "react";
 import useHeaderLogic from "../app/hooks/useHeaderLogic";
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
-import { ArchiveBoxIcon, MoonIcon, SunIcon } from "@heroicons/react/24/solid";
+import { MoonIcon, SunIcon } from "@heroicons/react/24/solid";
 import { useRouter } from "next/navigation";
 import { logoutAction } from "app/actions/authUser";
 import HomeIcon from "@mui/icons-material/Home";
@@ -12,88 +12,140 @@ import StorageIcon from "@mui/icons-material/Storage";
 import GroupIcon from "@mui/icons-material/Group";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
+import { logout } from "store/userSlice";
+
+const navButton = [
+  {
+    title: "Dashboard",
+    icon: <DashboardIcon className="text-accent" />,
+    destination: "/",
+    allowedRoles: [], // Visible to all
+    childLink: null,
+  },
+  {
+    title: "Products",
+    icon: <InventoryIcon className="text-accent" />,
+    // ✅ FIX: The parent "Products" item must also have roles defined.
+    // This will hide the entire dropdown from roles not in this list (like 'field').
+    allowedRoles: ["super_admin", "admin", "operator"],
+    childLink: [
+      {
+        title: "Log Products",
+        icon: <StorageIcon className="text-accent" />,
+        destination: "/log-products",
+        // ✅ FIX: This child link should have the same roles.
+        allowedRoles: ["super_admin", "admin", "operator"],
+      },
+      {
+        title: "Products",
+        icon: <InventoryIcon className="text-accent" />,
+        destination: "/products",
+        allowedRoles: ["super_admin", "admin", "operator"],
+      },
+    ],
+  },
+  {
+    title: "Customers",
+    icon: <GroupIcon className="text-accent" />,
+    destination: "/customers",
+    allowedRoles: [], // Visible to all
+    childLink: null,
+  },
+];
 
 const Header = () => {
   const router = useRouter();
-  const navButton = [
-    { title: "Dashboard", icon: <DashboardIcon className="text-accent" />, destination: "/", allowedRoles: [] },
-    { title: "Log Products", icon: <StorageIcon className="text-accent" />, destination: "/log-products", allowedRoles: [] },
-    {
-      title: "Products",
-      icon: <InventoryIcon className="text-accent" />,
-      destination: "/products",
-      allowedRoles: [],
-    },
-    { title: "Customers", icon: <GroupIcon className="text-accent" />, destination: "/customers", allowedRoles: [] },
-  ];
-
+  const dispatch = useAppDispatch();
   const { full_name, role } = useAppSelector((state) => state.user);
+  const { theme, toggleTheme, usePath } = useHeaderLogic();
 
-  const { theme, toggleTheme, mobileSideBar, mobileSidebarRef, usePath } = useHeaderLogic();
-
-  const logoutHandler = () => {
-    logoutAction();
+  const logoutHandler = async () => {
+    await logoutAction();
+    dispatch(logout());
     router.push("/login");
   };
 
+  // This filter now correctly hides the "Products" button for the 'field' role
   const filteredNav = navButton.filter((btn) => btn.allowedRoles.length === 0 || btn.allowedRoles.includes(role!));
+
   return (
     <>
-      <nav className="sticky z-50 top-0 navbar bg-base-100 shadow-sm md:px-8 ">
+      <nav className="sticky top-0 z-50 navbar bg-base-100 shadow-sm md:px-8">
         <div className="navbar-start">
           <Link
             href="/"
-            className="w-24 h-8 relative">
+            className="relative w-24 h-8">
             <Image
-              src={theme == "light" ? "/images/jabnet-logo.webp" : "/images/jabnet-logo-dark.png"}
+              src={theme === "light" ? "/images/jabnet-logo.webp" : "/images/jabnet-logo-dark.png"}
               alt="Logo Jabnet"
               priority
               fill
-              sizes="(max-width:768px) 100vw, (max-width: 1200px) 50vw, 30vw"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 30vw"
             />
           </Link>
         </div>
-        <div className="navbar-center hidden lg:flex gap-4">
-          {filteredNav.map((btn) => (
-            <Link
-              key={btn.title}
-              href={btn.destination}
-              className={`
-              flex items-center p-3 gap-1 h-full hover:bg-base-300 rounded-lg shadow-lg drop-shadow-lg 
-              ${usePath === btn.destination && "border-b-2 border-amber-300"}
-            `}>
-              {btn.icon}
-              {/* <Image
-                src={btn.icon}
-                alt={btn.title}
-                width={25}
-                height={25}
-              /> */}
-              <span>{btn.title}</span>
-            </Link>
-          ))}
+
+        <div className="hidden navbar-center lg:flex gap-4">
+          <ul className="menu menu-horizontal">
+            {filteredNav.map((btn) => (
+              <li
+                key={btn.title}
+                className="flex items-center justify-center gap-1">
+                {btn.childLink ? (
+                  <details>
+                    <summary>
+                      {btn.icon} {btn.title}
+                    </summary>
+                    <ul className="bg-base-300 rounded-t-none">
+                      {/* ✅ FIX: Added filtering for child links for security and correctness. */}
+                      {btn.childLink
+                        .filter((child) => child.allowedRoles.length === 0 || child.allowedRoles.includes(role!))
+                        .map((child) => (
+                          <li key={child.destination}>
+                            <Link href={child.destination}>
+                              {child.icon}
+                              <span>{child.title}</span>
+                            </Link>
+                          </li>
+                        ))}
+                    </ul>
+                  </details>
+                ) : (
+                  <Link
+                    href={btn.destination}
+                    className={`flex items-center p-3 gap-1 h-full rounded-lg ${
+                      usePath === btn.destination ? "border-b-2 border-amber-300" : ""
+                    }`}>
+                    {btn.icon}
+                    <span>{btn.title}</span>
+                  </Link>
+                )}
+              </li>
+            ))}
+          </ul>
         </div>
+
         <div className="navbar-end">
-          <ul className="menu menu-horizontal flex justify-center items-center">
+          <ul className="menu menu-horizontal items-center">
             <li>
               <button
                 aria-label="Toggle Theme"
                 className="btn btn-ghost btn-circle"
-                onClick={() => toggleTheme()}>
+                onClick={toggleTheme}>
                 {theme === "light" ? <MoonIcon className="w-6 h-6" /> : <SunIcon className="w-6 h-6" />}
               </button>
             </li>
             <li>
               <details>
                 <summary>Akun</summary>
-                <ul className="bg-base-300 rounded-t-none">
-                  <li className="my-4 text-center">{full_name}</li>
-                  <li className="my-4 text-center">{role}</li>
-                  <li className="my-4">
+                <ul className="p-2 bg-base-300 rounded-t-none">
+                  <li className="px-4 py-2 text-center">{full_name}</li>
+                  <li className="px-4 py-2 text-center">{role}</li>
+                  <li className="px-4 py-2">
                     <button
                       type="button"
-                      className="cursor-pointer text-center font-extrabold"
-                      onClick={() => logoutHandler()}>
+                      className="w-full text-center font-bold text-error"
+                      onClick={logoutHandler}>
                       LOGOUT
                     </button>
                   </li>
@@ -104,87 +156,88 @@ const Header = () => {
         </div>
       </nav>
 
-      {/* MOBILE SIDEBAR */}
-      <div className={`${mobileSideBar ? "absolute flex top-0 right-0 w-full h-full z-50" : "hidden"}`}>
-        <div className="flex-4/12 to-black opacity-40 w-full h-full"></div>
-        <div
-          ref={mobileSidebarRef}
-          className={`flex-7/12 h-full z-10 bg-gray-200 opacity-100 px-4 py-8 relative`}>
-          <Image
-            src={"/images/icons/sticker.webp"}
-            alt="icon"
-            width={300}
-            height={300}
-          />
-        </div>
+      {/* BOTTOM NAV JANG DI MOBILE DAN TABLET */}
+      <div className="dock lg:hidden z-[52]">
+        <Link
+          href="/"
+          className={usePath === "/" ? "active" : ""}>
+          <HomeIcon />
+          <span className="btm-nav-label">Home</span>
+        </Link>
+        <label
+          htmlFor="mobile-drawer"
+          className="cursor-pointer">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1.5}
+            stroke="currentColor"
+            className="size-6">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+            />
+          </svg>
+          <span className="btm-nav-label">More</span>
+        </label>
       </div>
 
-      {/* Bottom Navigasi Mobile & Tablet */}
-      <div className="dock lg:hidden">
-        <Link
-          href={navButton[0].destination}
-          type={`button`}
-          className={` ${usePath === "/" && "dock-active"}`}>
-          <HomeIcon />
-
-          <span className="dock-label">Home</span>
-        </Link>
-
-        <div className="drawer drawer-end">
-          <input
-            id="my-drawer-4"
-            type="checkbox"
-            className="drawer-toggle"
-          />
-          <div className="drawer-content">
-            {/* Page content here */}
-            <label
-              htmlFor="my-drawer-4"
-              className="flex flex-col items-center dock-label">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="size-6">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-                />
-              </svg>
-              Show More
-            </label>
-          </div>
-
-          <div className="drawer-side">
-            <label
-              htmlFor="my-drawer-4"
-              aria-label="close sidebar"
-              className="drawer-overlay"></label>
-            <ul className="menu bg-base-200 text-base-content min-h-full w-80 gap-4 p-4 pt-20">
-              {/* Sidebar content here */}
-              <li className={`text-lg ${usePath.includes("/products") && "border-b-2 bg-base-300 rounded-md"}`}>
-                <Link href={"/products"}>
-                  <InventoryIcon />
-                  Products
-                </Link>
-              </li>
-              <li className={`text-lg ${usePath.includes("/log-products") && "border-b-2 bg-base-300 rounded-md"}`}>
-                <Link href={"/log-products"}>
-                  <StorageIcon />
-                  Log Products
-                </Link>
-              </li>
-              <li className={`text-lg ${usePath.includes("/customers") && "border-b-2 bg-base-300 rounded-md"}`}>
-                <Link href={"/customers"}>
-                  <GroupIcon />
-                  Customers
-                </Link>
-              </li>
-            </ul>
-          </div>
+      {/* SIDEBAR SAAT TOMBOL SHOW MORE DI CLICK DI TABLET DAN MOBILE */}
+      <div className="drawer drawer-end lg:hidden">
+        <input
+          id="mobile-drawer"
+          type="checkbox"
+          className="drawer-toggle"
+        />
+        <div className="drawer-content" />
+        <div className="drawer-side z-[51]">
+          <label
+            htmlFor="mobile-drawer"
+            aria-label="close sidebar"
+            className="drawer-overlay"></label>
+          <ul className="menu p-4 w-64 min-h-full bg-base-200 gap-4 pt-10">
+            <h2 className="text-xl font-bold text-center mb-4">Menu</h2>
+            {filteredNav.map((nav) =>
+              !nav.childLink ? (
+                <li
+                  key={`mobile-${nav.title}`}
+                  className={`text-lg ${usePath.includes(nav.destination) && "bordered"}`}>
+                  <Link href={nav.destination}>
+                    {nav.icon}
+                    {nav.title}
+                  </Link>
+                </li>
+              ) : (
+                <li
+                  key={`mobile-${nav.title}`}
+                  className="text-lg">
+                  <details>
+                    <summary>
+                      {nav.icon}
+                      {nav.title}
+                    </summary>
+                    <ul className="p-0">
+                      {/* ✅ FIX: Added filtering for child links for security and correctness. */}
+                      {nav.childLink
+                        .filter((child) => child.allowedRoles.length === 0 || child.allowedRoles.includes(role!))
+                        .map((child) => (
+                          <li
+                            key={`mobile-${child.title}`}
+                            className={usePath.includes(child.destination) ? "bordered" : ""}>
+                            <Link href={child.destination}>
+                              {child.icon}
+                              {child.title}
+                            </Link>
+                          </li>
+                        ))}
+                    </ul>
+                  </details>
+                </li>
+              )
+            )}
+          </ul>
         </div>
       </div>
     </>

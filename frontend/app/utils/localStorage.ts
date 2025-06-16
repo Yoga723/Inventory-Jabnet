@@ -6,6 +6,7 @@ export enum StorageKeys {
   THEME = "light",
   LOGIN_INFO = "login_info",
   USERSTATE = "userInfo",
+  AUTH_TOKEN =""
 }
 
 // Function untuk memasukkan value kedalam item kemudian menyimpannya di localStorage
