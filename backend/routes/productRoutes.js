@@ -23,6 +23,7 @@ router.get("/", async (req, res) => {
         b.item_id, 
         b.item_name, 
         b.kategori_id, 
+        b.stock,
         k.nama_kategori,
         b.created_at
       FROM barang b
