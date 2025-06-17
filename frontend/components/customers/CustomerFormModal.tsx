@@ -19,7 +19,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setCustomerData((prev) => ({ ...prev, [name]: value }));
   };
@@ -30,8 +30,23 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       className="modal modal-open">
       <div className="modal-box">
         <h3 className="font-bold text-lg">{customerData?.id ? "Edit Customer" : "Add Customer"}</h3>
-        <form onSubmit={onSubmit} className="">
+        <form
+          onSubmit={onSubmit}
+          className="">
           <div className="grid grid-cols-2 gap-6 ">
+
+            <label className="input">
+              <span className="label">ID Pelanggan</span>
+              <input
+                type="text"
+                name="id"
+                value={customerData?.id || ""}
+                onChange={handleChange}
+                className=""
+                required
+              />
+            </label>
+
             <label className="input">
               <span className="label">Nama</span>
               <input
@@ -55,16 +70,11 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               />
             </label>
 
-            <label className="input">
-              <span className="label">Address</span>
-              <input
-                type="text"
-                name="address"
+              <textarea
+                className="textarea h-24"
                 value={customerData?.address || ""}
                 onChange={handleChange}
-                className=""
-              />
-            </label>
+                placeholder="Alamat"></textarea>
 
             <label className="input">
               <span className="label">SN</span>

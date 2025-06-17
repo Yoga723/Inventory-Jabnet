@@ -8,7 +8,7 @@ interface CustomersState {
   error: string | null;
   currentPage: number;
   totalCustomers: number;
-  hasMore: boolean; // To know if there are more pages to load
+  hasMore: boolean;
 }
 
 const initialState: CustomersState = {
@@ -20,7 +20,6 @@ const initialState: CustomersState = {
   hasMore: true,
 };
 
-// Define the async thunk for fetching customers
 export const fetchCustomers = createAsyncThunk(
   "customers/fetchCustomers",
   async ({ page, limit = 20 }: { page: number; limit?: number }, { rejectWithValue }) => {
@@ -43,7 +42,7 @@ export const fetchCustomers = createAsyncThunk(
 
 export const createCustomer = createAsyncThunk(
   "customers/createCustomer",
-  async (customer: Omit<Customers, "id">, { rejectWithValue }) => {
+  async (customer: Customers, { rejectWithValue }) => {
     try {
       const response = await fetch(`${API_BASE_URL}`, {
         method: "POST",
@@ -64,12 +63,13 @@ export const createCustomer = createAsyncThunk(
 
 export const updateCustomer = createAsyncThunk(
   "customers/updateCustomer",
-  async (customer: Customers, { rejectWithValue }) => {
+  async ({ originalId, customerData }: { originalId: number, customerData: Customers }, { rejectWithValue }) => {
+
     try {
-      const response = await fetch(`${API_BASE_URL}/${customer.id}`, {
+      const response = await fetch(`${API_BASE_URL}/${originalId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(customer),
+        body: JSON.stringify(customerData),
         credentials: "include",
       });
       if (!response.ok) {
@@ -110,18 +110,13 @@ const customersSlice = createSlice({
     builder
       .addCase(fetchCustomers.pending, (state) => {
         state.status = "loading";
-        console.log("FETCHING CUSTOMERS");
       })
       .addCase(fetchCustomers.fulfilled, (state, action) => {
-        if (action.meta.arg.page === 1) {
-          state.customers = action.payload.data;
-        } else {
-          state.customers = [...state.customers, ...action.payload.data];
-        }
+        state.customers = action.payload.data;
         state.currentPage = action.payload.pagination.page;
+        state.totalCustomers = action.payload.pagination.total;
         state.hasMore = state.customers.length < action.payload.pagination.total;
         state.status = "succeeded";
-        state.totalCustomers = action.payload.pagination.total;
       })
       .addCase(fetchCustomers.rejected, (state, action) => {
         state.status = "failed";
@@ -132,9 +127,7 @@ const customersSlice = createSlice({
       })
       .addCase(updateCustomer.fulfilled, (state, action: PayloadAction<Customers>) => {
         const index = state.customers.findIndex((c) => c.id === action.payload.id);
-        if (index !== -1) {
-          state.customers[index] = action.payload;
-        }
+        if (index !== -1) state.customers[index] = action.payload;
       })
       .addCase(deleteCustomer.fulfilled, (state, action: PayloadAction<number>) => {
         state.customers = state.customers.filter((c) => c.id !== action.payload);

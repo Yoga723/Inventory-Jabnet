@@ -11,6 +11,7 @@ import { createCustomer, fetchCustomers, updateCustomer } from "store/customersS
 import UtilBar from "components/customers/UtilBar";
 import { Customers } from "types";
 import CustomerFormModal from "components/customers/CustomerFormModal";
+import Pagination from "components/customers/Pagination";
 
 const CustomerPage = () => {
   const dispatch = useAppDispatch();
@@ -18,19 +19,23 @@ const CustomerPage = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customerData, setCustomerData] = useState<Partial<Customers> | null>(null);
+  const limit = 20;
+  const totalPages = Math.ceil(totalCustomers / limit);
+  const [originalIdForEdit, setOriginalIdForEdit] = useState<number | null>(null);
 
   useEffect(() => {
-    if (status === "idle") dispatch(fetchCustomers({ page: 1 }));
-  }, [dispatch, status]);
+    if (status === "idle") dispatch(fetchCustomers({ page: 1, limit }));
+  }, [dispatch, status, limit]);
 
-  const handleLoadMore = () => {
-    if (status !== "loading" && hasMore) {
-      dispatch(fetchCustomers({ page: currentPage + 1 }));
+  const handlePageChange = (page: number) => {
+    if (page > 0 && page <= totalPages) {
+      dispatch(fetchCustomers({ page, limit }));
     }
   };
 
   const handleOpenModal = (customer: Customers | null) => {
     setCustomerData(customer);
+    setOriginalIdForEdit(customer ? customer.id : null);
     setIsModalOpen(true);
   };
 
@@ -39,13 +44,23 @@ const CustomerPage = () => {
     setCustomerData(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (customerData) {
-      if (customerData.id) {
-        dispatch(updateCustomer(customerData as Customers));
-      } else {
-        dispatch(createCustomer(customerData as Omit<Customers, "id">));
+      try {
+        if (originalIdForEdit) {
+          // We are in edit mode
+          await dispatch(
+            updateCustomer({ originalId: originalIdForEdit, customerData: customerData as Customers })
+          ).unwrap();
+        } else {
+          // We are in create mode
+          await dispatch(createCustomer(customerData as Customers)).unwrap();
+        }
+        // After success, refetch the data for the current page
+        dispatch(fetchCustomers({ page: currentPage, limit }));
+      } catch (err) {
+        console.error("Failed to save the customer: ", err);
       }
     }
     handleCloseModal();
@@ -58,23 +73,22 @@ const CustomerPage = () => {
         <div className="max-sm:w-full w-fit h-fit mb-4 p-6 rounded-lg bg-base-300">
           <p className="w-fit">Total Pelanggan : {totalCustomers}</p>
         </div>
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold">List Pelanggan</h1>
-        </div>
+        <h1 className="text-3xl font-bold mb-8">List Pelanggan</h1>
         <UtilBar onAdd={() => handleOpenModal(null)} />
-        <CustomerTable onEdit={handleOpenModal} />
-        {/* {status === "loading" && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+        <CustomerTable onEdit={handleOpenModal} />{" "}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+        {status === "loading" && (
           <div className="flex justify-center">
             <Loading />
-          </div>
-        )} */}
-        {hasMore && status !== "loading" && (
-          <div className="text-center mt-4 pb-10">
-            <button
-              onClick={handleLoadMore}
-              className="btn btn-primary">
-              Load More
-            </button>
           </div>
         )}
         <CustomerFormModal
