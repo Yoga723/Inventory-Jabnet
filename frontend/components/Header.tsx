@@ -10,6 +10,7 @@ import { logoutAction } from "app/actions/authUser";
 import HomeIcon from "@mui/icons-material/Home";
 import StorageIcon from "@mui/icons-material/Storage";
 import GroupIcon from "@mui/icons-material/Group";
+import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import { logout } from "store/userSlice";
@@ -19,22 +20,19 @@ const navButton = [
     title: "Dashboard",
     icon: <DashboardIcon className="text-accent" />,
     destination: "/",
-    allowedRoles: [], // Visible to all
+    allowedRoles: [],
     childLink: null,
   },
   {
     title: "Products",
     icon: <InventoryIcon className="text-accent" />,
-    // ✅ FIX: The parent "Products" item must also have roles defined.
-    // This will hide the entire dropdown from roles not in this list (like 'field').
-    allowedRoles: ["super_admin", "admin", "operator"],
+    allowedRoles: [],
     childLink: [
       {
         title: "Log Products",
         icon: <StorageIcon className="text-accent" />,
         destination: "/log-products",
-        // ✅ FIX: This child link should have the same roles.
-        allowedRoles: ["super_admin", "admin", "operator"],
+        allowedRoles: [],
       },
       {
         title: "Products",
@@ -48,7 +46,7 @@ const navButton = [
     title: "Customers",
     icon: <GroupIcon className="text-accent" />,
     destination: "/customers",
-    allowedRoles: [], // Visible to all
+    allowedRoles: [],
     childLink: null,
   },
 ];
@@ -97,7 +95,6 @@ const Header = () => {
                       {btn.icon} {btn.title}
                     </summary>
                     <ul className="bg-base-300 rounded-t-none">
-                      {/* ✅ FIX: Added filtering for child links for security and correctness. */}
                       {btn.childLink
                         .filter((child) => child.allowedRoles.length === 0 || child.allowedRoles.includes(role!))
                         .map((child) => (
@@ -160,26 +157,14 @@ const Header = () => {
       <div className="dock lg:hidden z-[52]">
         <Link
           href="/"
-          className={usePath === "/" ? "active" : ""}>
+          className={`text-xs ${usePath === "/" ? "active" : ""}`}>
           <HomeIcon />
           <span className="btm-nav-label">Home</span>
         </Link>
         <label
           htmlFor="mobile-drawer"
-          className="cursor-pointer">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1.5}
-            stroke="currentColor"
-            className="size-6">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-            />
-          </svg>
+          className="text-xs cursor-pointer">
+          <MenuIcon />
           <span className="btm-nav-label">More</span>
         </label>
       </div>
@@ -219,7 +204,6 @@ const Header = () => {
                       {nav.title}
                     </summary>
                     <ul className="p-0">
-                      {/* ✅ FIX: Added filtering for child links for security and correctness. */}
                       {nav.childLink
                         .filter((child) => child.allowedRoles.length === 0 || child.allowedRoles.includes(role!))
                         .map((child) => (

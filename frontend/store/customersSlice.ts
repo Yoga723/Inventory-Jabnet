@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Customers } from "types";
+const API_BASE_URL = "https://inventory.jabnet.id/api/customers";
 
 interface CustomersState {
   customers: Customers[];
@@ -12,7 +13,7 @@ interface CustomersState {
 
 const initialState: CustomersState = {
   customers: [],
-  status: "loading",
+  status: "idle",
   error: null,
   currentPage: 1,
   totalCustomers: 0,
@@ -24,7 +25,7 @@ export const fetchCustomers = createAsyncThunk(
   "customers/fetchCustomers",
   async ({ page, limit = 20 }: { page: number; limit?: number }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`https://inventory.jabnet.id/api/customers?page=${page}&limit=${limit}`, {
+      const response = await fetch(`${API_BASE_URL}?page=${page}&limit=${limit}`, {
         method: "GET",
         credentials: "include",
       });
@@ -40,6 +41,67 @@ export const fetchCustomers = createAsyncThunk(
   }
 );
 
+export const createCustomer = createAsyncThunk(
+  "customers/createCustomer",
+  async (customer: Omit<Customers, "id">, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(customer),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.error || "Failed to create customer");
+      }
+      return await response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateCustomer = createAsyncThunk(
+  "customers/updateCustomer",
+  async (customer: Customers, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${customer.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(customer),
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.error || "Failed to update customer");
+      }
+      return await response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const deleteCustomer = createAsyncThunk(
+  "customers/deleteCustomer",
+  async (customerId: number, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${customerId}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) {
+        const errorData = await response.json();
+        return rejectWithValue(errorData.error || "Failed to delete customer");
+      }
+      return customerId;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const customersSlice = createSlice({
   name: "customers",
   initialState,
@@ -48,12 +110,15 @@ const customersSlice = createSlice({
     builder
       .addCase(fetchCustomers.pending, (state) => {
         state.status = "loading";
+        console.log("FETCHING CUSTOMERS");
       })
       .addCase(fetchCustomers.fulfilled, (state, action) => {
-        // Append new customers to the existing list instead of replacing them
-        state.customers = [...state.customers, ...action.payload.data];
+        if (action.meta.arg.page === 1) {
+          state.customers = action.payload.data;
+        } else {
+          state.customers = [...state.customers, ...action.payload.data];
+        }
         state.currentPage = action.payload.pagination.page;
-        // Check if there are more customers to load
         state.hasMore = state.customers.length < action.payload.pagination.total;
         state.status = "succeeded";
         state.totalCustomers = action.payload.pagination.total;
@@ -61,6 +126,18 @@ const customersSlice = createSlice({
       .addCase(fetchCustomers.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
+      })
+      .addCase(createCustomer.fulfilled, (state, action: PayloadAction<Customers>) => {
+        state.customers.unshift(action.payload);
+      })
+      .addCase(updateCustomer.fulfilled, (state, action: PayloadAction<Customers>) => {
+        const index = state.customers.findIndex((c) => c.id === action.payload.id);
+        if (index !== -1) {
+          state.customers[index] = action.payload;
+        }
+      })
+      .addCase(deleteCustomer.fulfilled, (state, action: PayloadAction<number>) => {
+        state.customers = state.customers.filter((c) => c.id !== action.payload);
       });
   },
 });

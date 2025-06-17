@@ -1,7 +1,7 @@
 import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
 import React from "react";
 
-const UtilBar = () => {
+const UtilBar = ({ onAdd }: { onAdd: () => void }) => {
   return (
     <>
       {" "}
@@ -42,7 +42,7 @@ const UtilBar = () => {
         </button>
         <button
           type="button"
-        //   onClick={() => openModal(null)}
+          onClick={onAdd}
           className="btn btn-primary btn-soft">
           <PlusIcon
             width={20}
