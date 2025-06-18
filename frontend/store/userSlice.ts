@@ -8,7 +8,7 @@ const initialState: UserState = {
   full_name: null,
   role: null,
   status: "idle",
-  token: null, // Changed from "" to null
+  token: null,
 };
 
 const userSlice = createSlice({

@@ -54,4 +54,5 @@ export interface Customers {
   odp?: string | null;
   port_odp?: string | null;
   paket_id?: number;
+  last_edited?: string;
 }
