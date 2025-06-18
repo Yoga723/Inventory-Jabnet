@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { Customers } from "types";
 import { deleteCustomer } from "store/customersSlice";
@@ -10,7 +10,7 @@ const CustomerTable = ({ onEdit }: { onEdit: (customer: Customers) => void }) =>
   const { customers } = useAppSelector((state) => state.customers);
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (window.confirm("Are you sure you want to delete this customer?")) {
       dispatch(deleteCustomer(id));
     }
@@ -19,11 +19,6 @@ const CustomerTable = ({ onEdit }: { onEdit: (customer: Customers) => void }) =>
   const toggleRow = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);
   };
-
-  useEffect(() => {
-    console.log("THIS IS CUSTOMERS", customers)
-  
-  }, [customers])
   
 
   return (

@@ -63,8 +63,7 @@ export const createCustomer = createAsyncThunk(
 
 export const updateCustomer = createAsyncThunk(
   "customers/updateCustomer",
-  async ({ originalId, customerData }: { originalId: number, customerData: Customers }, { rejectWithValue }) => {
-
+  async ({ originalId, customerData }: { originalId: number; customerData: Customers }, { rejectWithValue }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/${originalId}`, {
         method: "PUT",
@@ -85,7 +84,7 @@ export const updateCustomer = createAsyncThunk(
 
 export const deleteCustomer = createAsyncThunk(
   "customers/deleteCustomer",
-  async (customerId: number, { rejectWithValue }) => {
+  async (customerId: string, { rejectWithValue }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/${customerId}`, {
         method: "DELETE",
@@ -129,7 +128,8 @@ const customersSlice = createSlice({
         const index = state.customers.findIndex((c) => c.id === action.payload.id);
         if (index !== -1) state.customers[index] = action.payload;
       })
-      .addCase(deleteCustomer.fulfilled, (state, action: PayloadAction<number>) => {
+      .addCase(deleteCustomer.fulfilled, (state, action: PayloadAction<string>) => {
+        console.log("THIS IS DELETED ID :", action.payload);
         state.customers = state.customers.filter((c) => c.id !== action.payload);
       });
   },

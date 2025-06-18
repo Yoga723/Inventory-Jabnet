@@ -35,7 +35,7 @@ const CustomerPage = () => {
 
   const handleOpenModal = (customer: Customers | null) => {
     setCustomerData(customer);
-    setOriginalIdForEdit(customer ? customer.id : null);
+    setOriginalIdForEdit(customer ? parseInt(customer.id) : null);
     setIsModalOpen(true);
   };
 
@@ -49,15 +49,15 @@ const CustomerPage = () => {
     if (customerData) {
       try {
         if (originalIdForEdit) {
-          // We are in edit mode
+          // EXECUTE KODE EDIT CUSTOMER
           await dispatch(
             updateCustomer({ originalId: originalIdForEdit, customerData: customerData as Customers })
           ).unwrap();
         } else {
-          // We are in create mode
+          // EXECUTE KODE TAMBAH CUSTOMER
           await dispatch(createCustomer(customerData as Customers)).unwrap();
         }
-        // After success, refetch the data for the current page
+        // RE-FETCH UNTUK AMBIL DATA TERBARU
         dispatch(fetchCustomers({ page: currentPage, limit }));
       } catch (err) {
         console.error("Failed to save the customer: ", err);

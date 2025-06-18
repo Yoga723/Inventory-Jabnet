@@ -34,7 +34,6 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           onSubmit={onSubmit}
           className="">
           <div className="grid grid-cols-2 gap-6 ">
-
             <label className="input">
               <span className="label">ID Pelanggan</span>
               <input
@@ -70,11 +69,12 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
               />
             </label>
 
-              <textarea
-                className="textarea h-24"
-                value={customerData?.address || ""}
-                onChange={handleChange}
-                placeholder="Alamat"></textarea>
+            <textarea
+              name="address"
+              className="textarea h-24"
+              value={customerData?.address || ""}
+              onChange={handleChange}
+              placeholder="Alamat"></textarea>
 
             <label className="input">
               <span className="label">SN</span>

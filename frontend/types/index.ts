@@ -45,7 +45,7 @@ export interface Item {
 
 // PROPS UNTUK CUSTOMERS
 export interface Customers {
-  id: number;
+  id: string;
   name: string;
   no_telepon: string;
   address?: string;

@@ -8,24 +8,20 @@ router.use(authenticateMiddleware);
 router.get("/", async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 20;
-
-  // Calculate offset SQL query
   const offset = (page - 1) * limit;
 
   try {
-    const [totalResult] = await req.dbPelanggan.query(
+    const countResult = await req.dbPelanggan.query(
       `SELECT COUNT(*) as count FROM customers`
     );
-    const totalCustomers = totalResult ? totalResult.count : 0;
+    const totalCustomers = countResult[0] ? countResult[0].count : 0;
 
     const customers = await req.dbPelanggan.query(
-      `SELECT * FROM customers ORDER BY id LIMIT ? OFFSET ?`,
+      `SELECT * FROM customers ORDER BY last_edited DESC LIMIT ? OFFSET ?`,
       [limit, offset]
     );
 
-    // const response = JSON.stringify(customers);
-
-    res.status(201).json({
+    res.status(200).json({
       data: customers,
       pagination: { page: page, limit: limit, total: totalCustomers },
     });
@@ -39,19 +35,30 @@ router.post(
   "/",
   authorize(["field", "operator", "admin", "super_admin"]),
   async (req, res) => {
-    const { name, no_telepon, address, sn, olt, odp, port_odp, paket_id } =
+    const { id, name, no_telepon, address, sn, olt, odp, port_odp, paket_id } =
       req.body;
 
     try {
-      if (!name || !no_telepon)
-        return res.status(400).json({ error: "Nama dan Nomor HP diperlukan" });
+      if (!id || !name || !no_telepon)
+        return res
+          .status(400)
+          .json({ error: "ID, Nama dan Nomor HP diperlukan" });
 
-      const result = await req.dbPelanggan.query(
-        "INSERT INTO customers (name, no_telepon, address, sn, olt, odp, port_odp, paket_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [name, no_telepon, address, sn, olt, odp, port_odp, paket_id]
+      await req.dbPelanggan.query(
+        "INSERT INTO customers (id, name, no_telepon, address, sn, olt, odp, port_odp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        [id, name, no_telepon, address, sn, olt, odp, port_odp]
       );
-      res.status(201).json({ id: result.insertId, ...req.body });
+
+      const [newCustomer] = await req.dbPelanggan.query(
+        "SELECT * FROM customers WHERE id = ?",
+        [id]
+      );
+
+      res.status(201).json(newCustomer);
     } catch (err) {
+      if (err.code === "ER_DUP_ENTRY") {
+        return res.status(409).json({ error: "ID Pelanggan sudah digunakan" });
+      }
       res.status(500).json({ error: err.message });
     }
   }
@@ -61,11 +68,8 @@ router.put(
   "/:id",
   authorize(["field", "operator", "admin", "super_admin"]),
   async (req, res) => {
-    const customerId = parseInt(req.params.id, 10);
-    if (isNaN(customerId))
-      return res.status(400).json({ error: "Invalid customer ID format." });
-
-    const { name, no_telepon, address, sn, olt, odp, port_odp } = req.body;
+    const originalCustomerId = req.params.id;
+    const { id, name, no_telepon, address, sn, olt, odp, port_odp, id_paket } = req.body;
 
     try {
       if (!name || !no_telepon)
@@ -73,17 +77,33 @@ router.put(
           .status(400)
           .json({ error: "Name and phone number are required" });
 
-      const [result] = await req.dbPelanggan.query(
-        "UPDATE customers SET name = ?, no_telepon = ?, address = ?, sn = ?, olt = ?, odp = ?, port_odp = ? WHERE id = ?",
-        [name, no_telepon, address, sn, olt, odp, port_odp, customerId]
+      const updateResult = await req.dbPelanggan.query(
+        "UPDATE customers SET id = ?, name = ?, no_telepon = ?, address = ?, sn = ?, olt = ?, odp = ?, port_odp = ? WHERE id = ?",
+        [
+          id,
+          name,
+          no_telepon,
+          address,
+          sn,
+          olt,
+          odp,
+          port_odp,
+          originalCustomerId,
+        ]
       );
 
-      if (result.affectedRows === 0)
+      if (updateResult.affectedRows === 0)
         return res
           .status(404)
-          .json({ error: `Customer with ID ${customerId} not found.` });
+          .json({ error: `Customer with ID ${originalCustomerId} not found.` });
 
-      res.status(200).json({ id: customerId, ...req.body });
+      const result = await req.dbPelanggan.query(
+        "SELECT * FROM customers WHERE id = ?",
+        [id]
+      );
+      const updatedCustomer = result[0];
+
+      res.status(200).json(updatedCustomer);
     } catch (err) {
       console.error("Error updating customer:", err.message);
       res.status(500).json({
@@ -99,7 +119,15 @@ router.delete(
   async (req, res) => {
     const { id } = req.params;
     try {
-      await req.dbPelanggan.query("DELETE FROM customers WHERE id = ?", [id]);
+      const result = await req.dbPelanggan.query(
+        "DELETE FROM customers WHERE id = ?",
+        [id]
+      );
+      if (result.affectedRows === 0)
+        return res
+          .status(404)
+          .json({ error: `Customer with ID ${id} not found.` });
+
       res.status(204).send();
     } catch (err) {
       res.status(500).json({ error: err.message });
