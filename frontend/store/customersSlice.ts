@@ -63,7 +63,8 @@ export const createCustomer = createAsyncThunk(
 
 export const updateCustomer = createAsyncThunk(
   "customers/updateCustomer",
-  async ({ originalId, customerData }: { originalId: number; customerData: Customers }, { rejectWithValue }) => {
+  async ({ originalId, customerData }: { originalId: number, customerData: Customers }, { rejectWithValue }) => {
+
     try {
       const response = await fetch(`${API_BASE_URL}/${originalId}`, {
         method: "PUT",
@@ -122,17 +123,14 @@ const customersSlice = createSlice({
         state.error = action.payload as string;
       })
       .addCase(createCustomer.fulfilled, (state, action: PayloadAction<Customers>) => {
-        state.status = "succeeded";
         state.customers.unshift(action.payload);
       })
       .addCase(updateCustomer.fulfilled, (state, action: PayloadAction<Customers>) => {
         const index = state.customers.findIndex((c) => c.id === action.payload.id);
         if (index !== -1) state.customers[index] = action.payload;
-        state.status = "succeeded";
       })
       .addCase(deleteCustomer.fulfilled, (state, action: PayloadAction<number>) => {
         state.customers = state.customers.filter((c) => c.id !== action.payload);
-        state.status = "succeeded";
       });
   },
 });
