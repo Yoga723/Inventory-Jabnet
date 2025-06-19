@@ -1,7 +1,7 @@
 "use client";
 import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
 import React, { useEffect, useState } from "react";
-import { useFilterSearchLogic } from "../../app/hooks/useFilterSearchLogic";
+import { useLogProductSearchLogic } from "../../app/hooks/useLogProductSearchLogic";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useProductsContext } from "context/products/ProductsContext";
@@ -34,7 +34,7 @@ const UtilityBar = () => {
     handleExport,
     isFilterOpen,
     setIsFilterOpen,
-  } = useFilterSearchLogic();
+  } = useLogProductSearchLogic();
 
   const onSearchKey = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") handleSearch();

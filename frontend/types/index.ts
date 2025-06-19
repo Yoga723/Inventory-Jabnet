@@ -53,5 +53,20 @@ export interface Customers {
   olt?: string | null;
   odp?: string | null;
   port_odp?: string | null;
-  paket_id?: number;
+  paket?: Paket;
+  mitra?: Mitra;
+}
+
+export interface Paket {
+  id_paket?: number | null;
+  nama_paket?: string | null;
+  kecepatan_paket?: string | null;
+  harga_paket?: number | null;
+  comment_paket?: string | null;
+}
+
+export interface Mitra {
+  id_mitra?: number;
+  nama_mitra?: string;
+  comment_mitra?: string;
 }

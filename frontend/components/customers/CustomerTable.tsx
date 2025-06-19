@@ -31,6 +31,8 @@ const CustomerTable = ({
             <th>No telepon</th>
             <th>SN</th>
             <th>OLT</th>
+            <th>Paket</th>
+            <th>Mitra</th>
             <th>ODP</th>
             <th>Port ODP</th>
           </tr>
@@ -40,13 +42,18 @@ const CustomerTable = ({
             <React.Fragment key={index}>
               <tr
                 onClick={() => toggleRow(index)}
-                className="text-xs cursor-pointer hover:bg-base-300">
+                className={`text-xs cursor-pointer hover:bg-base-300 ${item.mitra?.nama_mitra.length >= 3 && "text-accent"}`}>
                 <td>{(currentPage - 1) * limit + index + 1}</td>
                 <td>{item.id}</td>
                 <td>{item.name}</td>
                 <td>{item.address}</td>
                 <td>{item.no_telepon}</td>
                 <td>{item.sn}</td>
+                <td>{item.olt}</td>
+                <td className="min-w-28">
+                  {item.paket?.nama_paket} {item.paket?.kecepatan_paket}
+                </td>
+                <td className="min-w-28">{item.mitra?.nama_mitra}</td>
                 <td>{item.olt}</td>
                 <td>{item.odp}</td>
                 <td>{item.port_odp}</td>

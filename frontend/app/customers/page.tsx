@@ -25,6 +25,7 @@ const CustomerPage = () => {
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     if (status === "idle") dispatch(fetchCustomers({ page: 1, limit }));
@@ -87,6 +88,10 @@ const CustomerPage = () => {
     setCustomerToDelete(null);
   };
 
+  const handleSearch = () => {
+    dispatch(fetchCustomers({ page: 1, limit, search: searchTerm }));
+  };
+
   return (
     <>
       <Header />
@@ -95,16 +100,17 @@ const CustomerPage = () => {
           <p className="w-fit">Total Pelanggan : {totalCustomers}</p>
         </div>
         <h1 className="text-3xl font-bold mb-8">List Pelanggan</h1>
-        <UtilBar onAdd={() => handleOpenModal(null)} />
+        <UtilBar
+          onAdd={() => handleOpenModal(null)}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          onSearchSubmit={handleSearch}
+        />
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
-        <CustomerTable
-          onEdit={handleOpenModal}
-          onDelete={handleDeleteRequest}
-        />{" "}
         {status === "loading" && (
           <div className="flex justify-center">
             <Loading />
@@ -117,6 +123,10 @@ const CustomerPage = () => {
             </div>
           </div>
         )}
+        <CustomerTable
+          onEdit={handleOpenModal}
+          onDelete={handleDeleteRequest}
+        />{" "}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}

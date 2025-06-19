@@ -5,7 +5,7 @@ import { addDays, formatISO, startOfDay, endOfDay } from "date-fns";
 import { fetchLogProductsThunk } from "../../store/logProductsSlice";
 import { useAppDispatch } from "../../store/Hooks";
 
-export const useFilterSearchLogic = () => {
+export const useLogProductSearchLogic = () => {
   const dispatch = useAppDispatch();
   // state untuk search & filter
   const [searchTerm, setSearchTerm] = useState("");

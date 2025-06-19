@@ -52,6 +52,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 value={customerData?.id || ""}
                 onChange={handleChange}
                 className="input"
+                placeholder="Ambil dari Billing"
                 required
               />
             </fieldset>
@@ -79,6 +80,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 value={customerData?.no_telepon || ""}
                 onChange={handleChange}
                 className="input"
+                placeholder="0822222222"
                 required
               />
             </fieldset>

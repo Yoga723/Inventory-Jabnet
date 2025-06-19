@@ -42,7 +42,6 @@ export const fetchLogProductsThunk = createAsyncThunk(
         method: "GET",
         credentials: "include",
         mode: "cors",
-        // headers: { "Content-Type": "application/json" },
       });
 
       const responseData = await response.json();

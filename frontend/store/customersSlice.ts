@@ -22,9 +22,16 @@ const initialState: CustomersState = {
 
 export const fetchCustomers = createAsyncThunk(
   "customers/fetchCustomers",
-  async ({ page, limit = 20 }: { page: number; limit?: number }, { rejectWithValue }) => {
+  async ({ page, limit = 20, search }: { page: number; limit?: number; search?: string }, { rejectWithValue }) => {
+    const params = new URLSearchParams();
+    params.append("page", page.toString());
+    params.append("limit", limit.toString());
+    if (search && search.trim() != "") params.append("search", search);
+
+    console.log(`THIS IS SEARCH PARAMS : ${API_BASE_URL}?${params.toString()}`);
+
     try {
-      const response = await fetch(`${API_BASE_URL}?page=${page}&limit=${limit}`, {
+      const response = await fetch(`${API_BASE_URL}?${params.toString()}`, {
         method: "GET",
         credentials: "include",
       });
@@ -33,6 +40,8 @@ export const fetchCustomers = createAsyncThunk(
         return rejectWithValue(errorData.error || "Failed to fetch customers");
       }
       const data = await response.json();
+
+      console.log("THIS IS DATA FETCHED", data)
       return data;
     } catch (error: any) {
       return rejectWithValue(error.message);
