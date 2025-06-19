@@ -1,4 +1,5 @@
 "use client";
+import { XMarkIcon } from "@heroicons/react/24/solid";
 import React from "react";
 import { Customers } from "types";
 
@@ -28,97 +29,119 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     <dialog
       open
       className="modal modal-open">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">{customerData?.id ? "Edit Customer" : "Add Customer"}</h3>
-        <form
-          onSubmit={onSubmit}
-          className="">
-          <div className="grid grid-cols-2 gap-6 ">
-            <label className="input">
-              <span className="label">ID Pelanggan</span>
+      <aside className="modal-box max-sm:h-[90%] h-fit ">
+        <div className="flex w-full justify-between">
+          <h3 className="font-bold text-lg">{customerData?.id ? "Edit Customer" : "Add Customer"}</h3>
+          <button
+            type="button"
+            onClick={onClose}
+            id="dismiss-product-log-modal"
+            className="px-2  btn btn-error self-end md:mb-2 col-span-3">
+            <XMarkIcon className="h-5 w-5 text-red font-bold" />
+          </button>
+        </div>
+        <form onSubmit={onSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">
+                ID Pelanggan <span className="text-red-500">*</span>
+              </legend>
               <input
                 type="text"
                 name="id"
                 value={customerData?.id || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
                 required
               />
-            </label>
+            </fieldset>
 
-            <label className="input">
-              <span className="label">Nama</span>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">
+                Nama <span className="text-red-500">*</span>
+              </legend>
               <input
                 type="text"
                 name="name"
                 value={customerData?.name || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
                 required
               />
-            </label>
-            <label className="input">
-              <span className="label">No HP</span>
+            </fieldset>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">
+                No HP <span className="text-red-500">*</span>
+              </legend>
               <input
                 type="text"
                 name="no_telepon"
                 value={customerData?.no_telepon || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
                 required
               />
-            </label>
+            </fieldset>
 
-            <textarea
-              name="address"
-              className="textarea h-24"
-              value={customerData?.address || ""}
-              onChange={handleChange}
-              placeholder="Alamat"></textarea>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">
+                Alamat <span className="text-red-500">*</span>
+              </legend>
+              <textarea
+                name="address"
+                className="textarea h-24"
+                value={customerData?.address || ""}
+                onChange={handleChange}
+                placeholder="Alamat"></textarea>
+            </fieldset>
 
-            <label className="input">
-              <span className="label">SN</span>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">SN</legend>
               <input
                 type="text"
                 name="sn"
                 value={customerData?.sn || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
               />
-            </label>
+              <p className="label">Opsional</p>
+            </fieldset>
 
-            <label className="input">
-              <span className="label">OLT</span>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">OLT</legend>
               <input
                 type="text"
                 name="olt"
                 value={customerData?.olt || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
               />
-            </label>
+              <p className="label">Opsional</p>
+            </fieldset>
 
-            <label className="input">
-              <span className="label">ODP</span>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">ODP</legend>
               <input
                 type="text"
                 name="odp"
                 value={customerData?.odp || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
               />
-            </label>
+              <p className="label">Opsional</p>
+            </fieldset>
 
-            <label className="input">
-              <span className="label">Port ODP</span>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">Port ODP</legend>
               <input
                 type="text"
                 name="port_odp"
                 value={customerData?.port_odp || ""}
                 onChange={handleChange}
-                className=""
+                className="input"
               />
-            </label>
+              <p className="label">Opsional</p>
+            </fieldset>
           </div>
 
           <div className="flex justify-center gap-6 mt-10">
@@ -135,7 +158,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
             </button>
           </div>
         </form>
-      </div>
+      </aside>
     </dialog>
   );
 };

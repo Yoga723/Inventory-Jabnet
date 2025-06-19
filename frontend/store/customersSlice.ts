@@ -129,7 +129,6 @@ const customersSlice = createSlice({
         if (index !== -1) state.customers[index] = action.payload;
       })
       .addCase(deleteCustomer.fulfilled, (state, action: PayloadAction<string>) => {
-        console.log("THIS IS DELETED ID :", action.payload);
         state.customers = state.customers.filter((c) => c.id !== action.payload);
       });
   },

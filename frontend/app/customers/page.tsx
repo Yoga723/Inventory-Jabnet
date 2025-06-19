@@ -7,7 +7,7 @@ import Loading from "components/Loading";
 import AlertModal from "components/modals/AlertModal";
 import CustomerTable from "components/customers/CustomerTable";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
-import { createCustomer, fetchCustomers, updateCustomer } from "store/customersSlice";
+import { createCustomer, deleteCustomer, fetchCustomers, updateCustomer } from "store/customersSlice";
 import UtilBar from "components/customers/UtilBar";
 import { Customers } from "types";
 import CustomerFormModal from "components/customers/CustomerFormModal";
@@ -22,6 +22,9 @@ const CustomerPage = () => {
   const limit = 20;
   const totalPages = Math.ceil(totalCustomers / limit);
   const [originalIdForEdit, setOriginalIdForEdit] = useState<number | null>(null);
+
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     if (status === "idle") dispatch(fetchCustomers({ page: 1, limit }));
@@ -66,6 +69,24 @@ const CustomerPage = () => {
     handleCloseModal();
   };
 
+  const handleDeleteRequest = (id: string) => {
+    setCustomerToDelete(id);
+    setIsAlertOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (customerToDelete) {
+      dispatch(deleteCustomer(customerToDelete));
+    }
+    setIsAlertOpen(false);
+    setCustomerToDelete(null);
+  };
+
+  const handleCancelDelete = () => {
+    setIsAlertOpen(false);
+    setCustomerToDelete(null);
+  };
+
   return (
     <>
       <Header />
@@ -80,24 +101,15 @@ const CustomerPage = () => {
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
-        <CustomerTable onEdit={handleOpenModal} />{" "}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        <CustomerTable
+          onEdit={handleOpenModal}
+          onDelete={handleDeleteRequest}
+        />{" "}
         {status === "loading" && (
           <div className="flex justify-center">
             <Loading />
           </div>
         )}
-        <CustomerFormModal
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-          onSubmit={handleSubmit}
-          customerData={customerData}
-          setCustomerData={setCustomerData}
-        />
         {error && (
           <div className="alert alert-error shadow-lg my-4">
             <div>
@@ -105,6 +117,27 @@ const CustomerPage = () => {
             </div>
           </div>
         )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+        <br />
+        <CustomerFormModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          onSubmit={handleSubmit}
+          customerData={customerData}
+          setCustomerData={setCustomerData}
+        />
+        <AlertModal
+          isOpen={isAlertOpen}
+          content="Yakin ingin menghapus pelanggan ini?"
+          action="delete"
+          primaryBtnStyle="error"
+          onConfirm={handleConfirmDelete}
+          onCancel={handleCancelDelete}
+        />
       </main>
     </>
   );
