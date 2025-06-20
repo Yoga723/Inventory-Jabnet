@@ -2,7 +2,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Header from "components/Header";
-import { PlusIcon } from "@heroicons/react/24/solid";
 import Loading from "components/Loading";
 import AlertModal from "components/modals/AlertModal";
 import CustomerTable from "components/customers/CustomerTable";
@@ -13,6 +12,7 @@ import { Customers } from "types";
 import CustomerFormModal from "components/customers/CustomerFormModal";
 import Pagination from "components/customers/Pagination";
 import { fetchMitra, fetchPaket } from "store/filterCustomerSlice";
+import FilterModal from "components/customers/CustomerFilterModal";
 
 const CustomerPage = () => {
   const dispatch = useAppDispatch();
@@ -42,12 +42,6 @@ const CustomerPage = () => {
     if (status === "idle") dispatch(fetchCustomers({ page: 1, limit }));
   }, [dispatch, status, limit]);
 
-  // const handlePageChange = (page: number) => {
-  //   if (page > 0 && page <= totalPages) {
-  //     dispatch(fetchCustomers({ page, limit }));
-  //   }
-  // };
-
   const handleFetch = (page: number, currentSearch = searchTerm, currentFilters = activeFilters) => {
     dispatch(fetchCustomers({ page, limit, search: currentSearch, filterCustomers: currentFilters }));
   };
@@ -66,7 +60,6 @@ const CustomerPage = () => {
   };
 
   const handleOpenFilters = () => {
-    // Fetch filter data if it hasn't been fetched yet
     if (filtersStatus === "idle") {
       dispatch(fetchPaket());
       dispatch(fetchMitra());
@@ -150,23 +143,19 @@ const CustomerPage = () => {
             <Loading />
           </div>
         )}
-        {error && (
-          <div className="alert alert-error shadow-lg my-4">
-            <div>
-              <span>Error: {error}</span>
-            </div>
-          </div>
+        {status !== "loading" && (
+          <CustomerTable
+            onEdit={handleOpenModal}
+            onDelete={handleDeleteRequest}
+          />
         )}
-        <CustomerTable
-          onEdit={handleOpenModal}
-          onDelete={handleDeleteRequest}
-        />{" "}
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
           onPageChange={handlePageChange}
         />
         <br />
+
         <CustomerFormModal
           isOpen={isModalOpen}
           onClose={handleCloseModal}
@@ -174,13 +163,20 @@ const CustomerPage = () => {
           customerData={customerData}
           setCustomerData={setCustomerData}
         />
+        <FilterModal
+          isOpen={isFilterModalOpen}
+          onClose={() => setIsFilterModalOpen(false)}
+          filterCustomer={activeFilters}
+          setFilters={setActiveFilters}
+          onApply={handleApplyFilters}
+        />
         <AlertModal
           isOpen={isAlertOpen}
           content="Yakin ingin menghapus pelanggan ini?"
           action="delete"
           primaryBtnStyle="error"
           onConfirm={handleConfirmDelete}
-          onCancel={handleCancelDelete}
+          onCancel={() => setIsAlertOpen(false)}
         />
       </main>
     </>

@@ -2,6 +2,22 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import { Customers } from "types";
 const API_BASE_URL = "https://inventory.jabnet.id/api/customers";
 
+interface CustomerFilters {
+  sortBy?: string;
+  sortOrder?: string;
+  olt?: string;
+  odp?: string;
+  id_paket?: string;
+  id_mitra?: string;
+}
+
+interface FetchCustomersArgs {
+  page: number;
+  limit?: number;
+  search?: string;
+  filterCustomers?: CustomerFilters;
+}
+
 interface CustomersState {
   customers: Customers[];
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -22,13 +38,19 @@ const initialState: CustomersState = {
 
 export const fetchCustomers = createAsyncThunk(
   "customers/fetchCustomers",
-  async ({ page, limit = 20, search }: { page: number; limit?: number; search?: string }, { rejectWithValue }) => {
+  async ({ page, limit = 20, search, filterCustomers = {} }: FetchCustomersArgs, { rejectWithValue }) => {
     const params = new URLSearchParams();
     params.append("page", page.toString());
     params.append("limit", limit.toString());
     if (search && search.trim() != "") params.append("search", search);
 
     console.log(`THIS IS SEARCH PARAMS : ${API_BASE_URL}?${params.toString()}`);
+
+    Object.entries(filterCustomers).forEach(([key, value]) => {
+      if (value) {
+        params.append(key, value);
+      }
+    });
 
     try {
       const response = await fetch(`${API_BASE_URL}?${params.toString()}`, {
@@ -41,7 +63,7 @@ export const fetchCustomers = createAsyncThunk(
       }
       const data = await response.json();
 
-      console.log("THIS IS DATA FETCHED", data)
+      console.log("THIS IS DATA FETCHED", data);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.message);

@@ -1,6 +1,7 @@
 "use client";
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import React from "react";
+import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { Customers } from "types";
 
 interface CustomerFormModalProps {
@@ -18,6 +19,9 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   customerData,
   setCustomerData,
 }) => {
+  const dispatch = useAppDispatch();
+
+  // const { pakets, mitras, status } = useAppSelector((state) => state.);
   if (!isOpen) return null;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {

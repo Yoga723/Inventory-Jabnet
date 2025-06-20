@@ -28,18 +28,36 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
     }
   }
 
-  for (let i = startPage; i <= endPage; i++) {
-    pageNumbers.push(i);
-  }
+  for (let i = startPage; i <= endPage; i++) pageNumbers.push(i);
+
+  const handleGoToPage = () => {
+    const pageString = window.prompt(`Enter page number between 1 and ${totalPages}:`);
+    if (pageString) {
+      const pageNumber = parseInt(pageString, 10);
+      if (!isNaN(pageNumber) && pageNumber >= 1 && pageNumber <= totalPages) {
+        onPageChange(pageNumber);
+      } else {
+        window.alert("Invalid page number entered.");
+      }
+    }
+  };
 
   return (
     <div className="flex justify-center items-center space-x-2 my-8">
       <button
+        onClick={() => onPageChange(1)}
+        disabled={currentPage === 1}
+        className="btn btn-outline btn-secondary"
+        aria-label="Go to first page">
+        {"<<"}
+      </button>
+      <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="btn">
+        className="btn btn-outline btn-secondary">
         Prev
       </button>
+
       {pageNumbers.map((number) => (
         <button
           key={number}
@@ -48,11 +66,27 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) 
           {number}
         </button>
       ))}
+      {/* {totalPages > maxPagesToShow && (
+        <button
+          onClick={handleGoToPage}
+          className="btn btn-ghost">
+          ...
+        </button>
+      )} */}
+
+      {/* Next Page Button */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
-        disabled={currentPage === totalPages}
-        className="btn">
+        disabled={currentPage === totalPages || totalPages === 0}
+        className="btn btn-outline btn-secondary">
         Next
+      </button>
+      <button
+        onClick={() => onPageChange(totalPages)}
+        disabled={currentPage === totalPages || totalPages === 0}
+        className="btn btn-outline btn-secondary"
+        aria-label="Go to last page">
+        {">>"}
       </button>
     </div>
   );

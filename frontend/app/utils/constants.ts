@@ -5,9 +5,6 @@
 
 export const OLT_OPTIONS = [
     'GRT',
-    'CJT',
-    'CBN',
-    'SKN',
-    'MNT',
-    'KNI'
+    'CLW',
+    'BYB'
 ];

@@ -24,7 +24,7 @@ const UtilBar = ({
         {/* Search Input */}
         <label
           htmlFor="search"
-          className="input relative bg-none max-sm:w-full">
+          className="input relative bg-none max-sm:w-full overflow-hidden">
           <span>
             <MagnifyingGlassIcon className="w-5 h-5 text-gray-500 mr-2" />
           </span>
@@ -41,7 +41,7 @@ const UtilBar = ({
           <button
             type="button"
             onClick={onSearchSubmit}
-            className="hover:cursor-pointer bg-base-300 p-2 rounded-lg absolute right-0">
+            className="btn btn-ghost hover:cursor-pointer bg-base-300 p-2 rounded-lg absolute right-0">
             Search
           </button>
         </label>
@@ -54,14 +54,14 @@ const UtilBar = ({
           Export
         </button> */}
 
-        <button type="button" onClick={onOpenFilters} className="btn btn-secondary">
+        <button type="button" onClick={onOpenFilters} className="btn btn-secondary btn-outline">
           <AdjustmentsHorizontalIcon width={20} height={20} />
           Filter
         </button>
         <button
           type="button"
           onClick={onAdd}
-          className="btn btn-primary btn-soft">
+          className="btn btn-primary btn-outline">
           <PlusIcon
             width={20}
             height={20}
