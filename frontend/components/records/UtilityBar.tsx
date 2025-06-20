@@ -1,6 +1,6 @@
 "use client";
-import { BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
-import React, { useEffect, useState } from "react";
+import { AdjustmentsHorizontalIcon, BookOpenIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
+import React from "react";
 import { useLogProductSearchLogic } from "../../app/hooks/useLogProductSearchLogic";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -75,7 +75,10 @@ const UtilityBar = () => {
           type="button"
           onClick={() => setIsFilterOpen(true)}
           className="btn btn- btn-soft">
-          <FunnelIcon className="w-5 h-5 mr-2" />
+          <AdjustmentsHorizontalIcon
+            width={20}
+            height={20}
+          />
           Filter
         </button>
         <button

@@ -47,26 +47,29 @@ export interface Item {
 export interface Customers {
   id: string;
   name: string;
+  address: string;
   no_telepon: string;
-  address?: string;
-  sn?: string;
-  olt?: string | null;
-  odp?: string | null;
-  port_odp?: string | null;
-  paket?: Paket;
-  mitra?: Mitra;
+  sn: string;
+  olt: string;
+  odp: string;
+  port_odp: string;
+  last_edited: string;
+  id_paket?: number | null;
+  id_mitra?: number | null;
+  paket?: Paket | null;
+  mitra?: Mitra | null;
 }
 
 export interface Paket {
-  id_paket?: number | null;
-  nama_paket?: string | null;
+  id_paket: number | null;
+  nama_paket: string | null;
   kecepatan_paket?: string | null;
   harga_paket?: number | null;
   comment_paket?: string | null;
 }
 
 export interface Mitra {
-  id_mitra?: number;
-  nama_mitra?: string;
+  id_mitra: number;
+  nama_mitra: string;
   comment_mitra?: string;
 }

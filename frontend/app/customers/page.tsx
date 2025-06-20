@@ -12,6 +12,7 @@ import UtilBar from "components/customers/UtilBar";
 import { Customers } from "types";
 import CustomerFormModal from "components/customers/CustomerFormModal";
 import Pagination from "components/customers/Pagination";
+import { fetchMitra, fetchPaket } from "store/filterCustomerSlice";
 
 const CustomerPage = () => {
   const dispatch = useAppDispatch();
@@ -22,19 +23,55 @@ const CustomerPage = () => {
   const limit = 20;
   const totalPages = Math.ceil(totalCustomers / limit);
   const [originalIdForEdit, setOriginalIdForEdit] = useState<number | null>(null);
+  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
-  const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
+  const filtersStatus = useAppSelector((state) => state.filterCustomers.status);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [activeFilters, setActiveFilters] = useState({
+    sortBy: "last_edited",
+    sortOrder: "DESC",
+    olt: "",
+    odp: "",
+    id_paket: "",
+    id_mitra: "",
+  });
 
   useEffect(() => {
     if (status === "idle") dispatch(fetchCustomers({ page: 1, limit }));
   }, [dispatch, status, limit]);
 
+  // const handlePageChange = (page: number) => {
+  //   if (page > 0 && page <= totalPages) {
+  //     dispatch(fetchCustomers({ page, limit }));
+  //   }
+  // };
+
+  const handleFetch = (page: number, currentSearch = searchTerm, currentFilters = activeFilters) => {
+    dispatch(fetchCustomers({ page, limit, search: currentSearch, filterCustomers: currentFilters }));
+  };
+
   const handlePageChange = (page: number) => {
-    if (page > 0 && page <= totalPages) {
-      dispatch(fetchCustomers({ page, limit }));
+    handleFetch(page);
+  };
+
+  const handleSearch = () => {
+    handleFetch(1);
+  };
+
+  const handleApplyFilters = () => {
+    handleFetch(1);
+    setIsFilterModalOpen(false);
+  };
+
+  const handleOpenFilters = () => {
+    // Fetch filter data if it hasn't been fetched yet
+    if (filtersStatus === "idle") {
+      dispatch(fetchPaket());
+      dispatch(fetchMitra());
     }
+    setIsFilterModalOpen(true);
   };
 
   const handleOpenModal = (customer: Customers | null) => {
@@ -88,10 +125,6 @@ const CustomerPage = () => {
     setCustomerToDelete(null);
   };
 
-  const handleSearch = () => {
-    dispatch(fetchCustomers({ page: 1, limit, search: searchTerm }));
-  };
-
   return (
     <>
       <Header />
@@ -102,6 +135,7 @@ const CustomerPage = () => {
         <h1 className="text-3xl font-bold mb-8">List Pelanggan</h1>
         <UtilBar
           onAdd={() => handleOpenModal(null)}
+          onOpenFilters={handleOpenFilters}
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           onSearchSubmit={handleSearch}
