@@ -1,6 +1,8 @@
 "use client";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import React from "react";
+import { formatCurrency } from "app/utils/priceFormat";
+import React, { useEffect } from "react";
+import { fetchMitra, fetchPaket } from "store/filterCustomerSlice";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { Customers } from "types";
 
@@ -20,11 +22,18 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
   setCustomerData,
 }) => {
   const dispatch = useAppDispatch();
+  const { pakets, mitras } = useAppSelector((state) => state.filterCustomers);
 
-  // const { pakets, mitras, status } = useAppSelector((state) => state.);
+  useEffect(() => {
+    if (isOpen) {
+      dispatch(fetchPaket());
+      dispatch(fetchMitra());
+    }
+  }, [isOpen, dispatch]);
+
   if (!isOpen) return null;
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setCustomerData((prev) => ({ ...prev, [name]: value }));
   };
@@ -147,6 +156,24 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 className="input"
               />
               <p className="label">Opsional</p>
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">Paket</legend>
+              <select
+                name="id_paket"
+                value={customerData?.id_paket || ""}
+                onChange={handleChange}
+                className="select select-bordered w-full">
+                <option value="">Pilih Paket</option>
+                {pakets.map((paket) => (
+                  <option
+                    key={paket.id_paket}
+                    value={paket.id_paket}>
+                    {paket.nama_paket} {formatCurrency(paket.harga_paket)} ({paket.kecepatan_paket})
+                  </option>
+                ))}
+              </select>
             </fieldset>
           </div>
 

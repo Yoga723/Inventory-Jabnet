@@ -6,7 +6,7 @@ import { Mitra, Paket } from "types";
 
 // Base URLs for the new endpoints
 const API_PAKET_URL = "https://inventory.jabnet.id/api/paket";
-const API_MITRA_URL = "https://inventory.jabnet.id/api/mitras";
+const API_MITRA_URL = "https://inventory.jabnet.id/api/mitra";
 
 interface FiltersState {
   pakets: Paket[];
