@@ -6,6 +6,8 @@ const { authenticateMiddleware, authorize } = require("../middleware/auth");
 
 const router = express.Router();
 
+const isProduction = process.env.NODE_ENV === "production";
+
 // POST /api/user/login
 router.post("/login", async (req, res) => {
   try {
@@ -40,12 +42,14 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
     // 4) Set HTTP-only cookie
+
     const cookieOptions = {
       httpOnly: true,
       path: "/",
-      secure: true,
-      sameSite: "none",
-      partitioned: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      // Partitioned is only needed when SameSite=None
+      partitioned: isProduction,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
     };
 
@@ -74,9 +78,9 @@ router.post("/logout", (req, res) => {
   const cookieOptions = {
     httpOnly: true,
     path: "/",
-    secure: true,
-    sameSite: "none",
-    partitioned: true,
+    secure: isProduction,
+    sameSite: isProduction ? "none" : "lax",
+    partitioned: isProduction,
   };
 
   return (

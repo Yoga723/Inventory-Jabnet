@@ -22,6 +22,8 @@ app.use(
       "http://inventory.jabnet.id",
       "https://inventory.jabnet.id",
       "https://103.194.47.162",
+      "https://103.194.47.162:3000",
+      "http://103.194.47.162:3000",
       "http://172.16.86.29",
       "https://172.16.86.29",
       "172.16.86.29",
@@ -38,24 +40,36 @@ app.use(cookieParser());
 
 // INJECT DATABASE KE ROUTE
 app.use("/api/records", (req, res, next) => {
-  req.db = pgPool;            // inventory (Postgres)
+  req.db = pgPool; // inventory (Postgres)
   next();
 });
 
 // INJECT DATABASE KE ROUTE
 app.use("/api/products", (req, res, next) => {
-  req.db = pgPool;            // inventory (Postgres)
+  req.db = pgPool; // inventory (Postgres)
   next();
 });
 
 // INJECT DATABASE KE ROUTE
 app.use("/api/user", (req, res, next) => {
-  req.db = pgPool;            // inventory (Postgres)
+  req.db = pgPool; // inventory (Postgres)
   next();
 });
 
 // INJECT DATABASE KE ROUTE
 app.use("/api/customers", (req, res, next) => {
+  req.dbPelanggan = mariaPool; // pelanggan (MariaDB)
+  next();
+});
+
+// INJECT DATABASE KE ROUTE
+app.use("/api/paket", (req, res, next) => {
+  req.dbPelanggan = mariaPool; // pelanggan (MariaDB)
+  next();
+});
+
+// INJECT DATABASE KE ROUTE
+app.use("/api/mitra", (req, res, next) => {
   req.dbPelanggan = mariaPool; // pelanggan (MariaDB)
   next();
 });
