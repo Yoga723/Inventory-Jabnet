@@ -44,8 +44,6 @@ export const fetchCustomers = createAsyncThunk(
     params.append("limit", limit.toString());
     if (search && search.trim() != "") params.append("search", search);
 
-    console.log(`THIS IS SEARCH PARAMS : ${API_BASE_URL}?${params.toString()}`);
-
     Object.entries(filterCustomers).forEach(([key, value]) => {
       if (value) {
         params.append(key, value);
@@ -63,7 +61,6 @@ export const fetchCustomers = createAsyncThunk(
       }
       const data = await response.json();
 
-      console.log("THIS IS DATA FETCHED", data);
       return data;
     } catch (error: any) {
       return rejectWithValue(error.message);

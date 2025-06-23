@@ -14,9 +14,9 @@ import Pagination from "components/customers/Pagination";
 import { fetchMitra, fetchPaket } from "store/filterCustomerSlice";
 import FilterModal from "components/customers/CustomerFilterModal";
 
-const CustomerPage = () => {
+const LogCustomerPage = () => {
   const dispatch = useAppDispatch();
-  const { customers, status, hasMore, error, totalCustomers, currentPage } = useAppSelector((state) => state.customers);
+  const { status, totalCustomers, currentPage } = useAppSelector((state) => state.customers);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [customerData, setCustomerData] = useState<Partial<Customers> | null>(null);
@@ -183,4 +183,4 @@ const CustomerPage = () => {
   );
 };
 
-export default CustomerPage;
+export default LogCustomerPage;

@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { logoutAction } from "app/actions/authUser";
 import HomeIcon from "@mui/icons-material/Home";
 import StorageIcon from "@mui/icons-material/Storage";
+import SettingsIcon from "@mui/icons-material/Settings";
 import GroupIcon from "@mui/icons-material/Group";
 import MenuIcon from "@mui/icons-material/Menu";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -45,9 +46,21 @@ const navButton = [
   {
     title: "Customers",
     icon: <GroupIcon className="text-accent" />,
-    destination: "/customers",
     allowedRoles: [],
-    childLink: null,
+    childLink: [
+      {
+        title: "Log Customers",
+        icon: <GroupIcon className="text-accent" />,
+        destination: "/customers/log-customer",
+        allowedRoles: [],
+      },
+      {
+        title: "Setting Customers",
+        icon: <SettingsIcon className="text-accent" />,
+        destination: "/customers/setting-customer",
+        allowedRoles: ["super_admin", "admin", "operator"],
+      },
+    ],
   },
 ];
 

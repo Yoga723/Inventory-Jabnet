@@ -57,13 +57,10 @@ const useLogProductsLogic = () => {
     if (payload.kategori_id) {
       const fetchItems = async () => {
         try {
-          const response = await fetch(
-            `https://inventory.jabnet.id/api/products?kategori_id=${payload.kategori_id}`,
-            {
-              method: "GET",
-              credentials: "include",
-            }
-          );
+          const response = await fetch(`https://inventory.jabnet.id/api/products?kategori_id=${payload.kategori_id}`, {
+            method: "GET",
+            credentials: "include",
+          });
           const data = await response.json();
           setItemListOptions(data);
         } catch (error) {
@@ -93,10 +90,15 @@ const useLogProductsLogic = () => {
   const createProductLog = useCallback(async () => {
     if (!validatePayload()) return;
 
+    const selectedCategory = categories.find((cat) => cat.kategori_id === payload.kategori_id);
+    if (!selectedCategory) {
+      console.error("Selected category not found for ID:", payload.kategori_id);
+      return;
+    }
     const dataToSend = {
       ...payload,
       nama: full_name,
-      kategori: categories[payload.kategori_id].nama_kategori,
+      kategori: selectedCategory.nama_kategori,
       item_list: JSON.stringify(payload.item_list),
     } satisfies Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
       item_list: string;
@@ -108,7 +110,7 @@ const useLogProductsLogic = () => {
       const dismissModal = document.getElementById("dismiss-product-log-modal");
       if (dismissModal) (dismissModal as HTMLElement).click();
     }
-  }, [dispatch, payload, full_name]);
+  }, [dispatch, payload, full_name, categories]);
 
   const putProductLog = useCallback(
     async (recordId: number) => {
@@ -159,8 +161,7 @@ const useLogProductsLogic = () => {
   const validatePayload = () => {
     const hasErrorNama = !full_name.trim();
     const hasErrorLokasi = !payload.lokasi.trim();
-    const hasErrorListBarang =
-      !payload.item_list.length || payload.item_list.some((item) => !item.item_name.trim());
+    const hasErrorListBarang = !payload.item_list.length || payload.item_list.some((item) => !item.item_name.trim());
     const hasErrorKategori = payload.kategori_id == null;
 
     const newErrors = {

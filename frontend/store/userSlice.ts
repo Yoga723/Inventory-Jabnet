@@ -22,17 +22,17 @@ const userSlice = createSlice({
       state.role = action.payload.role;
       state.token = action.payload.token; // Store token
       state.status = "succeeded";
-      if (action.payload.token) {
-        setLocalStorageItem(StorageKeys.AUTH_TOKEN, action.payload.token);
-      }
+      if (action.payload.token) setLocalStorageItem(StorageKeys.AUTH_TOKEN, action.payload.token);
     },
     logout(state) {
       removeLocalStorageItem(StorageKeys.AUTH_TOKEN);
+      localStorage.removeItem("persist:root");
       Object.assign(state, initialState, { status: "idle" });
     },
     clearUser(state) {
-      Object.assign(state, initialState);
       removeLocalStorageItem(StorageKeys.AUTH_TOKEN);
+      localStorage.removeItem("persist:root");
+      Object.assign(state, initialState);
       return state;
     },
   },
