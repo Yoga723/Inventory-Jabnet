@@ -2,7 +2,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { authenticateMiddleware, authorize } = require("../middleware/auth");
+const { authenticateMiddleware, authorize } = require("../../middleware/auth");
 
 const router = express.Router();
 
@@ -17,8 +17,6 @@ const logAuthenticationEvent = (req, eventType, details = {}) => {
     ip: req.ip,
     ...details,
   };
-
-  console.log("AUTH_EVENT:", JSON.stringify(logEntry));
 
   // In production, consider sending to a monitoring service
   if (process.env.NODE_ENV === "production") {
@@ -78,33 +76,17 @@ router.post("/login", async (req, res) => {
     if (!process.env.JWT_SECRET) throw new Error("Missing JWT in .env!!!");
     const { username, password } = req.body;
     // 1) Look up user
-    const { rows } = await req.db.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
+    const { rows } = await req.db.query("SELECT * FROM users WHERE username = $1", [username]);
     const user = rows[0];
 
-    if (!user)
-      return res
-        .status(401)
-        .json({ error: "Incorrect username or password", status: 401 });
+    if (!user) return res.status(401).json({ error: "Incorrect username or password", status: 401 });
 
     // 2) Validate password
-    const isPasswordCorrect = await bcrypt.compare(
-      password,
-      user.password_hash
-    );
-    if (!isPasswordCorrect)
-      return res
-        .status(401)
-        .json({ error: "Incorrect username or password", status: 401 });
+    const isPasswordCorrect = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordCorrect) return res.status(401).json({ error: "Incorrect username or password", status: 401 });
 
     // 3) Sign JWT
-    const token = jwt.sign(
-      { user_id: user.user_id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "7d" }
-    );
+    const token = jwt.sign({ user_id: user.user_id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "7d" });
     // 4) Set HTTP-only cookie
 
     const cookieOptions = getCookieOptions(req);
@@ -142,22 +124,16 @@ router.post("/login", async (req, res) => {
 router.post("/logout", (req, res) => {
   const cookieOptions = getCookieOptions(req);
 
-  return res
-    .clearCookie("auth_token", cookieOptions)
-    .status(200)
-    .json({ status: "success", message: "Logged out" });
+  return res.clearCookie("auth_token", cookieOptions).status(200).json({ status: "success", message: "Logged out" });
 });
 
 router.get("/me", authenticateMiddleware, async (req, res) => {
   try {
-    const { rows } = await req.db.query(
-      "SELECT user_id, username, full_name, role FROM users WHERE user_id = $1",
-      [req.user.user_id]
-    );
+    const { rows } = await req.db.query("SELECT user_id, username, full_name, role FROM users WHERE user_id = $1", [
+      req.user.user_id,
+    ]);
 
-    if (!rows.length) {
-      return res.status(404).json({ error: "User not found" });
-    }
+    if (!rows.length) return res.status(404).json({ error: "User not found" });
 
     res.json({ status: "success", data: rows[0] });
   } catch (error) {
@@ -166,11 +142,6 @@ router.get("/me", authenticateMiddleware, async (req, res) => {
   }
 });
 
-router.get(
-  "/settings",
-  authenticateMiddleware,
-  authorize(["admin", "super_admin"]),
-  async (req, res) => {}
-);
+router.get("/settings", authenticateMiddleware, authorize(["admin", "super_admin"]), async (req, res) => {});
 
 module.exports = router;

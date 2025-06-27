@@ -91,7 +91,7 @@ export const createCustomer = createAsyncThunk(
 
 export const updateCustomer = createAsyncThunk(
   "customers/updateCustomer",
-  async ({ originalId, customerData }: { originalId: number; customerData: Customers }, { rejectWithValue }) => {
+  async ({ originalId, customerData }: { originalId: string; customerData: Customers }, { rejectWithValue }) => {
     try {
       const response = await fetch(`${API_BASE_URL}/${originalId}`, {
         method: "PUT",

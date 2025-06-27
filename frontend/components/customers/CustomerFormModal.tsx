@@ -44,7 +44,9 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
       className="modal modal-open">
       <aside className="modal-box max-sm:h-[90%] h-fit ">
         <div className="flex w-full justify-between">
-          <h3 className="font-bold text-lg">{customerData?.id ? "Edit Customer" : "Add Customer"}</h3>
+          <h3 className="font-bold text-lg">
+            {customerData?.id ? `Edit Customer ${customerData.id}` : "Add Customer"}
+          </h3>
           <button
             type="button"
             onClick={onClose}

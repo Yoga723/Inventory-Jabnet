@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 // Middleware jang verifikasi JWT jeng set req.user
 const authenticateMiddleware = (req, res, next) => {
   const token = req.cookies.auth_token;
-  if (!token) return res.status(401).json({ error: "Not Authenticated" });
+  if (!token) {
+    return res.status(401).json({ error: "Not Authenticated" });
+  }
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
@@ -13,6 +15,17 @@ const authenticateMiddleware = (req, res, next) => {
     next();
   } catch (error) {
     return res.status(401).json({ error: "Tokenna invalid, coba login dei" });
+  }
+};
+
+const isAdminOrSuperAdmin = (req, res, next) => {
+  if (
+    req.user &&
+    (req.user.role === "admin" || req.user.role === "super_admin")
+  ) {
+    next();
+  } else {
+    res.status(403).json({ message: "Forbidden: Access is denied." });
   }
 };
 
@@ -30,11 +43,15 @@ const authorize = (allowedRoles = []) => {
 
     // Check rolena aya atau hente
     if (!roleHierarchy[req.user.role]) {
-      console.log("Rolena eweh ie mah ceng, cek dei di database inventory_system");
+      console.log(
+        "Rolena eweh ie mah ceng, cek dei di database inventory_system"
+      );
       return res.status(403).json({ error: "Invalid user role" });
     }
 
-    const hasAccess = allowedRoles.some((role) => roleHierarchy[req.user.role] >= roleHierarchy[role]);
+    const hasAccess = allowedRoles.some(
+      (role) => roleHierarchy[req.user.role] >= roleHierarchy[role]
+    );
 
     if (!hasAccess) {
       console.log(`Access denied for ${req.user.role} to ${req.path}`);
@@ -45,4 +62,4 @@ const authorize = (allowedRoles = []) => {
   };
 };
 
-module.exports = { authenticateMiddleware, authorize };
+module.exports = { isAdminOrSuperAdmin, authenticateMiddleware, authorize };

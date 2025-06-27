@@ -1,7 +1,7 @@
 // ROUTER UNTUK KATEGORI DAN PRODUCT
 // BASE PATH /api/products
 const router = require("express").Router();
-const { authenticateMiddleware, authorize } = require("../middleware/auth");
+const { authenticateMiddleware, authorize } = require("../../middleware/auth");
 
 router.use(authenticateMiddleware);
 // ===============================================================

@@ -6,7 +6,7 @@ const upload = multer();
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
-const { authenticateMiddleware, authorize } = require("../middleware/auth");
+const { authenticateMiddleware, authorize } = require("../../middleware/auth");
 const { json } = require("body-parser");
 
 router.use(authenticateMiddleware);

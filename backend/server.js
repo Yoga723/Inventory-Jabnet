@@ -16,6 +16,7 @@ const port = process.env.PORT || 4000;
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
       const allowedOrigins = [

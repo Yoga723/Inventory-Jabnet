@@ -22,7 +22,7 @@ const LogCustomerPage = () => {
   const [customerData, setCustomerData] = useState<Partial<Customers> | null>(null);
   const limit = 20;
   const totalPages = Math.ceil(totalCustomers / limit);
-  const [originalIdForEdit, setOriginalIdForEdit] = useState<number | null>(null);
+  const [originalIdForEdit, setOriginalIdForEdit] = useState<string | null>(null);
   const [customerToDelete, setCustomerToDelete] = useState<string | null>(null);
 
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -69,7 +69,7 @@ const LogCustomerPage = () => {
 
   const handleOpenModal = (customer: Customers | null) => {
     setCustomerData(customer);
-    setOriginalIdForEdit(customer ? parseInt(customer.id) : null);
+    setOriginalIdForEdit(customer ? customer.id : null);
     setIsModalOpen(true);
   };
 

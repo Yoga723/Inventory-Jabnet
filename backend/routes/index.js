@@ -1,11 +1,11 @@
 // backend/routes/index.js
 const express = require("express");
-const authRoutes = require("./authRoutes");
-const recordRoutes = require("./recordRoutes");
-const customersRoute = require("./customerRoutes");
-const productsRoute = require("./productRoutes");
-const paketRoute = require("./paketRoutes");
-const mitraRoute = require("./mitraRoutes");
+const authRoutes = require("./user/authRoutes");
+const recordRoutes = require("./inventory/recordRoutes");
+const productsRoute = require("./inventory/productRoutes");
+const customersRoute = require("./customers/customerRoutes");
+const paketRoute = require("./customers/paketRoutes");
+const mitraRoute = require("./customers/mitraRoutes");
 
 const router = express.Router();
 router.use("/user", authRoutes); // jadi /api/user/…
