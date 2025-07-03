@@ -1,7 +1,7 @@
 "use client";
 import { createContext, useContext, useState, ReactNode } from "react";
 import { useAppDispatch } from "store/Hooks";
-import { clearCurrentItem } from "store/logProductsSlice";
+import { clearCurrentItem } from "store/inventory/logProductsSlice";
 
 interface ProductsContextType {
   currentRecordId: number | null;

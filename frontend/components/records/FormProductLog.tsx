@@ -5,7 +5,7 @@ import Loading from "../Loading";
 import { useAppSelector } from "store/Hooks";
 import AlertModal from "components/modals/AlertModal";
 import { XMarkIcon } from "@heroicons/react/24/solid";
-import useLogProductsLogic from "app/hooks/useLogProductsLogic";
+import useLogProductsLogic from "app/hooks/inventory/useLogProductsLogic";
 
 const FormProductLog = () => {
   const {

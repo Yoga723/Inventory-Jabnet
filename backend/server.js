@@ -95,7 +95,7 @@ app.use("/api/mitra", (req, res, next) => {
 });
 
 // 4) Routes
-app.use("/api", apiRouter);
+app.use("/backend/api", apiRouter);
 
 // 5) Start server
 app.listen(port, () => {

@@ -1,7 +1,7 @@
 "use client";
 import { AdjustmentsHorizontalIcon, BookOpenIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
 import React from "react";
-import { useLogProductSearchLogic } from "../../app/hooks/useLogProductSearchLogic";
+import { useLogProductSearchLogic } from "../../app/hooks/inventory/useLogProductSearchLogic";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useProductsContext } from "context/products/ProductsContext";

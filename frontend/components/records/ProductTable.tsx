@@ -7,7 +7,7 @@ import { InformationCircleIcon, PencilIcon, PlusIcon, TrashIcon } from "@heroico
 import AlertModal from "../modals/AlertModal";
 import { useProductsContext } from "../../context/products/ProductsContext";
 import Link from "next/link";
-import useLogProductsLogic from "app/hooks/useLogProductsLogic";
+import useLogProductsLogic from "app/hooks/inventory/useLogProductsLogic";
 import FormProductLog from "./FormProductLog";
 
 const ProductTable = () => {

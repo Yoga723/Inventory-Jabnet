@@ -310,9 +310,7 @@ router.get("/", async (req, res) => {
       `);
     }
 
-    if (conditions.length) {
-      baseQuery += " WHERE " + conditions.join(" AND ");
-    }
+    if (conditions.length) baseQuery += " WHERE " + conditions.join(" AND ");
 
     baseQuery += " ORDER BY c.tanggal DESC";
 

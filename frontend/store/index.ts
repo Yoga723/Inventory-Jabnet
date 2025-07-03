@@ -1,10 +1,11 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
-import productslogReducer from "./logProductsSlice";
 import userReducer from "./userSlice";
 import themeReducer from "./themeSlice";
-import inventoryReducer from "./inventorySlice";
-import customersReducer from "./customersSlice";
-import filterCustomerSlice from "./filterCustomerSlice";
+import productslogReducer from "./inventory/logProductsSlice";
+import inventoryReducer from "./inventory/inventorySlice";
+import customersReducer from "./customers/customersSlice";
+import customerPaketSlice from "./customers/paketSlice";
+import filterCustomerSlice from "./customers/filterCustomerSlice";
 import { persistReducer, persistStore, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
   inventory: inventoryReducer,
   customers: customersReducer,
   filterCustomers: filterCustomerSlice,
+  customerPaket: customerPaketSlice,
 });
 
 // 2. Buat konfigurasi persist hanya untuk slice 'user'

@@ -19,7 +19,6 @@ const UtilBar = ({
   };
   return (
     <>
-      {" "}
       <section className="flex flex-wrap gap-3 my-5 justify-start items-center max-sm:justify-around w-full">
         {/* Search Input */}
         <label

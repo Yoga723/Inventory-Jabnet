@@ -12,14 +12,15 @@ const cookieOptions = {
 
 export async function loginAction(username: string, password: string) {
   try {
-    const response = await fetch("https://inventory.jabnet.id/api/user/login", {
+    const response = await fetch("http://inventory.jabnet.id/backend/api/user/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password }),
     });
-
+      console.log("THIS IS TOKEN :", response);
     if (!response.ok) {
       const error = await response.json();
+      console.log("THIS IS TOKEN :", error);
       return { error: error.error || "Login failed" };
     }
 

@@ -4,15 +4,15 @@ import React, { useEffect, useState } from "react";
 import Header from "components/Header";
 import Loading from "components/Loading";
 import AlertModal from "components/modals/AlertModal";
-import CustomerTable from "components/customers/CustomerTable";
+import CustomerTable from "components/customers/customer/CustomerTable";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
-import { createCustomer, deleteCustomer, fetchCustomers, updateCustomer } from "store/customersSlice";
+import { createCustomer, deleteCustomer, fetchCustomers, updateCustomer } from "store/customers/customersSlice";
 import UtilBar from "components/customers/UtilBar";
 import { Customers } from "types";
-import CustomerFormModal from "components/customers/CustomerFormModal";
-import Pagination from "components/customers/Pagination";
-import { fetchMitra, fetchPaket } from "store/filterCustomerSlice";
-import FilterModal from "components/customers/CustomerFilterModal";
+import CustomerFormModal from "components/customers/customer/CustomerFormModal";
+import Pagination from "components/Pagination";
+import { fetchMitra, fetchPaket } from "store/customers/filterCustomerSlice";
+import FilterModal from "components/customers/customer/CustomerFilterModal";
 
 const LogCustomerPage = () => {
   const dispatch = useAppDispatch();

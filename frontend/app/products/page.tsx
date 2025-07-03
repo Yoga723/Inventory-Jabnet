@@ -4,7 +4,7 @@ import Header from "components/Header";
 import { PlusIcon } from "@heroicons/react/24/solid";
 import Loading from "components/Loading";
 import AlertModal from "components/modals/AlertModal";
-import useProductsLogic from "app/hooks/useProductsLogic";
+import useProductsLogic from "app/hooks/inventory/useProductsLogic";
 import ProductsForm from "components/products/ProductsFormModal";
 import ProductsTable from "components/products/ItemTable";
 import CategoryTable from "components/products/CategoryTable";
