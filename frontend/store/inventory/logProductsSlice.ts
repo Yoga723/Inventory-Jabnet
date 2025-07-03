@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "app/utils/apiConfig";
 import { productsProp } from "types";
-const API_BASE_URL = "https://inventory.jabnet.id/api/records";
 
 interface FieldUpdate {
   field: keyof productsProp;
@@ -37,7 +37,7 @@ export const fetchLogProductsThunk = createAsyncThunk(
   "records/fetchLogProductsThunk",
   async (query: string = "", { rejectWithValue }) => {
     try {
-      const url = query && query.length > 2 ? `${API_BASE_URL}?${query}` : API_BASE_URL;
+      const url = query && query.length > 2 ? `${API_BASE_URL}/records?${query}` : `${API_BASE_URL}/records`;
       const response = await fetch(url.toString(), {
         method: "GET",
         credentials: "include",
@@ -45,6 +45,7 @@ export const fetchLogProductsThunk = createAsyncThunk(
       });
 
       const responseData = await response.json();
+      console.log("THIS IS LOG FETCH RESPONSE :", responseData)
 
       if (!response.ok) {
         window.location.href = "/login";
@@ -62,7 +63,7 @@ export const fetchLogProductsByIdThunk = createAsyncThunk(
   `records/fetchLogProductsByIdThunk`,
   async (record_id: number, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/${record_id}`, {
+      const res = await fetch(`${API_BASE_URL}/records/${record_id}`, {
         method: "GET",
         // headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -88,7 +89,7 @@ export const createLogProductsThunk = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      const res = await fetch(API_BASE_URL, {
+      const res = await fetch(`${API_BASE_URL}/records`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newRecordPayload),
@@ -121,7 +122,7 @@ export const putLogProductsThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/${recordId}`, {
+      const res = await fetch(`${API_BASE_URL}/records/${recordId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedRecordPayload),
@@ -142,7 +143,7 @@ export const deleteLogProductsThunk = createAsyncThunk(
   "records/deleteProductLog",
   async (record_id: number, { dispatch, rejectWithValue }) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/${record_id}`, {
+      const res = await fetch(`${API_BASE_URL}/records/${record_id}`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -36,20 +36,14 @@ app.use(
       ];
 
       // Allow any localhost origin in development
-      if (process.env.NODE_ENV !== "production" && origin.includes("localhost"))
-        return callback(null, true);
+      if (process.env.NODE_ENV !== "production" && origin.includes("localhost")) return callback(null, true);
 
       if (allowedOrigins.indexOf(origin) !== -1) callback(null, true);
       else callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "mode",
-      "X-Requested-With",
-    ],
+    allowedHeaders: ["Content-Type", "Authorization", "mode", "X-Requested-With"],
     exposedHeaders: ["Set-Cookie"],
     optionsSuccessStatus: 200, // Some legacy browsers choke on 204
   })
@@ -59,38 +53,16 @@ app.use(express.json()); // JSON body parser
 app.use(cookieParser());
 
 // INJECT DATABASE KE ROUTE
-app.use("/api/records", (req, res, next) => {
-  req.db = pgPool; // inventory (Postgres)
-  next();
-});
-
-// INJECT DATABASE KE ROUTE
-app.use("/api/products", (req, res, next) => {
-  req.db = pgPool; // inventory (Postgres)
-  next();
-});
-
-// INJECT DATABASE KE ROUTE
-app.use("/api/user", (req, res, next) => {
-  req.db = pgPool; // inventory (Postgres)
-  next();
-});
-
-// INJECT DATABASE KE ROUTE
-app.use("/api/customers", (req, res, next) => {
-  req.dbPelanggan = mariaPool; // pelanggan (MariaDB)
-  next();
-});
-
-// INJECT DATABASE KE ROUTE
-app.use("/api/paket", (req, res, next) => {
-  req.dbPelanggan = mariaPool; // pelanggan (MariaDB)
-  next();
-});
-
-// INJECT DATABASE KE ROUTE
-app.use("/api/mitra", (req, res, next) => {
-  req.dbPelanggan = mariaPool; // pelanggan (MariaDB)
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/records") || req.path.startsWith("/api/products") || req.path.startsWith("/api/user"))
+    req.db = pgPool;
+  else if (
+    req.path.startsWith("/api/customers") ||
+    req.path.startsWith("/api/paket") ||
+    req.path.startsWith("/api/mitra")
+  ) {
+    req.dbPelanggan = mariaPool;
+  }
   next();
 });
 

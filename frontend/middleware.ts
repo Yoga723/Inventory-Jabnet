@@ -1,4 +1,4 @@
-// middleware.ts
+// frontend/middleware.ts
 import { NextResponse, NextRequest } from "next/server";
 
 const protectedRoutes = ["/products", "/products/(.*)"];

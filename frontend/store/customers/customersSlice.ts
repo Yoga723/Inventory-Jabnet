@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "app/utils/apiConfig";
 import { Customers } from "types";
-const API_BASE_URL = "https://inventory.jabnet.id/api/customers";
 
 interface CustomerFilters {
   sortBy?: string;
@@ -51,7 +51,7 @@ export const fetchCustomers = createAsyncThunk(
     });
 
     try {
-      const response = await fetch(`${API_BASE_URL}?${params.toString()}`, {
+      const response = await fetch(`${API_BASE_URL}/customers?${params.toString()}`, {
         method: "GET",
         credentials: "include",
       });
@@ -72,7 +72,7 @@ export const createCustomer = createAsyncThunk(
   "customers/createCustomer",
   async (customer: Customers, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetch(`${API_BASE_URL}/customers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(customer),
@@ -93,7 +93,7 @@ export const updateCustomer = createAsyncThunk(
   "customers/updateCustomer",
   async ({ originalId, customerData }: { originalId: string; customerData: Customers }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/${originalId}`, {
+      const response = await fetch(`${API_BASE_URL}/customers/${originalId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(customerData),
@@ -114,7 +114,7 @@ export const deleteCustomer = createAsyncThunk(
   "customers/deleteCustomer",
   async (customerId: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/${customerId}`, {
+      const response = await fetch(`${API_BASE_URL}/customers/${customerId}`, {
         method: "DELETE",
         credentials: "include",
       });

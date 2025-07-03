@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "app/utils/apiConfig";
 import { Paket } from "types";
-const API_BASE_URL = "https://inventory.jabnet.id/api/paket";
 
 interface PaketState {
   paket: Paket[];
@@ -16,7 +16,8 @@ const initialState: PaketState = {
 
 export const fetchPakets = createAsyncThunk("paket/fetchPakets", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}`, {
+    console.log("Trying to get a customers data");
+    const response = await fetch(`${API_BASE_URL}/paket`, {
       method: "GET",
       credentials: "include",
     });
@@ -25,6 +26,7 @@ export const fetchPakets = createAsyncThunk("paket/fetchPakets", async (_, { rej
       return rejectWithValue(errorData.error || "Failed to fetch paket");
     }
     const data = await response.json();
+    console.log("THIS IS PAKET RESPONSE", data);
     return data;
   } catch (error) {
     return rejectWithValue(error.message);
@@ -35,7 +37,7 @@ export const createPaket = createAsyncThunk(
   "paket/createPaket",
   async (paket: Omit<Paket, "id_paket">, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetch(`${API_BASE_URL}/paket`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paket),
@@ -54,7 +56,7 @@ export const updatePaket = createAsyncThunk(
   "paket/updatePaket",
   async ({ id, paket }: { id: number; paket: Omit<Paket, "id_paket"> }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/paket/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(paket),
@@ -71,7 +73,7 @@ export const updatePaket = createAsyncThunk(
 
 export const deletePaket = createAsyncThunk("paket/deletePaket", async (id: number, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/paket/${id}`, {
       method: "DELETE",
       credentials: "include",
     });

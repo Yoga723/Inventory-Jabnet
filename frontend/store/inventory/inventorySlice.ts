@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "app/utils/apiConfig";
 import { getLocalStorageItem, StorageKeys } from "app/utils/localStorage";
 import { Item, Kategori } from "types";
-const API_BASE_URL = "https://inventory.jabnet.id/api/products";
 
 interface InventoryState {
   categories: Kategori[];
@@ -23,7 +23,7 @@ const initialState: InventoryState = {
 
 export const fetchCategories = createAsyncThunk("inventory/fetchCategories", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`https://inventory.jabnet.id/api/products/kategori`, {
+    const response = await fetch(`${API_BASE_URL}/products/kategori`, {
       method: "GET",
       credentials: "include",
     });
@@ -43,7 +43,7 @@ export const createCategory = createAsyncThunk(
   "inventory/createCategory",
   async (category: { nama_kategori: string }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/kategori`, {
+      const response = await fetch(`${API_BASE_URL}/products/kategori`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(category),
@@ -62,7 +62,7 @@ export const updateCategory = createAsyncThunk(
   "inventory/updateCategory",
   async ({ id, category }: { id: number; category: { nama_kategori: string } }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/kategori/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/products/kategori/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(category),
@@ -79,7 +79,7 @@ export const updateCategory = createAsyncThunk(
 
 export const deleteCategory = createAsyncThunk("inventory/deleteCategory", async (id: number, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/kategori/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/products/kategori/${id}`, {
       method: "DELETE",
       credentials: "include",
     });
@@ -96,7 +96,7 @@ export const deleteCategory = createAsyncThunk("inventory/deleteCategory", async
 
 export const fetchItem = createAsyncThunk("inventory/fetchItem", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}`, { method: "GET", credentials: "include" });
+    const response = await fetch(`${API_BASE_URL}/products`, { method: "GET", credentials: "include" });
 
     if (!response) throw new Error("Gagal fetch item");
 
@@ -119,7 +119,7 @@ export const createItem = createAsyncThunk(
   "inventory/createItem",
   async (item: { item_name: string; kategori_id: number }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}`, {
+      const response = await fetch(`${API_BASE_URL}/products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
@@ -143,7 +143,7 @@ export const updateItem = createAsyncThunk(
   "inventory/updateItem",
   async ({ id, item }: { id: number; item: { item_name: string; kategori_id: number } }, { rejectWithValue }) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/products/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(item),
@@ -161,7 +161,7 @@ export const updateItem = createAsyncThunk(
 
 export const deleteItem = createAsyncThunk("inventory/deleteItem", async (id: number, { rejectWithValue }) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/products/${id}`, {
       method: "DELETE",
       credentials: "include",
     });

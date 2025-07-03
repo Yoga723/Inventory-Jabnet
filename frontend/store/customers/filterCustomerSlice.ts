@@ -2,11 +2,8 @@
  * @description Redux slice to manage shared data for filtering, like pakets and mitras.
  */
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { API_BASE_URL } from "app/utils/apiConfig";
 import { Mitra, Paket } from "types";
-
-// Base URLs for the new endpoints
-const API_PAKET_URL = "https://inventory.jabnet.id/api/paket";
-const API_MITRA_URL = "https://inventory.jabnet.id/api/mitra";
 
 interface FiltersState {
   pakets: Paket[];
@@ -25,7 +22,7 @@ const initialState: FiltersState = {
 // Async thunk to fetch internet packages
 export const fetchPaket = createAsyncThunk("filterCustomer/fetchPaket", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(API_PAKET_URL, { credentials: "include" });
+    const response = await fetch(`${API_BASE_URL}/paket`, { credentials: "include" });
     if (!response.ok) {
       const errorData = await response.json();
       return rejectWithValue(errorData.error || "Failed to fetch packages");
@@ -39,7 +36,7 @@ export const fetchPaket = createAsyncThunk("filterCustomer/fetchPaket", async (_
 // Async thunk to fetch partners
 export const fetchMitra = createAsyncThunk("filterCustomer/fetchMitra", async (_, { rejectWithValue }) => {
   try {
-    const response = await fetch(API_MITRA_URL, { credentials: "include" });
+    const response = await fetch(`${API_BASE_URL}/mitra`, { credentials: "include" });
     if (!response.ok) {
       const errorData = await response.json();
       return rejectWithValue(errorData.error || "Failed to fetch partners");
