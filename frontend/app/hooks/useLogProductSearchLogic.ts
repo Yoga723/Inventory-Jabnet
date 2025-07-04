@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { addDays, formatISO, startOfDay, endOfDay } from "date-fns";
-import { fetchLogProductsThunk } from "../../store/logProductsSlice";
 import { useAppDispatch } from "../../store/Hooks";
+import { fetchLogProductsThunk } from "store/inventory/logProductsSlice";
+import { API_BASE_URL } from "app/utils/apiConfig";
 
 export const useLogProductSearchLogic = () => {
   const dispatch = useAppDispatch();
@@ -23,7 +24,7 @@ export const useLogProductSearchLogic = () => {
     if (!isFilterOpen) return;
     const fetchCategories = async () => {
       try {
-        const response = await fetch("https://inventory.jabnet.id/api/products/kategori", {
+        const response = await fetch(`${API_BASE_URL}/products/kategori`, {
           method: "GET",
           credentials: "include",
         });
@@ -90,7 +91,7 @@ export const useLogProductSearchLogic = () => {
     event.preventDefault();
     if (!confirm("Export data ?")) return;
     const query = buildQueryParams();
-    const url = `https://inventory.jabnet.id/api/records/export${query ? `?${query}` : ""}`;
+    const url = `${API_BASE_URL}/records/export${query ? `?${query}` : ""}`;
     window.open(url, "_blank");
   };
 

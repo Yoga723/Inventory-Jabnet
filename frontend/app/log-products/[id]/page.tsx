@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Header from "components/Header";
+import { API_BASE_URL } from "app/utils/apiConfig";
 // import HistoryItem from "@/app/components/records/HistoryItem";
 
 export default function RecordHistoryPage() {
@@ -14,7 +15,7 @@ export default function RecordHistoryPage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`https://inventory.jabnet.id/api/records/${id}/history`, {
+        const response = await fetch(`${API_BASE_URL}/records/${id}/history`, {
           method: "GET",
           credentials: "include",
         });

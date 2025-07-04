@@ -12,7 +12,7 @@ import {
   updateCategory,
   createCategory,
   deleteCategory,
-} from "store/inventorySlice";
+} from "store/inventory/inventorySlice";
 import { Item, Kategori } from "types";
 
 const useProductsLogic = () => {

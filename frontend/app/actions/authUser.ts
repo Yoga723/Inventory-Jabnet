@@ -6,6 +6,7 @@ import { cookies } from "next/headers";
 const cookieOptions = {
   httpOnly: true,
   path: "/",
+  // domain: "inventory.jabnet.id",
   secure: true,
   sameSite: "none" as const,
   partitioned: true,

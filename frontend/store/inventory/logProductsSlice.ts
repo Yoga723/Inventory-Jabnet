@@ -45,7 +45,6 @@ export const fetchLogProductsThunk = createAsyncThunk(
       });
 
       const responseData = await response.json();
-      console.log("THIS IS LOG FETCH RESPONSE :", responseData)
 
       if (!response.ok) {
         window.location.href = "/login";

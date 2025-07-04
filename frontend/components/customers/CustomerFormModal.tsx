@@ -2,7 +2,7 @@
 import { XMarkIcon } from "@heroicons/react/24/solid";
 import { formatCurrency } from "app/utils/priceFormat";
 import React, { useEffect } from "react";
-import { fetchMitra, fetchPaket } from "store/filterCustomerSlice";
+import { fetchMitra, fetchPaket } from "store/customers/filterCustomerSlice";
 import { useAppDispatch, useAppSelector } from "store/Hooks";
 import { Customers } from "types";
 

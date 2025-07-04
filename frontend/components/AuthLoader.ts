@@ -1,5 +1,6 @@
 "use client";
 
+import { API_BASE_URL } from "app/utils/apiConfig";
 import { useEffect } from "react";
 import { useAppDispatch } from "store/Hooks";
 import { setUser } from "store/userSlice";
@@ -10,7 +11,7 @@ export default function AuthLoader() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await fetch("https://inventory.jabnet.id/api/user/me", {
+        const response = await fetch(`${API_BASE_URL}/user/me`, {
           credentials: "include",
         });
         

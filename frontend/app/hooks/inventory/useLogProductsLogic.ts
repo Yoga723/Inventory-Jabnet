@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "../../../store/Hooks";
 import { ModalAction } from "components/modals/AlertModal";
 import { useProductsContext } from "context/products/ProductsContext";
 import { createLogProductsThunk, deleteLogProductsThunk, fetchLogProductsByIdThunk, fetchLogProductsThunk, putLogProductsThunk, updateCurrentItemField } from "store/inventory/logProductsSlice";
+import { API_BASE_URL } from "app/utils/apiConfig";
 
 const useLogProductsLogic = () => {
   const { isModalOpen, closeModal, currentRecordId } = useProductsContext();
@@ -31,7 +32,7 @@ const useLogProductsLogic = () => {
     if (!isModalOpen) return;
     const fetchCategories = async () => {
       try {
-        const response = await fetch("https://inventory.jabnet.id/api/products/kategori", {
+        const response = await fetch(`${API_BASE_URL}/products/kategori`, {
           method: "GET",
           credentials: "include",
         });
@@ -50,7 +51,7 @@ const useLogProductsLogic = () => {
     if (payload.kategori_id) {
       const fetchItems = async () => {
         try {
-          const response = await fetch(`https://inventory.jabnet.id/api/products?kategori_id=${payload.kategori_id}`, {
+          const response = await fetch(`${API_BASE_URL}/products?kategori_id=${payload.kategori_id}`, {
             method: "GET",
             credentials: "include",
           });
