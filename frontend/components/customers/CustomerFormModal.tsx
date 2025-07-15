@@ -113,6 +113,18 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
             </fieldset>
 
             <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">Email</legend>
+              <input
+                type="text"
+                name="sn"
+                value={customerData?.email || ""}
+                onChange={handleChange}
+                className="input"
+              />
+              <p className="label">Opsional</p>
+            </fieldset>
+
+            <fieldset className="fieldset">
               <legend className="fieldset-legend text-md">SN</legend>
               <input
                 type="text"

@@ -1,10 +1,25 @@
-import React from "react";
+"use client"
+import React, { useEffect } from "react";
 import Header from "../../components/Header";
 import ProductTable from "../../components/records/ProductTable";
 import UtilityBar from "../../components/records/UtilityBar";
 import "./style.css";
+import { fetchLogProductsThunk } from "store/inventory/logProductsSlice";
+import { useAppDispatch, useAppSelector } from "store/Hooks";
+import Pagination from "components/Pagination";
 
 const RecordsPage = () => {
+  const dispatch = useAppDispatch();
+  const { currentPage, totalPages } = useAppSelector((state) => state.productsLog);
+
+  useEffect(() => {
+    dispatch(fetchLogProductsThunk({ page: 1, limit: 20 }));
+  }, [dispatch]);
+
+  const handlePageChange = (page: number) => {
+    dispatch(fetchLogProductsThunk({ page, limit: 20 }));
+  };
+
   return (
     <>
       <Header />
@@ -12,7 +27,17 @@ const RecordsPage = () => {
         {/* Utility (Search, Filter, and Tambah button) */}
         <h1 className="text-3xl font-bold">Database Inventory</h1>
         <UtilityBar />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
         <ProductTable />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </main>
     </>
   );

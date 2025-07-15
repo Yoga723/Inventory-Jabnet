@@ -48,6 +48,7 @@ export interface Customers {
   id: string;
   name: string;
   address: string;
+  email?: string | null;
   no_telepon: string;
   sn: string;
   olt: string;

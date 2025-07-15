@@ -13,6 +13,9 @@ export interface ProductState {
   status: "idle" | "loading" | "succeeded" | "failed";
   isHomeLoading?: true | false;
   error: string | null;
+  currentPage: number;
+  totalRecords: number;
+  totalPages: number;
 }
 
 const initialState: ProductState = {
@@ -30,14 +33,23 @@ const initialState: ProductState = {
   status: "idle",
   isHomeLoading: true,
   error: null,
+  currentPage: 1,
+  totalRecords: 0,
+  totalPages: 0,
 };
 
 // Function untuk ambil data dari database baik semuanya atau dengan filter
 export const fetchLogProductsThunk = createAsyncThunk(
   "records/fetchLogProductsThunk",
-  async (query: string = "", { rejectWithValue }) => {
+  async (
+    { query = "", page = 1, limit = 20 }: { query?: string; page?: number; limit?: number } = {},
+    { rejectWithValue }
+  ) => {
     try {
-      const url = query && query.length > 2 ? `${API_BASE_URL}/records?${query}` : `${API_BASE_URL}/records`;
+      const params = new URLSearchParams(query);
+      params.append("page", page.toString());
+      params.append("limit", limit.toString());
+      const url = `${API_BASE_URL}/records?${params.toString()}`;
       const response = await fetch(url.toString(), {
         method: "GET",
         credentials: "include",
@@ -47,10 +59,10 @@ export const fetchLogProductsThunk = createAsyncThunk(
       const responseData = await response.json();
 
       if (!response.ok) {
-        window.location.href = "/login";
+        // window.location.href = "/login";
         return rejectWithValue(responseData.error || `HTTP Error! Status :${response.status}`);
       }
-      return responseData.data;
+      return responseData;
     } catch (error: any) {
       return rejectWithValue(error.message || "Failed to fetch records due to a network or unexpected error");
     }
@@ -186,11 +198,27 @@ const logProductsSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(fetchLogProductsThunk.fulfilled, (state, action: PayloadAction<productsProp[]>) => {
-        state.isHomeLoading = false;
-        state.status = "succeeded";
-        state.items = action.payload;
-      })
+      .addCase(
+        fetchLogProductsThunk.fulfilled,
+        (
+          state,
+          action: PayloadAction<{
+            data: productsProp[];
+            pagination: {
+              page: number | undefined;
+              limit: number | undefined;
+              total: number | undefined;
+            };
+          }>
+        ) => {
+          state.isHomeLoading = false;
+          state.status = "succeeded";
+          state.items = action.payload.data;
+          state.currentPage = action.payload.pagination.page;
+          state.totalRecords = action.payload.pagination.total;
+          state.totalPages = Math.ceil(action.payload.pagination.total / action.payload.pagination.limit);
+        }
+      )
       .addCase(fetchLogProductsThunk.rejected, (state, action) => {
         state.isHomeLoading = false;
         state.status = "failed";

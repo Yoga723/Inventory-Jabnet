@@ -1,3 +1,11 @@
+/**
+ * @file backend/routes/customerRoutes.js
+ * @route /backend/api/customers/
+ * @description Routes untuk managing customers (list_customers).
+ * @requires express
+ * @requires ../middleware/auth
+ */
+
 const express = require("express");
 const { v4: uuidv4 } = require("uuid"); // Import uuid
 const { authenticateMiddleware, authorize } = require("../../middleware/auth");
@@ -9,15 +17,7 @@ router.get("/", async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 20;
   const offset = (page - 1) * limit;
-  const {
-    search,
-    sortBy = "last_edited",
-    sortOrder = "DESC",
-    olt,
-    odp,
-    id_paket,
-    id_mitra,
-  } = req.query;
+  const { search, sortBy = "last_edited", sortOrder = "DESC", olt, odp, id_paket, id_mitra } = req.query;
 
   try {
     let countQueryString = `SELECT COUNT(DISTINCT c.id) as count FROM customers c
@@ -70,17 +70,12 @@ router.get("/", async (req, res) => {
 
     // --- Add Sorting and Pagination for the main query ---
     const validSortColumns = ["last_edited", "name", "id"];
-    const safeSortBy = validSortColumns.includes(sortBy)
-      ? `c.${sortBy}`
-      : "c.last_edited";
+    const safeSortBy = validSortColumns.includes(sortBy) ? `c.${sortBy}` : "c.last_edited";
     const safeSortOrder = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
     customersQueryString += ` ORDER BY ${safeSortBy} ${safeSortOrder} LIMIT ? OFFSET ?`;
     params.push(limit, offset);
 
-    const flatCustomers = await req.dbPelanggan.query(
-      customersQueryString,
-      params
-    );
+    const flatCustomers = await req.dbPelanggan.query(customersQueryString, params);
 
     // --- DATA TRANSFORMATION ---
     // Map hasil flat database jadi nested JSON.
@@ -121,151 +116,79 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post(
-  "/",
-  authorize(["field", "operator", "admin", "super_admin"]),
-  async (req, res) => {
-    const {
-      id,
-      name,
-      no_telepon,
-      address,
-      sn,
-      olt,
-      odp,
-      port_odp,
-      id_paket,
-      id_mitra,
-    } = req.body;
+router.post("/", authorize(["field", "operator", "admin", "super_admin"]), async (req, res) => {
+  const { id, name, no_telepon, address, email, sn, olt, odp, port_odp, id_paket, id_mitra } = req.body;
 
-    try {
-      if (!id) id = uuidv4();
+  try {
+    if (!id) id = uuidv4();
 
-      if (!name || !no_telepon)
-        return res.status(400).json({ error: "Nama dan Nomor HP diperlukan" });
+    if (!name || !no_telepon) return res.status(400).json({ error: "Nama dan Nomor HP diperlukan" });
 
-      await req.dbPelanggan.query(
-        "INSERT INTO customers (id, name, no_telepon, address, sn, olt, odp, port_odp) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [id, name, no_telepon, address, sn, olt, odp, port_odp]
-      );
+    await req.dbPelanggan.query(
+      "INSERT INTO customers (id, name, no_telepon, email, address, sn, olt, odp, port_odp, id_paket, id_mitra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+      [id, name, no_telepon, email || null, address, sn, olt, odp, port_odp, id_paket || null, id_mitra || null]
+    );
 
-      await req.dbPelanggan.query(
-        "INSERT INTO customers (id, name, no_telepon, address, sn, olt, odp, port_odp, id_paket, id_mitra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          id,
-          name,
-          no_telepon,
-          address,
-          sn,
-          olt,
-          odp,
-          port_odp,
-          id_paket || null,
-          id_mitra || null,
-        ]
-      );
+    const [newCustomer] = await req.dbPelanggan.query("SELECT * FROM customers WHERE id = ?", [id]);
 
-      const [newCustomer] = await req.dbPelanggan.query(
-        "SELECT * FROM customers WHERE id = ?",
-        [id]
-      );
-
-      res.status(201).json(newCustomer);
-    } catch (err) {
-      if (err.code === "ER_DUP_ENTRY") {
-        return res.status(409).json({ error: "ID Pelanggan sudah digunakan" });
-      }
-      res.status(500).json({ error: err.message });
+    res.status(201).json(newCustomer);
+  } catch (err) {
+    if (err.code === "ER_DUP_ENTRY") {
+      return res.status(409).json({ error: "ID Pelanggan sudah digunakan" });
     }
+    res.status(500).json({ error: err.message });
   }
-);
+});
 
-router.put(
-  "/:id",
-  authorize(["field", "operator", "admin", "super_admin"]),
-  async (req, res) => {
-    const originalCustomerId = req.params.id;
-    const {
-      id,
-      name,
-      no_telepon,
-      address,
-      sn,
-      olt,
-      odp,
-      port_odp,
-      id_paket,
-      id_mitra,
-    } = req.body;
-    console.log("THIS IS ORIGINAL ID", originalCustomerId);
-    try {
-      if (!name || !no_telepon)
-        return res
-          .status(400)
-          .json({ error: "Name and phone number are required" });
-      const updateQuery = `
+router.put("/:id", authorize(["field", "operator", "admin", "super_admin"]), async (req, res) => {
+  const originalCustomerId = req.params.id;
+  const { id, name, no_telepon, address, sn, olt, odp, port_odp, id_paket, id_mitra } = req.body;
+  console.log("THIS IS ORIGINAL ID", originalCustomerId);
+  try {
+    if (!name || !no_telepon) return res.status(400).json({ error: "Name and phone number are required" });
+    const updateQuery = `
           UPDATE customers 
-          SET id = ?, name = ?, no_telepon = ?, address = ?, sn = ?, olt = ?, odp = ?, port_odp = ?, id_paket = ?, id_mitra = ? 
+          SET id = ?, name = ?, no_telepon = ?, address = ?, email = ?, sn = ?, olt = ?, odp = ?, port_odp = ?, id_paket = ?, id_mitra = ? 
           WHERE id = ?`;
 
-      const updateResult = await req.dbPelanggan.query(updateQuery, [
-        id,
-        name,
-        no_telepon,
-        address,
-        sn,
-        olt,
-        odp,
-        port_odp,
-        id_paket || null,
-        id_mitra || null,
-        originalCustomerId,
-      ]);
+    const updateResult = await req.dbPelanggan.query(updateQuery, [
+      id,
+      name,
+      no_telepon,
+      address,
+      email || null,
+      sn,
+      olt,
+      odp,
+      port_odp,
+      id_paket || null,
+      id_mitra || null,
+      originalCustomerId,
+    ]);
 
-      if (updateResult.affectedRows === 0)
-        return res
-          .status(404)
-          .json({ error: `Customer with ID ${originalCustomerId} not found.` });
+    if (updateResult.affectedRows === 0)
+      return res.status(404).json({ error: `Customer with ID ${originalCustomerId} not found.` });
 
-      // const result = await req.dbPelanggan.query("SELECT * FROM customers WHERE id = ?", [id]);
-      // const updatedCustomer = result[0];
-
-      // res.status(200).json(updatedCustomer);
-
-      const [updatedCustomer] = await req.dbPelanggan.query(
-        "SELECT * FROM customers WHERE id = ?",
-        [id]
-      );
-      res.status(200).json(updatedCustomer);
-    } catch (err) {
-      console.error("Error updating customer:", err.message);
-      res.status(500).json({
-        error: "An unexpected error occurred while updating the customer.",
-      });
-    }
+    const [updatedCustomer] = await req.dbPelanggan.query("SELECT * FROM customers WHERE id = ?", [id]);
+    res.status(200).json(updatedCustomer);
+  } catch (err) {
+    console.error("Error updating customer:", err.message);
+    res.status(500).json({
+      error: "An unexpected error occurred while updating the customer.",
+    });
   }
-);
+});
 
-router.delete(
-  "/:id",
-  authorize(["field", "operator", "admin", "super_admin"]),
-  async (req, res) => {
-    const { id } = req.params;
-    try {
-      const result = await req.dbPelanggan.query(
-        "DELETE FROM customers WHERE id = ?",
-        [id]
-      );
-      if (result.affectedRows === 0)
-        return res
-          .status(404)
-          .json({ error: `Customer with ID ${id} not found.` });
+router.delete("/:id", authorize(["field", "operator", "admin", "super_admin"]), async (req, res) => {
+  const { id } = req.params;
+  try {
+    const result = await req.dbPelanggan.query("DELETE FROM customers WHERE id = ?", [id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: `Customer with ID ${id} not found.` });
 
-      res.status(204).send();
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-);
+});
 
 module.exports = router;
