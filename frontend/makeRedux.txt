@@ -10,7 +10,7 @@ import {
   fetchRecordByIdThunk,
   fetchRecordsThunk,
   putRecordsThunk,
-} from "../../store/recordSlice";
+} from "../../store/log-productslice";
 
 const useRecordsLogic = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -177,7 +177,7 @@ const useRecordsLogic = () => {
   //     };
   //     console.log(dataToSend);
 
-  //     const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
+  //     const res = await fetch(`http://inventory.jabnet.id/api/log-products/${recordId}`, {
   //       method: "PUT",
   //       headers: { "Content-Type": "application/json" },
   //       body: JSON.stringify(dataToSend),
@@ -198,7 +198,7 @@ const useRecordsLogic = () => {
   //   if (!confirm(`Yakin ingin hapus data ini ?`)) return;
   //   try {
   //     setLoading(true);
-  //     const res = await fetch(`http://inventory.jabnet.id/api/records/${recordId}`, {
+  //     const res = await fetch(`http://inventory.jabnet.id/api/log-products/${recordId}`, {
   //       method: "DELETE",
   //     });
   //     if (!res.ok) throw new Error("Gagal Hapus data, Coba lagi nanti !");
@@ -227,7 +227,7 @@ const useRecordsLogic = () => {
   //       list_barang: JSON.stringify(payload.list_barang),
   //     };
 
-  //     const res = await fetch("http://inventory.jabnet.id/api/records", {
+  //     const res = await fetch("http://inventory.jabnet.id/api/log-products", {
   //       method: "POST",
   //       headers: { "Content-Type": "application/json" },
   //       body: JSON.stringify(dataToSend),

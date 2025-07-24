@@ -36,7 +36,7 @@ app.use((req, res, next) => {
   if (
     path.startsWith("/backend/api/user") ||
     path.startsWith("/backend/api/products") ||
-    path.startsWith("/backend/api/records")
+    path.startsWith("/backend/api/log-products")
   ) {
     console.log(`[DB INJECT] SUCCESS: Attaching PostgreSQL pool (pgPool).`);
     req.db = pgPool;

@@ -1,8 +1,8 @@
 "use client"
 import React, { useEffect } from "react";
 import Header from "../../components/Header";
-import ProductTable from "../../components/records/ProductTable";
-import UtilityBar from "../../components/records/UtilityBar";
+import ProductTable from "../../components/log-products/ProductTable";
+import UtilityBar from "../../components/log-products/UtilityBar";
 import "./style.css";
 import { fetchLogProductsThunk } from "store/inventory/logProductsSlice";
 import { useAppDispatch, useAppSelector } from "store/Hooks";

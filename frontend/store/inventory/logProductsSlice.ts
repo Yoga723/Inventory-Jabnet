@@ -52,7 +52,7 @@ export const fetchLogProductsThunk = createAsyncThunk(
       const params = new URLSearchParams(query);
       params.append("page", page.toString());
       params.append("limit", limit.toString());
-      const url = `${API_BASE_URL}/records?${params.toString()}`;
+      const url = `${API_BASE_URL}/log-products?${params.toString()}`;
       const response = await fetch(url.toString(), {
         method: "GET",
         credentials: "include",
@@ -77,7 +77,7 @@ export const fetchLogProductsByIdThunk = createAsyncThunk(
   `records/fetchLogProductsByIdThunk`,
   async (record_id: number, { rejectWithValue }) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/records/${record_id}`, {
+      const res = await fetch(`${API_BASE_URL}/log-products/${record_id}`, {
         method: "GET",
         // headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -103,7 +103,7 @@ export const createLogProductsThunk = createAsyncThunk(
     { dispatch, rejectWithValue }
   ) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/records`, {
+      const res = await fetch(`${API_BASE_URL}/log-products`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newRecordPayload),
@@ -136,7 +136,7 @@ export const putLogProductsThunk = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/records/${recordId}`, {
+      const res = await fetch(`${API_BASE_URL}/log-products/${recordId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedRecordPayload),
@@ -157,7 +157,7 @@ export const deleteLogProductsThunk = createAsyncThunk(
   "records/deleteProductLog",
   async (record_id: number, { dispatch, rejectWithValue }) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/records/${record_id}`, {
+      const res = await fetch(`${API_BASE_URL}/log-products/${record_id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -214,13 +214,14 @@ const logProductsSlice = createSlice({
             };
           }>
         ) => {
-          console.log("DATA FETCHED STATE");
           state.isHomeLoading = false;
           state.status = "succeeded";
           state.items = action.payload.data;
-          state.currentPage = action.payload.pagination.page;
-          state.totalRecords = action.payload.pagination.total;
-          state.totalPages = Math.ceil(action.payload.pagination.total / action.payload.pagination.limit);
+
+          const { page = 1, total = 0, limit = 20 } = action.payload.pagination || {};
+          state.currentPage = page;
+          state.totalRecords = total;
+          state.totalPages = Math.ceil(total / limit);
         }
       )
       .addCase(fetchLogProductsThunk.rejected, (state, action) => {

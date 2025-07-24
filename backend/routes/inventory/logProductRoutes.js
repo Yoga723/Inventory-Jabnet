@@ -265,7 +265,10 @@ router.get("/export", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const { search, status, kategori_id, start_date, end_date } = req.query;
+    const { search, status, kategori_id, start_date, end_date, page = 1, limit = 20 } = req.query;
+    const offset = (page - 1) * limit;
+
+    let countQuery = `SELECT COUNT(*) FROM catatan c JOIN kategori k ON c.kategori_id = k.kategori_id`;
     let baseQuery = `
       SELECT 
         c.record_id,
@@ -310,9 +313,19 @@ router.get("/", async (req, res) => {
       `);
     }
 
-    if (conditions.length) baseQuery += " WHERE " + conditions.join(" AND ");
+    if (conditions.length) {
+      const whereClause = " WHERE " + conditions.join(" AND ");
+      baseQuery += whereClause;
+      countQuery += whereClause;
+    }
 
-    baseQuery += " ORDER BY c.tanggal DESC";
+    // Get total count
+    const totalResult = await req.db.query(countQuery, values);
+    const total = parseInt(totalResult.rows[0].count, 10);
+
+    // Add pagination to the main query
+    baseQuery += " ORDER BY c.tanggal DESC LIMIT $" + (values.length + 1) + " OFFSET $" + (values.length + 2);
+    values.push(limit, offset);
 
     const result = await req.db.query(baseQuery, values);
     // Calculate nilai for each record
@@ -321,9 +334,14 @@ router.get("/", async (req, res) => {
       nilai: calculateTotalNilai(record.item_list),
     }));
 
-    console.log("This is response", recordsWithNilai.item_list);
-
-    res.json({ status: "success", data: recordsWithNilai });
+    res.json({
+      data: recordsWithNilai,
+      pagination: {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10),
+        total: total,
+      },
+    });
   } catch (error) {
     console.error("Database query error:", error);
     res.status(500).json({ error: "Failed to retrieve catatan" });

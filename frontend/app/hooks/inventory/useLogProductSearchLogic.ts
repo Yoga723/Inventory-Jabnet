@@ -91,7 +91,7 @@ export const useLogProductSearchLogic = () => {
     event.preventDefault();
     if (!confirm("Export data ?")) return;
     const query = buildQueryParams();
-    const url = `${API_BASE_URL}/records/export${query ? `?${query}` : ""}`;
+    const url = `${API_BASE_URL}/log-products/export${query ? `?${query}` : ""}`;
     window.open(url, "_blank");
   };
 

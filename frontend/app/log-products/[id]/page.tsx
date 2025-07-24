@@ -1,11 +1,11 @@
-// app/records/[id]/history/page.tsx
+// app/log-products/[id]/history/page.tsx
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Header from "components/Header";
 import { API_BASE_URL } from "app/utils/apiConfig";
-// import HistoryItem from "@/app/components/records/HistoryItem";
+// import HistoryItem from "@/app/components/log-products/HistoryItem";
 
 export default function RecordHistoryPage() {
   const { id } = useParams();
@@ -15,7 +15,7 @@ export default function RecordHistoryPage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/records/${id}/history`, {
+        const response = await fetch(`${API_BASE_URL}/log-products/${id}/history`, {
           method: "GET",
           credentials: "include",
         });

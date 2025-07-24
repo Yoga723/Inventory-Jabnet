@@ -195,7 +195,7 @@ const ProductTable = () => {
                       className="px-2">
                       <div className="flex items-center justify-start gap-8 p-1">
                         <Link
-                          href={`/records/${record.record_id}`}
+                          href={`/log-products/${record.record_id}`}
                           className={`cursor-pointer text-sm flex justify-center bg-none`}>
                           <InformationCircleIcon
                             width={16}
