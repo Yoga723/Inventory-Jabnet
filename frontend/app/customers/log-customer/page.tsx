@@ -132,6 +132,7 @@ const LogCustomerPage = () => {
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
           onSearchSubmit={handleSearch}
+          searchPlaceholder="Search ID, Nama, Alamat, SN, No.HP"
         />
         <Pagination
           currentPage={currentPage}

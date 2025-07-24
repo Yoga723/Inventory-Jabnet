@@ -42,7 +42,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
     <dialog
       open
       className="modal modal-open">
-      <aside className="modal-box max-sm:h-[90%] h-fit ">
+      <aside className="modal-box max-w-screen max-sm:h-[90%] h-fit w-fit top-0 left-0 max-sm:absolute">
         <div className="flex w-full justify-between">
           <h3 className="font-bold text-lg">
             {customerData?.id ? `Edit Customer ${customerData.id}` : "Add Customer"}
@@ -56,7 +56,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
           </button>
         </div>
         <form onSubmit={onSubmit}>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 ">
             <fieldset className="fieldset">
               <legend className="fieldset-legend text-md">
                 ID Pelanggan <span className="text-red-500">*</span>
@@ -66,7 +66,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="id"
                 value={customerData?.id || ""}
                 onChange={handleChange}
-                className="input"
+                className="input min-w-52"
                 placeholder="Ambil dari Billing"
                 required
               />
@@ -81,7 +81,8 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="name"
                 value={customerData?.name || ""}
                 onChange={handleChange}
-                className="input"
+                placeholder="Alek Hasmanah"
+                className="input min-w-52"
                 required
               />
             </fieldset>
@@ -94,8 +95,23 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="no_telepon"
                 value={customerData?.no_telepon || ""}
                 onChange={handleChange}
-                className="input"
+                className="input min-w-52"
                 placeholder="0822222222"
+                required
+              />
+            </fieldset>
+
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend text-md">
+                Email <span className="text-red-500">*</span>
+              </legend>
+              <input
+                type="text"
+                name="email"
+                value={customerData?.email || ""}
+                onChange={handleChange}
+                className="input min-w-52"
+                placeholder="jabnet@gmail.com"
                 required
               />
             </fieldset>
@@ -119,7 +135,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="sn"
                 value={customerData?.sn || ""}
                 onChange={handleChange}
-                className="input"
+                className="input min-w-52"
               />
               <p className="label">Opsional</p>
             </fieldset>
@@ -131,9 +147,9 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="olt"
                 value={customerData?.olt || ""}
                 onChange={handleChange}
-                className="input"
+                className="input min-w-52"
               />
-              <p className="label">Opsional</p>
+              <p className="label">Opsional (GRT, BYB, atau CLW)</p>
             </fieldset>
 
             <fieldset className="fieldset">
@@ -143,7 +159,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="odp"
                 value={customerData?.odp || ""}
                 onChange={handleChange}
-                className="input"
+                className="input min-w-52"
               />
               <p className="label">Opsional</p>
             </fieldset>
@@ -155,7 +171,7 @@ const CustomerFormModal: React.FC<CustomerFormModalProps> = ({
                 name="port_odp"
                 value={customerData?.port_odp || ""}
                 onChange={handleChange}
-                className="input"
+                className="input min-w-52"
               />
               <p className="label">Opsional</p>
             </fieldset>

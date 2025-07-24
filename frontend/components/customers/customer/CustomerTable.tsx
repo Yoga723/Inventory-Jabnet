@@ -21,13 +21,14 @@ const CustomerTable = ({
 
   return (
     <section className="overflow-x-auto w-full">
-      <table className="table w-full ">
+      <table className="table w-full overflow-x-scroll">
         <thead>
           <tr className="text-md">
             <th>No</th>
             <th>ID</th>
             <th>Nama Pelanggan</th>
             <th className="min-w-52">Alamat</th>
+            <th>Email</th>
             <th>No telepon</th>
             <th>SN</th>
             <th>OLT</th>
@@ -47,6 +48,7 @@ const CustomerTable = ({
                 <td>{item.id}</td>
                 <td>{item.name}</td>
                 <td className="min-w-52">{item.address}</td>
+                <td>{item.email}</td>
                 <td>{item.no_telepon}</td>
                 <td>{item.sn}</td>
                 <td>{item.olt}</td>

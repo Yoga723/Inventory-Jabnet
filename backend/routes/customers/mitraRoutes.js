@@ -1,6 +1,5 @@
 /**
  * @file backend/routes/mitraRoutes.js
- * @route /backend/api/mitra/
  * @description Routes untuk managing mitra (list_mitra).
  * @requires express
  * @requires ../middleware/auth
@@ -14,7 +13,7 @@ router.use(authenticateMiddleware);
 
 /**
  * @route GET /
- * @description Get all mitra
+ * @description Get all partners
  * @access Private
  */
 router.get("/", async (req, res) => {
@@ -31,7 +30,7 @@ router.get("/", async (req, res) => {
 
 /**
  * @route POST /
- * @description Create nama mitra baru
+ * @description Create a new partner
  * @access Private (admin, super_admin)
  */
 router.post("/", authorize(["admin", "super_admin"]), async (req, res) => {
@@ -57,7 +56,7 @@ router.post("/", authorize(["admin", "super_admin"]), async (req, res) => {
 
 /**
  * @route PUT /:id
- * @description Update partner
+ * @description Update an existing partner
  * @access Private (admin, super_admin)
  */
 router.put("/:id", authorize(["admin", "super_admin"]), async (req, res) => {

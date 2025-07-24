@@ -7,6 +7,12 @@ interface FieldUpdate {
   value: any;
 }
 
+interface FetchLogProductArg {
+  query?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface ProductState {
   items: productsProp[];
   currentItem: productsProp | null;
@@ -41,10 +47,7 @@ const initialState: ProductState = {
 // Function untuk ambil data dari database baik semuanya atau dengan filter
 export const fetchLogProductsThunk = createAsyncThunk(
   "records/fetchLogProductsThunk",
-  async (
-    { query = "", page = 1, limit = 20 }: { query?: string; page?: number; limit?: number } = {},
-    { rejectWithValue }
-  ) => {
+  async ({ query = "", page = 1, limit = 20 }: FetchLogProductArg, { rejectWithValue }) => {
     try {
       const params = new URLSearchParams(query);
       params.append("page", page.toString());
@@ -211,6 +214,7 @@ const logProductsSlice = createSlice({
             };
           }>
         ) => {
+          console.log("DATA FETCHED STATE");
           state.isHomeLoading = false;
           state.status = "succeeded";
           state.items = action.payload.data;

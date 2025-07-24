@@ -1,7 +1,6 @@
 /**
  * @file backend/routes/paketRoutes.js
  * @description Route untuk manage paket-paket internet jabnet
- * @route /backend/api/paket/
  * @requires express
  * @requires ../middleware/auth
  */

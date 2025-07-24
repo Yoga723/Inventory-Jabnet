@@ -17,69 +17,85 @@ router.get("/", async (req, res) => {
   const page = parseInt(req.query.page, 10) || 1;
   const limit = parseInt(req.query.limit, 10) || 20;
   const offset = (page - 1) * limit;
+
   const { search, sortBy = "last_edited", sortOrder = "DESC", olt, odp, id_paket, id_mitra } = req.query;
 
   try {
-    let countQueryString = `SELECT COUNT(DISTINCT c.id) as count FROM customers c
-      LEFT JOIN paket_internet p ON c.id_paket = p.id_paket
-      LEFT JOIN list_mitra m ON c.id_mitra = m.id_mitra`;
-    let customersQueryString = `
+    const baseSelect = `
       SELECT 
-        c.*, p.nama_paket, p.harga_paket, p.kecepatan_paket, p.comment_paket,
+        c.*, 
+        p.nama_paket, p.harga_paket, p.kecepatan_paket, p.comment_paket,
         m.nama_mitra, m.comment_mitra
       FROM customers c
       LEFT JOIN paket_internet p ON c.id_paket = p.id_paket
       LEFT JOIN list_mitra m ON c.id_mitra = m.id_mitra`;
 
-    const params = [];
+    const baseCount = `
+      SELECT COUNT(DISTINCT c.id) AS count
+      FROM customers c
+      LEFT JOIN paket_internet p ON c.id_paket = p.id_paket
+      LEFT JOIN list_mitra m ON c.id_mitra = m.id_mitra`;
+
     const whereClauses = [];
+    const params = [];
+
+    // --- Search Filters ---
+    const searchableFields = [
+      "c.id",
+      "c.name",
+      "c.email",
+      "c.no_telepon",
+      "c.address",
+      "c.sn",
+      "p.nama_paket",
+      "m.nama_mitra",
+    ];
 
     if (search) {
-      whereClauses.push(
-        `(c.id LIKE ? OR c.name LIKE ? OR c.no_telepon LIKE ? OR c.address LIKE ? OR c.sn LIKE ? OR p.nama_paket LIKE ? OR m.nama_mitra LIKE ?)`
-      );
-      const searchValue = `%${search}%`;
-      for (let i = 0; i < 7; i++) params.push(searchValue);
+      whereClauses.push(`(${searchableFields.map((field) => `${field} LIKE ?`).join(" OR ")})`);
+      params.push(...Array(searchableFields.length).fill(`%${search}%`));
     }
+
+    // --- Exact/LIKE Filters ---
     if (olt) {
-      whereClauses.push(`c.olt = ?`);
+      whereClauses.push("c.olt = ?");
       params.push(olt);
     }
     if (odp) {
-      whereClauses.push(`c.odp LIKE ?`);
+      whereClauses.push("c.odp LIKE ?");
       params.push(`%${odp}%`);
     }
     if (id_paket) {
-      whereClauses.push(`c.id_paket = ?`);
+      whereClauses.push("c.id_paket = ?");
       params.push(id_paket);
     }
     if (id_mitra) {
-      whereClauses.push(`c.id_mitra = ?`);
+      whereClauses.push("c.id_mitra = ?");
       params.push(id_mitra);
     }
 
-    if (whereClauses.length > 0) {
-      const whereString = ` WHERE ${whereClauses.join(" AND ")}`;
-      countQueryString += whereString;
-      customersQueryString += whereString;
-    }
+    const whereSQL = whereClauses.length > 0 ? ` WHERE ${whereClauses.join(" AND ")}` : "";
 
-    // --- Get Total Count ---
-    const [countResult] = await req.dbPelanggan.query(countQueryString, params);
-    const totalCustomers = countResult ? countResult.count : 0;
+    // --- Total Count ---
+    const [countResult] = await req.dbPelanggan.query(baseCount + whereSQL, params);
+    const totalCustomers = countResult?.count || 0;
 
-    // --- Add Sorting and Pagination for the main query ---
-    const validSortColumns = ["last_edited", "name", "id"];
-    const safeSortBy = validSortColumns.includes(sortBy) ? `c.${sortBy}` : "c.last_edited";
-    const safeSortOrder = sortOrder.toUpperCase() === "ASC" ? "ASC" : "DESC";
-    customersQueryString += ` ORDER BY ${safeSortBy} ${safeSortOrder} LIMIT ? OFFSET ?`;
-    params.push(limit, offset);
+    // --- Sorting ---
+    const allowedSortFields = ["last_edited", "name", "id"];
+    const safeSortBy = allowedSortFields.includes(sortBy) ? `c.${sortBy}` : "c.last_edited";
+    const safeSortOrder = sortOrder.toString().toUpperCase() === "ASC" ? "ASC" : "DESC";
 
-    const flatCustomers = await req.dbPelanggan.query(customersQueryString, params);
+    // --- Final Query with Pagination ---
+    const finalQuery = `
+      ${baseSelect}
+      ${whereSQL}
+      ORDER BY ${safeSortBy} ${safeSortOrder}
+      LIMIT ? OFFSET ?`;
 
-    // --- DATA TRANSFORMATION ---
-    // Map hasil flat database jadi nested JSON.
-    const nestedCustomers = flatCustomers.map((customer) => {
+    const customerRows = await req.dbPelanggan.query(finalQuery, [...params, limit, offset]);
+
+    // --- Format Output ---
+    const customers = customerRows.map((row) => {
       const {
         id_paket,
         nama_paket,
@@ -89,10 +105,11 @@ router.get("/", async (req, res) => {
         id_mitra,
         nama_mitra,
         comment_mitra,
-        ...customerDetails
-      } = customer;
+        ...rest
+      } = row;
+
       return {
-        ...customerDetails,
+        ...rest,
         paket: id_paket
           ? {
               id_paket,
@@ -102,16 +119,26 @@ router.get("/", async (req, res) => {
               comment_paket,
             }
           : null,
-        mitra: id_mitra ? { id_mitra, nama_mitra, comment_mitra } : null,
+        mitra: id_mitra
+          ? {
+              id_mitra,
+              nama_mitra,
+              comment_mitra,
+            }
+          : null,
       };
     });
 
     res.status(200).json({
-      data: nestedCustomers,
-      pagination: { page, limit, total: totalCustomers },
+      data: customers,
+      pagination: {
+        page,
+        limit,
+        total: totalCustomers,
+      },
     });
   } catch (err) {
-    console.log("ERROR DI GET CUSTOMERS :", err.message);
+    console.error("ERROR DI GET CUSTOMERS:", err.message);
     res.status(500).json({ error: err.message });
   }
 });
@@ -124,6 +151,9 @@ router.post("/", authorize(["field", "operator", "admin", "super_admin"]), async
 
     if (!name || !no_telepon) return res.status(400).json({ error: "Nama dan Nomor HP diperlukan" });
 
+    const [existingCustomer] = await req.dbPelanggan.query("SELECT * FROM customers WHERE id = ?", [id]);
+    if (existingCustomer) return res.status(409).json({ error: "ID Pelanggan sudah digunakan" });
+
     await req.dbPelanggan.query(
       "INSERT INTO customers (id, name, no_telepon, email, address, sn, olt, odp, port_odp, id_paket, id_mitra) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
       [id, name, no_telepon, email || null, address, sn, olt, odp, port_odp, id_paket || null, id_mitra || null]
@@ -133,16 +163,13 @@ router.post("/", authorize(["field", "operator", "admin", "super_admin"]), async
 
     res.status(201).json(newCustomer);
   } catch (err) {
-    if (err.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ error: "ID Pelanggan sudah digunakan" });
-    }
     res.status(500).json({ error: err.message });
   }
 });
 
 router.put("/:id", authorize(["field", "operator", "admin", "super_admin"]), async (req, res) => {
   const originalCustomerId = req.params.id;
-  const { id, name, no_telepon, address, sn, olt, odp, port_odp, id_paket, id_mitra } = req.body;
+  const { id, name, no_telepon, email, address, sn, olt, odp, port_odp, id_paket, id_mitra } = req.body;
   console.log("THIS IS ORIGINAL ID", originalCustomerId);
   try {
     if (!name || !no_telepon) return res.status(400).json({ error: "Name and phone number are required" });

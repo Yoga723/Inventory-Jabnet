@@ -1,4 +1,10 @@
-import { AdjustmentsHorizontalIcon, BookOpenIcon, FunnelIcon, MagnifyingGlassIcon, PlusIcon } from "@heroicons/react/24/solid";
+import {
+  AdjustmentsHorizontalIcon,
+  BookOpenIcon,
+  FunnelIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+} from "@heroicons/react/24/solid";
 import React from "react";
 
 const UtilBar = ({
@@ -7,12 +13,14 @@ const UtilBar = ({
   searchTerm,
   onSearchChange,
   onSearchSubmit,
+  searchPlaceholder,
 }: {
   onAdd: () => void;
   onOpenFilters: () => void;
   searchTerm: string;
   onSearchChange: (value: string) => void;
   onSearchSubmit: () => void;
+  searchPlaceholder?: string;
 }) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") onSearchSubmit();
@@ -35,7 +43,7 @@ const UtilBar = ({
             onKeyDown={handleKeyDown}
             type="text"
             className="w-full"
-            placeholder="Search Nama atau Barang"
+            placeholder={searchPlaceholder ? searchPlaceholder : "Search"}
           />
           <button
             type="button"
@@ -53,8 +61,14 @@ const UtilBar = ({
           Export
         </button> */}
 
-        <button type="button" onClick={onOpenFilters} className="btn btn-secondary btn-outline">
-          <AdjustmentsHorizontalIcon width={20} height={20} />
+        <button
+          type="button"
+          onClick={onOpenFilters}
+          className="btn btn-secondary btn-outline">
+          <AdjustmentsHorizontalIcon
+            width={20}
+            height={20}
+          />
           Filter
         </button>
         <button
