@@ -95,18 +95,11 @@ export const fetchLogProductsByIdThunk = createAsyncThunk(
 
 export const createLogProductsThunk = createAsyncThunk(
   "records/createLogProductsThunk",
-  async (
-    // Omit hela record_id jeng tanggal dan eta mah opsional/dijien ti databasena
-    newRecordPayload: Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
-      item_list: string;
-    },
-    { dispatch, rejectWithValue }
-  ) => {
+  async (newRecordPayload: FormData, { dispatch, rejectWithValue }) => {
     try {
       const res = await fetch(`${API_BASE_URL}/log-products`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newRecordPayload),
+        body: newRecordPayload,
         credentials: "include",
       });
 
@@ -124,22 +117,13 @@ export const createLogProductsThunk = createAsyncThunk(
 export const putLogProductsThunk = createAsyncThunk(
   `records/putLogProductsThunk`,
   async (
-    {
-      recordId,
-      updatedRecordPayload,
-    }: {
-      recordId: number;
-      updatedRecordPayload: Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
-        item_list: string;
-      };
-    },
+    { recordId, updatedRecordPayload }: { recordId: number; updatedRecordPayload: FormData },
     { rejectWithValue }
   ) => {
     try {
       const res = await fetch(`${API_BASE_URL}/log-products/${recordId}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updatedRecordPayload),
+        body: updatedRecordPayload,
         credentials: "include",
       });
 
@@ -235,8 +219,23 @@ const logProductsSlice = createSlice({
       })
       .addCase(fetchLogProductsByIdThunk.fulfilled, (state, action: PayloadAction<productsProp>) => {
         state.status = "succeeded";
-        // Set men keterangan null jadina empty string
-        state.currentItem = { ...action.payload, keterangan: action.payload.keterangan ?? "" };
+        const payload = action.payload;
+        const parsedItemList = Array.isArray(payload.item_list)
+          ? payload.item_list
+          : JSON.parse(payload.item_list || "[]");
+
+        const sanitizedItemList = parsedItemList.map((item: any) => {
+          if (item.gambar_path instanceof File) {
+            return { ...item, gambar_path: item.gambar_path.name };
+          }
+          return item;
+        });
+
+        state.currentItem = {
+          ...payload,
+          item_list: sanitizedItemList,
+          keterangan: payload.keterangan ?? "",
+        };
       })
       .addCase(fetchLogProductsByIdThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -247,12 +246,23 @@ const logProductsSlice = createSlice({
         state.error = null;
       })
       .addCase(createLogProductsThunk.fulfilled, (state, { payload }) => {
+        const parsedItemList = Array.isArray(payload.item_list)
+          ? payload.item_list
+          : JSON.parse(payload.item_list || "[]");
+
+        const sanitizedItemList = parsedItemList.map((item: any) => {
+          if (item.gambar_path instanceof File) {
+            return { ...item, gambar_path: item.gambar_path.name };
+          }
+          return item;
+        });
+
         state.items.unshift({
           ...payload,
-          item_list: Array.isArray(payload.item_list) ? payload.item_list : JSON.parse(payload.item_list || "[]"),
+          item_list: sanitizedItemList,
         });
         state.status = "succeeded";
-        clearCurrentItem;
+        state.currentItem = initialState.currentItem;
       })
       .addCase(createLogProductsThunk.rejected, (state, action) => {
         state.status = "failed";
@@ -263,11 +273,22 @@ const logProductsSlice = createSlice({
         state.error = null;
       })
       .addCase(putLogProductsThunk.fulfilled, (state, { payload }) => {
+        const parsedItemList = Array.isArray(payload.item_list)
+          ? payload.item_list
+          : JSON.parse(payload.item_list || "[]");
+
+        const sanitizedItemList = parsedItemList.map((item: any) => {
+          if (item.gambar_path instanceof File) {
+            return { ...item, gambar_path: item.gambar_path.name };
+          }
+          return item;
+        });
+
         state.items = state.items.map((item) =>
           item.record_id === payload.record_id
             ? {
                 ...payload,
-                item_list: Array.isArray(payload.item_list) ? payload.item_list : JSON.parse(payload.item_list || "[]"),
+                item_list: sanitizedItemList,
               }
             : item
         );

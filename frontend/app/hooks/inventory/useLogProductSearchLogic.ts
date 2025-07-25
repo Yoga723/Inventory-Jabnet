@@ -24,7 +24,7 @@ export const useLogProductSearchLogic = () => {
     if (!isFilterOpen) return;
     const fetchCategories = async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/api/products/kategori`, {
+        const response = await fetch(`${API_BASE_URL}/products/kategori`, {
           method: "GET",
           credentials: "include",
         });
@@ -64,7 +64,7 @@ export const useLogProductSearchLogic = () => {
   };
 
   const handleSearch = () => {
-    dispatch(fetchLogProductsThunk(buildQueryParams()));
+    dispatch(fetchLogProductsThunk({ query: buildQueryParams() }));
   };
 
   const handleStatusChange = (filter: string) => {
@@ -84,7 +84,7 @@ export const useLogProductSearchLogic = () => {
     setStatusFIlter("All");
     setDateRange([null, null]);
     setSelectedDateFilter("");
-    dispatch(fetchLogProductsThunk(""));
+    dispatch(fetchLogProductsThunk({ query: "" }));
   };
 
   const handleExport = async (event) => {

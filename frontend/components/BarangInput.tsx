@@ -10,6 +10,7 @@ interface itemInputProps {
 
 export default function BarangInput({ items, setItems, itemsOptions = [] }: itemInputProps) {
   const [searchTerms, setSearchTerms] = useState<string[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<Record<number, string>>({});
   const [openDropdownIndex, setOpenDropdownIndex] = useState<number | null>(null);
   const dropdownRefs = useRef<(HTMLDivElement | null)[]>([]);
   const searchInputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -42,15 +43,19 @@ export default function BarangInput({ items, setItems, itemsOptions = [] }: item
   }, [openDropdownIndex]);
 
   const addItem = () => {
-    setItems([...items, { item_id: undefined, item_name: "", qty: 1, price_per_item: 0 }]);
+    setItems([...items, { item_id: undefined, item_name: "", qty: 1, price_per_item: 0, gambar_path: null }]);
   };
 
   const removeItem = (index: number) => {
-    setItems(items.filter((_, i) => i !== index));
+    const newItems = items.filter((_, i) => i !== index);
+    setItems(newItems);
     setSearchTerms(searchTerms.filter((_, i) => i !== index));
+    const newPreviews = { ...imagePreviews };
+    delete newPreviews[index];
+    setImagePreviews(newPreviews);
   };
 
-  const updateItem = (index: number, field: keyof item_list_props, value: string | number) => {
+  const updateItem = (index: number, field: keyof item_list_props, value: string | number | File) => {
     const updated = items.map((item, i) => (i === index ? { ...item, [field]: value } : item));
     setItems(updated);
   };
@@ -192,7 +197,29 @@ export default function BarangInput({ items, setItems, itemsOptions = [] }: item
 
               <fieldset className="fieldset mb-1 font-medium col-span-1">
                 <legend className="fieldset-legend">Gambar</legend>
-                <input id={`gambar_barang_${index}`} type="file" className="file-input p-1" disabled />
+                <input
+                  id={`gambar_path_${index}`}
+                  name="gambar_path"
+                  type="file"
+                  onChange={(e) => {
+                    if (e.target.files && e.target.files.length > 0) {
+                      const file = e.target.files[0];
+                      updateItem(index, "gambar_path", file);
+                      setImagePreviews((prev) => ({ ...prev, [index]: URL.createObjectURL(file) }));
+                    }
+                  }}
+                  className="file-input p-1"
+                />
+                {imagePreviews[index] && (
+                  <img src={imagePreviews[index]} alt="Preview" className="mt-2 h-16 w-16 object-cover" />
+                )}
+                {!imagePreviews[index] && typeof item.gambar_path === "string" && item.gambar_path && (
+                  <img
+                    src={`/uploads/${item.gambar_path}`}
+                    alt="Gambar Item"
+                    className="mt-2 h-16 w-16 object-cover"
+                  />
+                )}
               </fieldset>
 
               {items.length > 1 && (

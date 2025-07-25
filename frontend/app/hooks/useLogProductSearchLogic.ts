@@ -64,7 +64,7 @@ export const useLogProductSearchLogic = () => {
   };
 
   const handleSearch = () => {
-    dispatch(fetchLogProductsThunk(buildQueryParams()));
+    dispatch(fetchLogProductsThunk({ query: buildQueryParams() }));
   };
 
   const handleStatusChange = (filter: string) => {
@@ -84,7 +84,7 @@ export const useLogProductSearchLogic = () => {
     setStatusFIlter("All");
     setDateRange([null, null]);
     setSelectedDateFilter("");
-    dispatch(fetchLogProductsThunk(""));
+    dispatch(fetchLogProductsThunk({}));
   };
 
   const handleExport = async (event) => {

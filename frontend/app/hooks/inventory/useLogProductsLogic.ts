@@ -68,7 +68,7 @@ const useLogProductsLogic = () => {
   }, [payload.kategori_id]);
 
   const getProductsLog = useCallback(() => {
-    dispatch(fetchLogProductsThunk(""));
+    dispatch(fetchLogProductsThunk({}));
   }, [dispatch]);
 
   // Functions untuk isi input form saat user click tombol edit
@@ -84,39 +84,57 @@ const useLogProductsLogic = () => {
   const createProductLog = useCallback(async () => {
     if (!validatePayload()) return;
 
-    const selectedCategory = categories.find((cat) => cat.kategori_id === payload.kategori_id);
-    if (!selectedCategory) {
-      console.error("Selected category not found for ID:", payload.kategori_id);
-      return;
-    }
-    const dataToSend = {
-      ...payload,
-      nama: full_name,
-      kategori: selectedCategory.nama_kategori,
-      item_list: JSON.stringify(payload.item_list),
-    } satisfies Omit<productsProp, "record_id" | "tanggal" | "item_list"> & {
-      item_list: string;
-    };
+    const formData = new FormData();
+    formData.append("nama", full_name || "");
+    formData.append("lokasi", payload.lokasi);
+    formData.append("status", payload.status);
+    formData.append("keterangan", payload.keterangan || "");
+    formData.append("kategori_id", String(payload.kategori_id));
+    
+    const itemListString = JSON.stringify(payload.item_list.map(item => ({
+      ...item,
+      gambar_path: item.gambar_path instanceof File ? item.gambar_path.name : item.gambar_path
+    })));
+    formData.append("item_list", itemListString);
 
-    const res = await dispatch(createLogProductsThunk(dataToSend));
+    payload.item_list.forEach((item) => {
+      if (item.gambar_path instanceof File) {
+        formData.append("gambar_path", item.gambar_path);
+      }
+    });
+
+    const res = await dispatch(createLogProductsThunk(formData));
 
     if (res.meta.requestStatus == "fulfilled") {
       const dismissModal = document.getElementById("dismiss-product-log-modal");
       if (dismissModal) (dismissModal as HTMLElement).click();
     }
-  }, [dispatch, payload, full_name, categories]);
+  }, [dispatch, payload, full_name]);
 
   const putProductLog = useCallback(
     async (recordId: number) => {
       if (!validatePayload()) return;
-      // Remove hela record_id, tanggal, & set item_list jadi string
-      const dataToSend = {
-        ...payload,
-        nama: full_name,
-        item_list: JSON.stringify(payload.item_list),
-      } satisfies Omit<productsProp, "record_id" | "tanggal" | "item_list"> & { item_list: string };
 
-      const res = await dispatch(putLogProductsThunk({ recordId: recordId, updatedRecordPayload: dataToSend }));
+      const formData = new FormData();
+      formData.append("nama", full_name || "");
+      formData.append("lokasi", payload.lokasi);
+      formData.append("status", payload.status);
+      formData.append("keterangan", payload.keterangan || "");
+      formData.append("kategori_id", String(payload.kategori_id));
+
+      const itemListString = JSON.stringify(payload.item_list.map(item => ({
+        ...item,
+        gambar_path: item.gambar_path instanceof File ? item.gambar_path.name : item.gambar_path
+      })));
+      formData.append("item_list", itemListString);
+  
+      payload.item_list.forEach((item) => {
+        if (item.gambar_path instanceof File) {
+          formData.append("gambar_path", item.gambar_path);
+        }
+      });
+
+      const res = await dispatch(putLogProductsThunk({ recordId: recordId, updatedRecordPayload: formData }));
       if (res.meta.requestStatus == "fulfilled") {
         const dismissModal = document.getElementById("dismiss-product-log-modal");
         if (dismissModal) (dismissModal as HTMLElement).click();

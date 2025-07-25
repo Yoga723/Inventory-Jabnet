@@ -16,6 +16,7 @@ export interface item_list_props {
   item_name: string;
   qty: number | 1;
   price_per_item?: number;
+  gambar_path?: File | string | null;
 }
 
 export interface UserState {

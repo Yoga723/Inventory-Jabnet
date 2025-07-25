@@ -2,12 +2,49 @@
 const router = require("express").Router();
 const excelJS = require("exceljs");
 const multer = require("multer");
-const upload = multer();
 const sharp = require("sharp");
 const fs = require("fs");
 const path = require("path");
 const { authenticateMiddleware, authorize } = require("../../middleware/auth");
 const { json } = require("body-parser");
+
+// Multer config
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dest = path.join(__dirname, "../../../frontend/public/uploads");
+    fs.mkdirSync(dest, { recursive: true });
+    cb(null, dest);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+
+const resizeImage = async (req, res, next) => {
+  if (!req.files) return next();
+
+  await Promise.all(
+    req.files.map(async (file) => {
+      try {
+        const filePath = file.path;
+        const tempPath = path.join(path.dirname(filePath), `temp-${file.filename}`);
+        
+        await sharp(filePath)
+          .resize(800, 800, { fit: "inside", withoutEnlargement: true })
+          .jpeg({ quality: 80 })
+          .toFile(tempPath);
+
+        await fs.promises.rename(tempPath, filePath);
+      } catch (err) {
+        console.error("Error resizing image:", err);
+      }
+    })
+  );
+  next();
+};
 
 router.use(authenticateMiddleware);
 
@@ -29,55 +66,6 @@ const calculateTotalNilai = (item_list) => {
   }, 0);
 };
 
-// Helper function to process items and images
-const processItems = async (items, recordId) => {
-  const processedItems = [];
-
-  for (const item of items) {
-    const processedItem = {
-      item_id: item.item_id,
-      item_name: item.item_name,
-      qty: item.qty || 1,
-      price_per_item: item.price_per_item || 0,
-      image_path: [],
-    };
-
-    // Process images if they exist
-    if (item.images && item.images.length > 0) {
-      for (let i = 0; i < item.images.length; i++) {
-        const image = item.images[i];
-        if (!image.buffer) continue;
-
-        try {
-          // Compress and resize image
-          const compressedImage = await sharp(image.buffer)
-            .resize(800, 800, { fit: "inside", withoutEnlargement: true })
-            .jpeg({ quality: 70, progressive: true })
-            .toBuffer();
-
-          // Generate unique filename
-          const filename = `item-${recordId}-${
-            item.item_id
-          }-${Date.now()}-${i}.jpg`;
-          const imagePath = path.join("public", "uploads", filename);
-
-          // Save to filesystem
-          await fs.promises.writeFile(imagePath, compressedImage);
-
-          // Store relative path
-          processedItem.image_path.push(`/uploads/${filename}`);
-        } catch (error) {
-          console.error("Image processing error:", error);
-          // Continue processing other images even if one fails
-        }
-      }
-    }
-
-    processedItems.push(processedItem);
-  }
-
-  return processedItems;
-};
 
 // ===============================================================
 // ROUTES UNTUK RECORDS/LOG PRODUCTS
@@ -416,68 +404,48 @@ router.post(
   "/",
   authorize(["field", "operator", "admin", "super_admin"]),
   upload.any(),
+  resizeImage,
   async (req, res) => {
     try {
-      // Handle missing request body
       if (!req.body) {
         return res.status(400).json({ error: "Request body is missing" });
       }
 
-      const { nama, item_list, lokasi, status, keterangan, kategori_id } =
-        req.body;
+      const { nama, item_list, lokasi, status, keterangan, kategori_id } = req.body;
+      let items = JSON.parse(item_list);
 
-      // Default to empty array if undefined
-      const rawItemList = item_list || "[]";
+      if (req.files && req.files.length > 0) {
+        const fileMap = {};
+        req.files.forEach((file) => {
+          const match = file.fieldname.match(/gambar_path_(\d+)/);
+          if (match) {
+            const index = parseInt(match[1], 10);
+            fileMap[index] = `/uploads/${file.filename}`;
+          }
+        });
 
-      let items;
-      try {
-        // Parse JSON or use directly if already array
-        items = Array.isArray(rawItemList)
-          ? rawItemList
-          : JSON.parse(rawItemList);
-      } catch (parseError) {
-        return res.status(400).json({ error: "Invalid item_list format" });
+        items.forEach((item, index) => {
+          if (fileMap[index]) {
+            item.gambar_path = fileMap[index];
+          }
+        });
       }
 
-      // Validate required fields
       if (!nama || !status || !lokasi || !kategori_id) {
-        return res.status(400).json({
-          error: "Nama, status, lokasi, dan kategori_id diperlukan",
-        });
+        return res.status(400).json({ error: "Nama, status, lokasi, dan kategori_id diperlukan" });
       }
 
-      // Validate items
       if (!Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({
-          error: "item_list harus berisi array tidak kosong",
-        });
+        return res.status(400).json({ error: "item_list harus berisi array tidak kosong" });
       }
-
-      // Process images and prepare items
-      const processedItems = await processItems(items, null);
 
       const query = `
-        INSERT INTO catatan(
-          nama, 
-          item_list, 
-          lokasi, 
-          status, 
-          keterangan, 
-          kategori_id
-        ) 
+        INSERT INTO catatan(nama, item_list, lokasi, status, keterangan, kategori_id) 
         VALUES ($1, $2::JSONB, $3, $4, $5, $6) 
         RETURNING *
       `;
 
-      const values = [
-        nama,
-        JSON.stringify(processedItems),
-        lokasi,
-        status,
-        keterangan || null,
-        kategori_id,
-      ];
-
+      const values = [nama, JSON.stringify(items), lokasi, status, keterangan || null, kategori_id];
       const result = await req.db.query(query, values);
       const record = result.rows[0];
       record.nilai = calculateTotalNilai(record.item_list);
@@ -489,9 +457,7 @@ router.post(
       });
     } catch (error) {
       console.error("Database insert error:", error);
-      res.status(500).json({
-        error: `Failed to create record: ${error.message}`,
-      });
+      res.status(500).json({ error: `Failed to create record: ${error.message}` });
     }
   }
 );
@@ -500,62 +466,50 @@ router.put(
   "/:id",
   authorize(["field", "operator", "admin", "super_admin"]),
   upload.any(),
+  resizeImage,
   async (req, res) => {
     try {
       const paramId = req.params.id;
       if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
 
-      const { nama, item_list, lokasi, status, keterangan, kategori_id } =
-        req.body;
+      const { nama, item_list, lokasi, status, keterangan, kategori_id } = req.body;
+      let items = JSON.parse(item_list);
 
-      // Parse item_list from JSON string
-      const items = Array.isArray(item_list)
-        ? item_list
-        : JSON.parse(item_list || "[]");
+      if (req.files && req.files.length > 0) {
+        const fileMap = {};
+        req.files.forEach((file) => {
+          const match = file.fieldname.match(/gambar_path_(\d+)/);
+          if (match) {
+            const index = parseInt(match[1], 10);
+            fileMap[index] = `/uploads/${file.filename}`;
+          }
+        });
 
-      // Validate required fields
+        items.forEach((item, index) => {
+          if (fileMap[index]) {
+            item.gambar_path = fileMap[index];
+          }
+        });
+      }
+
       if (!nama || !status || !lokasi || !kategori_id) {
-        return res.status(400).json({
-          error: "Nama, status, lokasi, and kategori_id are required",
-        });
+        return res.status(400).json({ error: "Nama, status, lokasi, and kategori_id are required" });
       }
 
-      // Validate items
       if (!Array.isArray(items) || items.length === 0) {
-        return res.status(400).json({
-          error: "item_list must be a non-empty array",
-        });
+        return res.status(400).json({ error: "item_list must be a non-empty array" });
       }
 
-      // Process images and prepare items
-      const processedItems = await processItems(items, paramId);
-
-      // Use transaction
       await req.db.query("BEGIN");
 
       const query = `
         UPDATE catatan 
-        SET 
-          nama = $1, 
-          item_list = $2::JSONB, 
-          lokasi = $3, 
-          status = $4, 
-          keterangan = $5,
-          kategori_id = $6
+        SET nama = $1, item_list = $2::JSONB, lokasi = $3, status = $4, keterangan = $5, kategori_id = $6
         WHERE record_id = $7 
         RETURNING *
       `;
 
-      const values = [
-        nama,
-        JSON.stringify(processedItems),
-        lokasi,
-        status,
-        keterangan || null,
-        kategori_id,
-        paramId,
-      ];
-
+      const values = [nama, JSON.stringify(items), lokasi, status, keterangan || null, kategori_id, paramId];
       const result = await req.db.query(query, values);
       await req.db.query("COMMIT");
 
@@ -563,12 +517,8 @@ router.put(
         return res.status(404).json({ error: "Record not found" });
       }
 
-      // Calculate total nilai for response
       const record = result.rows[0];
-      const recordWithNilai = {
-        ...record,
-        nilai: calculateTotalNilai(record.item_list),
-      };
+      const recordWithNilai = { ...record, nilai: calculateTotalNilai(record.item_list) };
 
       res.status(200).json({
         status: 200,
@@ -578,17 +528,7 @@ router.put(
     } catch (error) {
       await req.db.query("ROLLBACK");
       console.error("Database error:", error);
-
-      if (error.code === "22003") {
-        // Specific numeric overflow code
-        res.status(400).json({
-          error: "Nilai terlalu besar. Maksimum 9,999,999,999.99",
-        });
-      } else {
-        res.status(500).json({
-          error: "Terjadi kesalahan server",
-        });
-      }
+      res.status(500).json({ error: "Terjadi kesalahan server" });
     }
   }
 );
@@ -600,16 +540,42 @@ router.delete(
     try {
       const paramId = parseInt(req.params.id);
       if (isNaN(paramId)) return res.status(400).json({ error: "Invalid ID" });
-      const query = `DELETE FROM catatan WHERE record_id = $1 RETURNING *`;
 
-      const result = await req.db.query(query, [paramId]);
+      // Get the record before deleting to find associated images
+      const selectQuery = "SELECT item_list FROM catatan WHERE record_id = $1";
+      const selectResult = await req.db.query(selectQuery, [paramId]);
+
+      if (selectResult.rows.length > 0) {
+        const { item_list } = selectResult.rows[0];
+        if (item_list && Array.isArray(item_list)) {
+          item_list.forEach((item) => {
+            if (item.gambar_path) {
+              const imagePath = path.join(__dirname, "../../../frontend/public", item.gambar_path);
+              fs.unlink(imagePath, (err) => {
+                if (err) {
+                  // Log the error but don't block the deletion process
+                  console.error(`Failed to delete image: ${imagePath}`, err);
+                }
+              });
+            }
+          });
+        }
+      }
+
+      const deleteQuery = `DELETE FROM catatan WHERE record_id = $1 RETURNING *`;
+      const result = await req.db.query(deleteQuery, [paramId]);
+
+      if (result.rowCount === 0) {
+        return res.status(404).json({ error: "Record not found" });
+      }
+
       res.status(200).json({
         status: 200,
         message: "Berhasil Hapus Data !!",
         data: result.rows[0],
       });
     } catch (error) {
-      console.error("Database insert error:", error);
+      console.error("Database delete error:", error);
       res.status(500).json({ error: `Failed to delete record, ${error}` });
     }
   }
